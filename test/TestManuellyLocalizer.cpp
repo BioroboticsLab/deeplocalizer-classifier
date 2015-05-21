@@ -7,23 +7,20 @@
 #include "ManuellyLocalizer.h"
 
 using namespace std;
-using namespace pipeline;
-using namespace deep_localizer::manually;
+using namespace deeplocalizer::tagger;
 
 TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
-    vector<string> image_paths;
+    vector<QString> image_paths = {QString("testdata/Cam_0_20140804152006_3.jpeg")};
 
     SECTION( " it can be constructed with a list of image names" ) {
         GIVEN( " none existend files" ) {
             THEN(" it will throw an exception") {
-                image_paths.push_back("no existend image");
-                REQUIRE_THROWS(new ManuellyLocalizer(image_paths));
-                image_paths.pop_back();
+                vector<QString> wrong_paths = {"noexistend.png"};
+                REQUIRE_THROWS(new ManuellyLocalizer(wrong_paths));
             }
         }
         GIVEN( " some paths to existend images" ) {
             THEN(" it will construct a instance with valid default members") {
-                image_paths.push_back("testdata/Cam_0_20140804152006_3.jpeg");
                 ManuellyLocalizer localizer(image_paths);
                 REQUIRE( localizer.getImagePaths() == image_paths );
                 REQUIRE( image_paths.size() == 1 );
@@ -31,16 +28,34 @@ TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
         }
     }
 
-    SECTION( " it has gives you tags" ) {
-        image_paths.push_back("testdata/Cam_0_20140804152006_3.jpeg");
+    SECTION( "gives you tags" ) {
         ManuellyLocalizer localizer(image_paths);
-        REQUIRE( localizer.getImagePaths() == image_paths );
-        int i = 0;
-        boost::optional<Tag> opt_tag;
+        GIVEN( "an image with bees" ) {
+            THEN ( "it will give you at least one tag") {
+                REQUIRE(localizer.getImagePaths() == image_paths);
+                boost::optional<Image &> opt_image = localizer.nextImage();
+                REQUIRE(opt_image.is_initialized());
+                Image &img = opt_image.get();
+                auto opt_tag = img.nextTag();
+                REQUIRE(opt_tag.is_initialized());
+            }
+            THEN ( "it will give you different tags") {
+                auto & img = localizer.getCurrentImage();
+                auto & previous_tag = img.nextTag().get();
+                cout << previous_tag.getX() << ", " << previous_tag.getY() << endl;
+                boost::optional<Tag &> opt_tag;
+                while(opt_tag = img.nextTag()) {
+                    const Tag & tag = opt_tag.get();
+                    REQUIRE(tag.getX());
+                    REQUIRE(tag.getY());
+                    cout << tag.getX() << ", " << tag.getY() << endl;
 
-        while(opt_tag = localizer.next_tag()) i++;
-        // Find at least 50 Tags candidates
-        REQUIRE( i > 20 );
+                    REQUIRE((tag.getX()  != previous_tag.getX() ||
+                             tag.getY() != previous_tag.getY()));
+                    previous_tag = tag;
+                }
+            }
+        }
     }
 }
 

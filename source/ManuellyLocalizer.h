@@ -7,38 +7,41 @@
 
 #include <boost/optional/optional.hpp>
 #include <opencv2/core/core.hpp>
+#include <QString>
 
 #include <pipeline/datastructure/Tag.h>
 #include <pipeline/Preprocessor.h>
 #include <pipeline/Localizer.h>
 
+#include "Tag.h"
+#include "Image.h"
 
-namespace deep_localizer{
-namespace manually {
+
+namespace deeplocalizer {
+namespace tagger {
 
 class ManuellyLocalizer {
 private:
-    std::vector<std::string> image_paths;
-    std::string current_image_path;
-    std::map<std::string, std::vector<pipeline::Tag>> images_tags;
-    cv::Mat current_image;
+    std::vector<QString> image_paths;
+    QString current_image_path;
+    std::map<QString, Image> images;
     unsigned long current_image_idx = 0;
-    std::vector<pipeline::Tag> current_tags;
-    unsigned long current_tag_idx = 0;
 
     pipeline::Preprocessor preprocessor;
     pipeline::Localizer localizer;
 
-    void load_image(std::string & image_path);
+    void load_image(const QString & image_path);
     bool load_next_image();
-    std::vector<pipeline::Tag> getTagsProposal(cv::Mat image);
+    const std::vector<Tag> getTagsProposal(cv::Mat image);
 public:
-    explicit ManuellyLocalizer(std::vector<std::string> & image_files);
-    const boost::optional<pipeline::Tag> next_tag();
-    const cv::Mat& getCurrentImage() const;
-    const std::string getCurrentImagePath() const;
-    const std::vector<std::string> getImagePaths() const;
+    explicit ManuellyLocalizer();
+    explicit ManuellyLocalizer(std::vector<QString> & _image_paths);
+    const boost::optional<Image &> nextImage();
+    Image& getCurrentImage();
+    const QString getCurrentImagePath() const;
+    const std::vector<QString> getImagePaths() const;
     void displayTags();
+
 };
 }
 }
