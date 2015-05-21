@@ -1,15 +1,12 @@
 
-#include "ManuellyLocalizer.h"
+#include "manuelltagwindow.h"
+#include <QApplication>
 
-using namespace std;
-using namespace deep_localizer::manually;
-
+using namespace deeplocalizer::tagger;
 int main(int argc, char* argv[])
 {
-    string image_path = argv[1];
-    vector<string> image_paths;
-    image_paths.push_back(image_path);
-    ManuellyLocalizer localizer(image_paths);
-    localizer.next_tag();
-    return 0;
+    QApplication app(argc, argv);
+    ManuellTagWindow window;
+    window.show();
+    return app.exec();
 }
