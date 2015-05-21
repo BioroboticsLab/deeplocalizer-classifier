@@ -111,8 +111,8 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 
 
 set(EXT_PROJECTS_DIR deps)
-# Includes Catch in the project:
 add_subdirectory(${EXT_PROJECTS_DIR}/catch)
+add_subdirectory(${EXT_PROJECTS_DIR}/cereal)
 
 
 # include deps dependecies as SYSTEM headers to prevent warnings from
@@ -120,6 +120,7 @@ add_subdirectory(${EXT_PROJECTS_DIR}/catch)
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${CATCH_INCLUDE_DIR}
+    ${CEREAL_INCLUDE_DIR}
     SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
