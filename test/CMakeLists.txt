@@ -21,6 +21,8 @@ foreach(test ${tests})
     get_filename_component(name ${test} NAME_WE)
     add_executable(${name} ${test})
     target_link_libraries(${name}
+        Qt5::Widgets
+        Qt5::OpenGL
         ${OPENGL_LIBRARIES}
         ${OpenCV_LIBS}
         ${Boost_LIBRARIES}
