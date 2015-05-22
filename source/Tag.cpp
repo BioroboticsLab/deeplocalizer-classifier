@@ -4,51 +4,47 @@
 
 #include "Tag.h"
 
+using namespace boost;
+using namespace std;
 using namespace deeplocalizer::tagger;
 
-Tag::Tag(QString _imagepath, cv::Mat _subimage, int _x, int _y) :
-    imagepath(_imagepath), subimage(_subimage), x(_x), y(_y), is_tag(true)
+Tag::Tag(QString _imagepath, cv::Mat _subimage,
+         cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
+    _imagepath(_imagepath), _subimage(_subimage), _boundingBox(boundingBox),
+    _ellipse(ellipse)
 {
-
+    _is_tag = _ellipse.is_initialized() && _ellipse.get().getVote() > 1500;
 }
 
 const QString &Tag::getImagepath() const {
-    return imagepath;
+    return _imagepath;
 }
 
 void Tag::setImagepath(const QString &imagepath) {
-    this->imagepath = imagepath;
+    this->_imagepath = imagepath;
 }
 
-int Tag::getX() const {
-    return x;
+cv::Rect Tag::getBoundingBox() const {
+    return _boundingBox;
 }
 
-void Tag::setX(int x) {
-    this->x = x;
-}
-
-int Tag::getY() const {
-    return y;
-}
-
-void Tag::setY(int y) {
-    this->y = y;
+void Tag::setBoundingBox(cv::Rect rect) {
+    _boundingBox = rect;
 }
 
 bool Tag::isTag() const {
-    return this->is_tag;
+    return this->_is_tag;
 }
 
 void Tag::setIsTag(bool isTag) {
-    this->is_tag = isTag;
+    this->_is_tag = isTag;
 }
 
 const cv::Mat &Tag::getSubimage() const {
-    return this->subimage;
+    return this->_subimage;
 }
 
 void Tag::setSubimage(const cv::Mat &subimage) {
-    this->subimage = subimage;
+    this->_subimage = subimage;
 }
 
