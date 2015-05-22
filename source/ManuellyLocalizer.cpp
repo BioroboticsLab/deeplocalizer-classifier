@@ -7,6 +7,7 @@
 #include "ManuellyLocalizer.h"
 
 using namespace std;
+using namespace boost;
 using namespace deeplocalizer::tagger;
 
 ManuellyLocalizer::ManuellyLocalizer() {
@@ -17,7 +18,7 @@ ManuellyLocalizer::ManuellyLocalizer() {
 ManuellyLocalizer::ManuellyLocalizer(vector<QString> &_image_paths) {
     this->image_paths = _image_paths;
     for(auto path : image_paths) {
-        if(! boost::filesystem::exists(path.toUtf8().data())) {
+        if(! filesystem::exists(path.toUtf8().data())) {
             throw std::runtime_error("Could not open file");
         }
         Image img(path);
@@ -44,24 +45,25 @@ const QString ManuellyLocalizer::getCurrentImagePath() const {
     return this->image_paths[this->current_image_idx];
 }
 
-const boost::optional<Image &> ManuellyLocalizer::nextImage() {
+const optional<Image &> ManuellyLocalizer::nextImage() {
     bool first_image = this->current_image_idx == 0;
     if(! first_image ) {
         if (!this->load_next_image()) {
-            return boost::optional<Image &>();
+            return optional<Image &>();
         }
     }
-    return boost::optional<Image &>(this->getCurrentImage());
+    return optional<Image &>(this->getCurrentImage());
 }
 
 void ManuellyLocalizer::load_image(const QString & image_path) {
     cout << "Loading next image: " << image_path.toUtf8().data() << endl;
     std::string std_image_path = image_path.toUtf8().data();
-    if(! boost::filesystem::exists(std_image_path)) {
+    if(! filesystem::exists(std_image_path)) {
         throw std::runtime_error("Could not open file: `" + std_image_path + "`");
     }
     auto & img = this->images.at(image_path);
     img.load();
+    cout << "LOADED" << endl;
     auto tags = this->getTagsProposal(img.getCvMat());
     cout << "Tags found: " << tags.size() << endl;
     assert(!tags.empty());
@@ -83,17 +85,29 @@ bool ManuellyLocalizer::load_next_image() {
 
 const std::vector<Tag> ManuellyLocalizer::getTagsProposal(cv::Mat image) {
     cv::Mat preprocced = this->preprocessor.process(image);
-    const vector<pipeline::Tag> &pipeline_tags = this->localizer.process(std::move(image), std::move(preprocced));
+    cout << "Running Localizer" << endl;
+    vector<pipeline::Tag> localizer_tags =
+            this->localizer.process(std::move(image), std::move(preprocced));
+    cout << "Running EllipseFitter " << endl;
+    const vector<pipeline::Tag> &pipeline_tags =
+            this->ellipseFitter.process(std::move(localizer_tags));
     vector<Tag> tags;
     for(auto ptag : pipeline_tags) {
-        auto box = ptag.getBox();
-        int center_x = box.x + box.width / 2;
-        int center_y = box.y + box.height / 2;
+        optional<pipeline::Ellipse> ellipse;
+        for(auto candidate : ptag.getCandidatesConst()) {
+            if (!ellipse.is_initialized()) {
+                ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
+            } else if (candidate.getEllipse().getVote() > ellipse.get().getVote()) {
+                ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
+            }
 
+        }
         tags.push_back(Tag(this->getCurrentImagePath(),
                            ptag.getOrigSubImage(),
-                           center_x, center_y));
+                           ptag.getBox(),
+                           ellipse));
     }
+
     return tags;
 }
 

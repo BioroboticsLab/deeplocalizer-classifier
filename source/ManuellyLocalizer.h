@@ -12,6 +12,7 @@
 #include <pipeline/datastructure/Tag.h>
 #include <pipeline/Preprocessor.h>
 #include <pipeline/Localizer.h>
+#include <pipeline/EllipseFitter.h>
 
 #include "Tag.h"
 #include "Image.h"
@@ -29,6 +30,7 @@ private:
 
     pipeline::Preprocessor preprocessor;
     pipeline::Localizer localizer;
+    pipeline::EllipseFitter ellipseFitter;
 
     void load_image(const QString & image_path);
     bool load_next_image();

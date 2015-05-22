@@ -10,7 +10,7 @@ using namespace std;
 using namespace deeplocalizer::tagger;
 
 TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
-    vector<QString> image_paths = {QString("testdata/Cam_0_20140804152006_3.jpeg")};
+    vector<QString> image_paths = {QString("testdata/with_5_tags.jpeg")};
 
     SECTION( " it can be constructed with a list of image names" ) {
         GIVEN( " none existend files" ) {
@@ -42,16 +42,11 @@ TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
             THEN ( "it will give you different tags") {
                 auto & img = localizer.getCurrentImage();
                 auto & previous_tag = img.nextTag().get();
-                cout << previous_tag.getX() << ", " << previous_tag.getY() << endl;
                 boost::optional<Tag &> opt_tag;
                 while(opt_tag = img.nextTag()) {
                     const Tag & tag = opt_tag.get();
-                    REQUIRE(tag.getX());
-                    REQUIRE(tag.getY());
-                    cout << tag.getX() << ", " << tag.getY() << endl;
-
-                    REQUIRE((tag.getX()  != previous_tag.getX() ||
-                             tag.getY() != previous_tag.getY()));
+                    cout << tag.getBoundingBox() << endl;
+                    REQUIRE(tag.getBoundingBox() !=  previous_tag.getBoundingBox());
                     previous_tag = tag;
                 }
             }
