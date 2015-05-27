@@ -119,8 +119,8 @@ add_subdirectory(${EXT_PROJECTS_DIR}/cereal)
 # deps files. unfortunatelly, this has no effect when using MSVC.
 include_directories(
     ${PROJECT_SOURCE_DIR}
-    ${CATCH_INCLUDE_DIR}
-    ${CEREAL_INCLUDE_DIR}
+    SYSTEM ${CATCH_INCLUDE_DIR}
+    SYSTEM ${CEREAL_INCLUDE_DIR}
     SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
