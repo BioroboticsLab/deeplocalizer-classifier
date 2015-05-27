@@ -21,6 +21,7 @@ public:
     void setBoundingBox(cv::Rect boundingBox);
     bool isTag() const;
     void setIsTag(bool is_tag);
+    void toggleIsTag();
     const cv::Mat &getSubimage() const;
     void setSubimage(const cv::Mat &subimage);
 

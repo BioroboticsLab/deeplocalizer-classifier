@@ -36,6 +36,9 @@ bool Tag::isTag() const {
     return this->_is_tag;
 }
 
+void Tag::toggleIsTag() {
+    _is_tag = !_is_tag;
+}
 void Tag::setIsTag(bool isTag) {
     this->_is_tag = isTag;
 }
