@@ -25,16 +25,18 @@ class ManuellyLocalizer {
 private:
     std::vector<QString> image_paths;
     QString current_image_path;
-    std::map<QString, Image> images;
-    unsigned long current_image_idx = 0;
 
+    std::vector<Image> images;
+    unsigned long _current_image_idx = 0;
+    bool _first_image = true;
     pipeline::Preprocessor preprocessor;
     pipeline::Localizer localizer;
     pipeline::EllipseFitter ellipseFitter;
 
-    void load_image(const QString & image_path);
-    bool load_next_image();
-    const std::vector<Tag> getTagsProposal(cv::Mat image);
+    void loadImage(Image &img);
+
+    bool loadNextImage();
+    const std::vector< std::shared_ptr< Tag > > getTagsProposal(cv::Mat image);
 public:
     explicit ManuellyLocalizer();
     explicit ManuellyLocalizer(std::vector<QString> & _image_paths);
