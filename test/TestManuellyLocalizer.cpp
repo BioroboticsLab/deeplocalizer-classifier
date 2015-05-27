@@ -77,13 +77,12 @@ TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
                 REQUIRE(opt_tag.is_initialized());
             }
             THEN ( "it will give you different tags") {
-                auto & img = localizer.getCurrentImage();
+                auto & img = localizer.nextImage().get();
                 auto & previous_tag = img.nextTag().get();
-                boost::optional<Tag &> opt_tag;
-                while(opt_tag = img.nextTag()) {
-                    const Tag & tag = opt_tag.get();
-                    cout << tag.getBoundingBox() << endl;
-                    REQUIRE(tag.getBoundingBox() !=  previous_tag.getBoundingBox());
+                optional<std::shared_ptr<Tag>> opt_tag;
+                while((opt_tag = img.nextTag())) {
+                    auto tag = opt_tag.get();
+                    REQUIRE(tag->getBoundingBox() !=  previous_tag->getBoundingBox());
                     previous_tag = tag;
                 }
             }
