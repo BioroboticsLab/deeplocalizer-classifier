@@ -14,18 +14,18 @@ public:
     const QString filename;
     Image();
     Image(const QString filename);
-    Image(const QString filename, std::vector<Tag> _tags);
+    Image(const QString filename, std::vector<std::shared_ptr<Tag>> _tags);
     void load();
     void unload();
-    boost::optional<Tag> nextTag();
+    boost::optional< std::shared_ptr<Tag>> nextTag();
     QPixmap visualise_tags();
     void addTag(Tag&& tag);
-    void setTags(std::vector<Tag>&& tag);
-    std::vector<Tag>& getTags();
+    void setTags(std::vector< std::shared_ptr<Tag>> && tag);
+    const std::vector<std::shared_ptr<Tag>> & getTags();
     cv::Mat getCvMat();
 private:
     boost::optional<cv::Mat> img_mat;
-    std::vector<Tag> tags;
+    std::vector< std::shared_ptr< Tag > > tags;
     unsigned long current_tag = 0;
 };
 
