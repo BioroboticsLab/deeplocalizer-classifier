@@ -21,11 +21,10 @@ Image::Image(const QString _filename, std::vector<Tag> _tags) :
 }
 
 boost::optional <Tag> Image::nextTag() {
-    current_tag++;
-    if (current_tag >= this->tags.size()) {
+    if (current_tag + 1 >= this->tags.size() ) {
         return boost::optional<Tag>();
     }
-    return this->tags.at(current_tag);
+    return this->tags.at(current_tag++);
 }
 
 QPixmap Image::visualise_tags() {
