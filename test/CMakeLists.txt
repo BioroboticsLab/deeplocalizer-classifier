@@ -1,13 +1,3 @@
-function(add_memcheck_test name binary)
-  set(memcheck_command "${CMAKE_MEMORYCHECK_COMMAND} ${CMAKE_MEMORYCHECK_COMMAND_OPTIONS}")
-  separate_arguments(memcheck_command)
-  add_test(memcheck_${name} ${memcheck_command} ${binary} ${ARGN})
-endfunction(add_memcheck_test)
-
-function(set_memcheck_test_properties name)
-  set_tests_properties(${name} ${ARGN})
-  set_tests_properties(memcheck_${name} ${ARGN})
-endfunction(set_memcheck_test_properties)
 
 enable_testing()
 include_directories(. ../source
@@ -30,7 +20,6 @@ foreach(test ${tests})
     set(test_bin ${CMAKE_CURRENT_BINARY_DIR}/${name})
     add_test(${name} ${test_bin} --force-colour)
     set(test_bins ${test_bins} ${test_bin})
-    add_memcheck_test(${name} ${test_bin})
 endforeach()
 
 
