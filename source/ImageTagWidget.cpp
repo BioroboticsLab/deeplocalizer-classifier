@@ -1,17 +1,20 @@
 
+#include <QStyle>
 #include "opencv2/core/core.hpp"
-#include "ImageTagWidget.h"
-#include "QtHelper.h"
 
+#include "QtHelper.h"
+#include "ImageTagWidget.h"
+
+using namespace std;
 using namespace deeplocalizer::tagger;
 
 ImageTagWidget::ImageTagWidget() {
     this->init();
 }
 
-ImageTagWidget::ImageTagWidget(QWidget *parent) : QLabel(parent)
+ImageTagWidget::ImageTagWidget(QWidget *parent)
+        : QLabel(parent)
 {
-
     this->init();
 }
 void ImageTagWidget::setRandomImage(int height, int width) {
@@ -25,19 +28,42 @@ void ImageTagWidget::loadFile(const QString &filename) {
     this->setPixmap(pixmap);
 }
 
-void ImageTagWidget::setCvMat(cv::Mat mat) {
-    this->setPixmap(cvMatToQPixmap(mat));
+void ImageTagWidget::setTag(shared_ptr<Tag> tag) {
+    _tag = tag;
+    this->setPixmap(cvMatToQPixmap(tag->getSubimage()));
+    cv::Rect box = tag->getBoundingBox();
+    this->setFixedSize(box.width, box.height);
+    this->redraw();
 }
+void ImageTagWidget::redraw() {
+    if (_tag->isTag()) {
+        this->setProperty("is_tag", "yes");
+    } else {
+        this->setProperty("is_tag", "no");
+    }
+    this->style()->unpolish(this);
+    this->style()->polish(this);
+    this->update();
 
+}
 void ImageTagWidget::init() {
-    this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     this->setAutoFillBackground(true);
-    this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setStyleSheet(
             "ImageTagWidget { border: 5px solid yellow}\n"
             "ImageTagWidget[is_tag=\"no\"]{ border-color: red}\n"
             "ImageTagWidget[is_tag=\"yes\"]{ border-color: green}"
     );
     this->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    this->setRandomImage(40, 40);
+}
+
+
+void ImageTagWidget::mousePressEvent(QMouseEvent *event) {
+    if (this->clickable) {
+        emit clicked();
+    }
+}
+
+void ImageTagWidget::toggleTag() {
+    _tag->toggleIsTag();
 }

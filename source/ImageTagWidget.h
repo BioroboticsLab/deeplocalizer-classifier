@@ -5,19 +5,29 @@
 #include <QLabel>
 #include "opencv2/core/core.hpp"
 
+#include "Tag.h"
 
 class ImageTagWidget : public QLabel{
     Q_OBJECT
 
 public:
+    bool clickable = true;
     ImageTagWidget();
     ImageTagWidget(QWidget * parent);
     void setRandomImage(int height, int width);
     void loadFile(const QString &);
-    void setCvMat(cv::Mat mat);
+    void setTag(std::shared_ptr<deeplocalizer::tagger::Tag> tag);
+public slots:
+    void toggleTag();
+signals:
+    void clicked();
+protected:
+    void mousePressEvent(QMouseEvent * event);
 private:
     cv::Mat _img;
+    std::shared_ptr<deeplocalizer::tagger::Tag> _tag;
     void init();
+    void redraw();
 };
 
 
