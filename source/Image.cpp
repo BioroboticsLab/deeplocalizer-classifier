@@ -35,13 +35,17 @@ QPixmap Image::visualise_tags() {
 
 void Image::load() {
     if(! this->img_mat) {
-        this->img_mat = optional< cv::Mat >(cv::imread(this->filename.toUtf8().data()));
+        auto mat = cv::imread(this->filename.toStdString());
+        auto mat_with_border = cv::Mat(mat.rows, mat.cols, CV_8U);
+        cv::copyMakeBorder(mat, mat_with_border, TAG_HEIGHT, TAG_HEIGHT,
+                       TAG_WIDTH, TAG_WIDTH, cv::BORDER_REPLICATE);
+        this->img_mat = optional< cv::Mat >(mat_with_border);
     }
 }
 
 void Image::unload() {
     if(this->img_mat) {
-        (*img_mat).release();
+        this->img_mat.get().release();
     }
 }
 
