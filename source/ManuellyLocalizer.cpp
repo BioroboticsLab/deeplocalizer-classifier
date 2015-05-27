@@ -14,7 +14,6 @@ using namespace deeplocalizer::tagger;
 ManuellyLocalizer::ManuellyLocalizer() {  }
 
 ManuellyLocalizer::ManuellyLocalizer(vector<QString> &_image_paths) {
-    this->image_paths = _image_paths;
     this->_image_paths = _image_paths;
     for(auto path : _image_paths) {
         if(! filesystem::exists(path.toStdString())) {
@@ -31,11 +30,11 @@ Image& ManuellyLocalizer::getCurrentImage() {
 }
 
 const vector<QString> ManuellyLocalizer::getImagePaths() const {
-    return this->image_paths;
+    return _image_paths;
 }
 
-const QString ManuellyLocalizer::getCurrentImagePath() const {
-    return this->image_paths[this->current_image_idx];
+const QString & ManuellyLocalizer::getCurrentImagePath() const {
+    return _image_paths.at(_current_image_idx);
 }
 
 const optional<Image &> ManuellyLocalizer::nextImage() {

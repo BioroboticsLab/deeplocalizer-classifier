@@ -23,9 +23,8 @@ namespace tagger {
 
 class ManuellyLocalizer {
 private:
-    std::vector<QString> image_paths;
-    QString current_image_path;
 
+    std::vector<QString> _image_paths;
     std::vector<Image> images;
     unsigned long _current_image_idx = 0;
     bool _first_image = true;
@@ -42,7 +41,7 @@ public:
     explicit ManuellyLocalizer(std::vector<QString> & _image_paths);
     const boost::optional<Image &> nextImage();
     Image& getCurrentImage();
-    const QString getCurrentImagePath() const;
+    const QString & getCurrentImagePath() const;
     const std::vector<QString> getImagePaths() const;
     void displayTags();
 
