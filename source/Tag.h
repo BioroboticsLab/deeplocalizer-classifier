@@ -11,6 +11,9 @@
 namespace deeplocalizer {
 namespace  tagger {
 
+const int TAG_WIDTH = 128;
+const int TAG_HEIGHT = 128;
+
 class Tag {
 public:
     Tag(QString imagepath, cv::Mat subimage, cv::Rect boundingBox,
