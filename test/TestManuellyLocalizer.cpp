@@ -49,9 +49,7 @@ TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
                 std::vector<QString> n_paths;
                 cv::Mat img(128, 128, CV_8U, cv::Scalar(0));
                 for(int i = 0; i < n; i++) {
-                    filesystem::path path = filesystem::unique_path();
-                    path.replace_extension(".png");
-                    INFO(path.string());
+                    filesystem::path path = filesystem::unique_path("/tmp/%%%%%%%%%%%%.png");
                     cv::imwrite(path.string(), img);
                     n_paths.push_back(QString::fromStdString(path.string()));
                 }
@@ -62,6 +60,9 @@ TEST_CASE( "ManuellyLocalizer ", "[ManuellyLocalizer]" ) {
                     REQUIRE(img.is_initialized());
                 }
                 REQUIRE(! localizer.nextImage().is_initialized());
+                for(auto p: n_paths) {
+                    filesystem::remove(p.toStdString());
+                }
             }
         }
     }
