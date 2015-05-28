@@ -65,3 +65,8 @@ cv::Mat Image::getCvMat() {
     }
     return *(this->img_mat);
 }
+
+bool Image::operator==(const Image & other) const {
+    return (filename == other.filename &&
+            tags == other.tags);
+}

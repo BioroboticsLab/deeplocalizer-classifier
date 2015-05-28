@@ -25,6 +25,7 @@ public:
     void setTags(std::vector< std::shared_ptr<Tag>> && tag);
     const std::vector<std::shared_ptr<Tag>> & getTags();
     cv::Mat getCvMat();
+    bool operator==(const Image & other) const;
 private:
     boost::optional<cv::Mat> img_mat;
     std::vector< std::shared_ptr< Tag > > tags;
