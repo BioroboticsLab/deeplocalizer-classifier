@@ -3,10 +3,11 @@
 #define DEEP_LOCALIZER_TAG_H
 
 #include <QString>
-#include <cereal/types/memory.hpp>
 #include <opencv2/core/core.hpp>
-
 #include "pipeline/datastructure/Ellipse.h"
+
+#include "pipeline/datastructure/serialization.hpp"
+#include "serialization.h"
 
 namespace deeplocalizer {
 namespace  tagger {
@@ -34,19 +35,15 @@ private:
     cv::Mat _subimage;
     cv::Rect _boundingBox;
     boost::optional<pipeline::Ellipse> _ellipse;
-
     bool _is_tag;
 
-
-    friend class cereal::access;
-
+    friend class boost::serialization::access;
     template <class Archive>
-    void serialize( Archive & ar )
-    {
-        ar(CEREAL_NVP(_imagepath),
-           CEREAL_NVP(_boundingBox),
-           CEREAL_NVP(_ellipse),
-           CEREAL_NVP(_is_tag));
+    void serialize(Archive & ar, const unsigned int) {
+        ar & BOOST_SERIALIZATION_NVP(_imagepath);
+        ar & BOOST_SERIALIZATION_NVP(_boundingBox);
+        ar & BOOST_SERIALIZATION_NVP(_ellipse);
+        ar & BOOST_SERIALIZATION_NVP(_is_tag);
     }
 };
 }

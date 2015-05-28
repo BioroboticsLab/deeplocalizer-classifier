@@ -36,6 +36,15 @@ private:
 
     bool loadNextImage();
     const std::vector< std::shared_ptr< Tag > > getTagsProposal(cv::Mat image);
+
+
+    friend class boost::serialization::access;
+    template <class Archive>
+    void serialize( Archive & ar, const unsigned int)
+    {
+        ar & BOOST_SERIALIZATION_NVP(_image_paths);
+        ar & BOOST_SERIALIZATION_NVP(images);
+    }
 public:
     explicit ManuellyLocalizer();
     explicit ManuellyLocalizer(std::vector<QString> & _image_paths);
