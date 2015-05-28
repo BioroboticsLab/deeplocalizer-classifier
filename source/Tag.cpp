@@ -39,6 +39,22 @@ bool Tag::isTag() const {
 void Tag::toggleIsTag() {
     _is_tag = !_is_tag;
 }
+
+bool Tag::operator==(const Tag &other) const {
+    if (_ellipse.is_initialized() && other._ellipse.is_initialized()) {
+        auto te = _ellipse.get();
+        auto oe = other._ellipse.get();
+        return (_imagepath == other._imagepath &&
+                _boundingBox == other._boundingBox &&
+                _is_tag == other._is_tag &&
+                te.getAngle() == oe.getAngle() &&
+                te.getVote() == oe.getVote() &&
+                te.getAxis() == oe.getAxis() &&
+                te.getCen() == oe.getCen());
+    }
+    return _ellipse.is_initialized() == other._ellipse.is_initialized();
+}
+
 void Tag::setIsTag(bool isTag) {
     this->_is_tag = isTag;
 }

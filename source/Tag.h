@@ -29,6 +29,7 @@ public:
     const cv::Mat &getSubimage() const;
     void setSubimage(const cv::Mat &subimage);
 
+    bool operator==(const Tag &other) const;
 
 private:
     QString _imagepath;
