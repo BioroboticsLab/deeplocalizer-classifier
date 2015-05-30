@@ -13,6 +13,22 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/imgproc/types_c.h"
 
+#ifndef NDEBUG
+#include <sstream>
+#   define ASSERT(condition, message) \
+    do { \
+        if (! (condition)) { \
+            std::stringstream ss; \
+            ss << "Assertion `" #condition "` failed in " << __FILE__ \
+                      << " line " << __LINE__ << ": " << message; \
+            std::cerr << ss.str() << std::endl; \
+            throw ss.str(); \
+        } \
+    } while (false)
+#else
+#   define ASSERT(condition, message) do { } while (false)
+#endif
+
 namespace deeplocalizer {
     namespace tagger {
         inline QImage cvMatToQImage(const cv::Mat &inMat) {

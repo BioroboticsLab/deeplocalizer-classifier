@@ -2,7 +2,7 @@
 #include <QStyle>
 #include "opencv2/core/core.hpp"
 
-#include "QtHelper.h"
+#include "utils.h"
 #include "ImageTagWidget.h"
 
 using namespace std;
