@@ -7,11 +7,11 @@ file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
 qt5_add_resources(UI_RESOURCES ${qrc})
 qt5_wrap_ui(UI_HEADERS ${ui})
 
-add_executable(manuelly-localizer "main.cpp"
+add_executable(manuelly-tagger "main.cpp"
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 add_library(libdeeplocalizer
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
-target_link_libraries(manuelly-localizer
+target_link_libraries(manuelly-tagger
     Qt5::Widgets
     Qt5::OpenGL
     ${OPENGL_LIBRARIES}
