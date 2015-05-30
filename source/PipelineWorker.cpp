@@ -27,7 +27,9 @@ const cv::Rect centerBoxAtEllipse(const cv::Rect & boundingBox,
     }
     return boundingBox;
 }
-std::vector<Tag> PipelineWorker::tagsProposals(Image & img) {
+
+std::vector<Tag> PipelineWorker::tagsProposals(ImageDescription & img_descr) {
+    Image img{img_descr};
     cv::Mat preprocced = _preprocessor.process(img.getCvMat());
     std::vector<pipeline::Tag> localizer_tags =
             _localizer.process(std::move(img.getCvMat()), std::move(preprocced));
@@ -44,23 +46,21 @@ std::vector<Tag> PipelineWorker::tagsProposals(Image & img) {
             }
         }
         tags.push_back(
-                Tag(img.filename,
-                    centerBoxAtEllipse(ptag.getBox(), img.getCvMat(),  ellipse),
+                Tag(centerBoxAtEllipse(ptag.getBox(), img.getCvMat(),  ellipse),
                     ellipse));
     }
     return tags;
 }
-void PipelineWorker::process(std::shared_ptr<Image> img) {
+
+void PipelineWorker::process(std::shared_ptr<ImageDescription> img) {
     std::string std_image_path = img->filename.toStdString();
     std::cout << "Loading next image: " << std_image_path << std::endl;
     if(! io::exists(std_image_path)) {
 
         throw std::runtime_error("Could not open file: `" + std_image_path + "`");
     }
-    img->load();
     img->setTags(this->tagsProposals(*img));
     std::cout << "Image ready: " << std_image_path << std::endl;
-    img->unload();
     emit resultReady(std::move(img));
 }
 }

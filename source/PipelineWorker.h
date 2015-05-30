@@ -11,7 +11,7 @@
 #include "Tag.h"
 #include "Image.h"
 
-Q_DECLARE_METATYPE(std::shared_ptr<deeplocalizer::tagger::Image>)
+Q_DECLARE_METATYPE(std::shared_ptr<deeplocalizer::tagger::ImageDescription>)
 
 namespace deeplocalizer {
 namespace tagger {
@@ -20,15 +20,15 @@ namespace tagger {
     Q_OBJECT
 
     public slots:
-        void process(std::shared_ptr<Image> img);
+        void process(std::shared_ptr<ImageDescription> img);
     signals:
-        void resultReady(std::shared_ptr<Image> img);
+        void resultReady(std::shared_ptr<ImageDescription> img);
 
     private:
         pipeline::Preprocessor _preprocessor;
         pipeline::Localizer _localizer;
         pipeline::EllipseFitter _ellipseFitter;
-        std::vector<Tag> tagsProposals(Image & img);
+        std::vector<Tag> tagsProposals(ImageDescription & img);
     };
 }
 }
