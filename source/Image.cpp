@@ -1,11 +1,13 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 #include "Image.h"
-#include "Tag.h"
+#include "utils.h"
 
 using namespace std;
 using namespace deeplocalizer::tagger;
+namespace io = boost::filesystem;
 
 ImageDescription::ImageDescription() {
 
@@ -42,6 +44,22 @@ bool ImageDescription::operator==(const ImageDescription & other) const {
             tags == other.tags);
 }
 
+std::vector<ImageDescription> ImageDescription::fromPathFile(const std::string &path) {
+    return ImageDescription::fromPathFile(io::path(path));
+}
+std::vector<ImageDescription> ImageDescription::fromPathFile(
+        const io::path& pathfile) {
+    ASSERT(io::exists(pathfile), "File " << pathfile << " does not exists.");
+    ifstream ifs{pathfile.string()};
+    std::string path_to_image;
+    std::vector<ImageDescription> descs;
+    for(int i = 0; std::getline(ifs, path_to_image); i++) {
+        ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
+        descs.push_back(ImageDescription{QString::fromStdString(path_to_image)});
+    }
+
+    return descs;
+}
 Image::Image() {
 }
 

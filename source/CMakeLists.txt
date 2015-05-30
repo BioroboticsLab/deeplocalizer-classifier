@@ -1,5 +1,5 @@
 file(GLOB_RECURSE src RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-list(REMOVE_ITEM src "main.cpp")
+list(REMOVE_ITEM src "main.cpp" "add_border.cpp")
 file(GLOB_RECURSE hdr RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h *.hpp)
 file(GLOB_RECURSE ui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.ui)
 file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
@@ -7,17 +7,28 @@ file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
 qt5_add_resources(UI_RESOURCES ${qrc})
 qt5_wrap_ui(UI_HEADERS ${ui})
 
-add_executable(manuelly-tagger "main.cpp"
-    ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 add_library(libdeeplocalizer
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
-target_link_libraries(manuelly-tagger
+
+
+set(libs
+    libdeeplocalizer
     Qt5::Widgets
     Qt5::OpenGL
     ${OPENGL_LIBRARIES}
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
 )
+
+add_executable(manuelly-tagger "main.cpp"
+     ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
+
+target_link_libraries(manuelly-tagger ${libs})
+
+add_executable(add_border "add_border.cpp"
+     ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
+target_link_libraries(add_border ${libs})
+
 
 # automatic copy of required dlls to install prefix for windows
 if(WIN32)

@@ -4,6 +4,8 @@
 #include <QPixmap>
 #include <boost/optional.hpp>
 #include <boost/serialization/list.hpp>
+#include <boost/filesystem.hpp>
+
 #include "Tag.h"
 #include "serialization.h"
 
@@ -21,6 +23,8 @@ public:
     void setTags(std::vector<Tag> && tag);
     const std::vector<Tag> & getTags() const;
     bool operator==(const ImageDescription & other) const;
+    static std::vector<ImageDescription> fromPathFile(const std::string &path);
+    static std::vector<ImageDescription> fromPathFile(const boost::filesystem::path&pathfile);
 private:
     std::vector<Tag> tags;
     unsigned long current_tag = 0;

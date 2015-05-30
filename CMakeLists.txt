@@ -12,7 +12,7 @@ find_package(OpenCV REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
-find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
+find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
