@@ -10,28 +10,22 @@
 namespace deeplocalizer {
 namespace  tagger {
 
-class Image {
+class ImageDescription {
 public:
     QString filename;
-    Image();
-    Image(const QString filename);
-    Image(const QString filename, std::vector<Tag> _tags);
-    void load();
-    void unload();
-    boost::optional<Tag &> nextTag();
+    ImageDescription();
+    ImageDescription(const QString filename);
+    ImageDescription(const QString filename, std::vector<Tag> _tags);
     QPixmap visualise_tags();
     void addTag(Tag&& tag);
     void setTags(std::vector<Tag> && tag);
     const std::vector<Tag> & getTags() const;
-    cv::Mat getCvMat();
-    bool operator==(const Image & other) const;
+    bool operator==(const ImageDescription & other) const;
 private:
-    boost::optional<cv::Mat> img_mat;
     std::vector<Tag> tags;
     unsigned long current_tag = 0;
 
     friend class boost::serialization::access;
-
     template <class Archive>
     void serialize( Archive & ar, const unsigned int)
     {
@@ -39,6 +33,18 @@ private:
       ar & BOOST_SERIALIZATION_NVP(tags);
     }
 };
+
+class Image {
+public:
+    explicit Image();
+    explicit Image(const ImageDescription & descr);
+    cv::Mat getCvMat() const;
+    void addBorder();
+private:
+    cv::Mat _mat;
+    QString _filename;
+};
+
 }
 }
 
