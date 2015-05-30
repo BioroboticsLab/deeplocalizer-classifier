@@ -4,7 +4,6 @@
 #include <QPixmap>
 #include <boost/optional.hpp>
 #include <boost/serialization/list.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "Tag.h"
 #include "serialization.h"
 
@@ -16,19 +15,19 @@ public:
     QString filename;
     Image();
     Image(const QString filename);
-    Image(const QString filename, std::vector<std::shared_ptr<Tag>> _tags);
+    Image(const QString filename, std::vector<Tag> _tags);
     void load();
     void unload();
-    boost::optional< std::shared_ptr<Tag>> nextTag();
+    boost::optional<Tag &> nextTag();
     QPixmap visualise_tags();
     void addTag(Tag&& tag);
-    void setTags(std::vector< std::shared_ptr<Tag>> && tag);
-    const std::vector<std::shared_ptr<Tag>> & getTags();
+    void setTags(std::vector<Tag> && tag);
+    const std::vector<Tag> & getTags() const;
     cv::Mat getCvMat();
     bool operator==(const Image & other) const;
 private:
     boost::optional<cv::Mat> img_mat;
-    std::vector< std::shared_ptr< Tag > > tags;
+    std::vector<Tag> tags;
     unsigned long current_tag = 0;
 
     friend class boost::serialization::access;
@@ -40,7 +39,6 @@ private:
       ar & BOOST_SERIALIZATION_NVP(tags);
     }
 };
-
 }
 }
 

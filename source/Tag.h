@@ -17,23 +17,28 @@ const int TAG_HEIGHT = 128;
 
 class Tag {
 public:
-    Tag(QString imagepath, cv::Mat subimage, cv::Rect boundingBox,
+    Tag();
+    Tag(QString imagepath, cv::Rect boundingBox,
         boost::optional<pipeline::Ellipse> ellipse);
+
     const QString &getImagepath() const;
     void setImagepath(const QString &imagepath);
+
     cv::Rect getBoundingBox() const;
     void setBoundingBox(cv::Rect boundingBox);
+
+    const boost::optional<pipeline::Ellipse> & getEllipse () const;
+
     bool isTag() const;
     void setIsTag(bool is_tag);
     void toggleIsTag();
-    const cv::Mat &getSubimage() const;
-    void setSubimage(const cv::Mat &subimage);
+
+    const cv::Mat getSubimage(const cv::Mat &orginal) const;
 
     bool operator==(const Tag &other) const;
 
 private:
     QString _imagepath;
-    cv::Mat _subimage;
     cv::Rect _boundingBox;
     boost::optional<pipeline::Ellipse> _ellipse;
     bool _is_tag;

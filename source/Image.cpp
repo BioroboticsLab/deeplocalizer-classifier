@@ -14,14 +14,14 @@ Image::Image(const QString _filename) : filename(_filename) {
 
 }
 
-Image::Image(const QString _filename, vector< shared_ptr< Tag > > _tags) :
+Image::Image(const QString _filename, std::vector<Tag> _tags) :
         filename(_filename), tags(_tags) {
 
 }
 
-boost::optional< shared_ptr< Tag > > Image::nextTag() {
+boost::optional<Tag &> Image::nextTag() {
     if (current_tag + 1 >= this->tags.size() ) {
-        return boost::optional< shared_ptr< Tag > >();
+        return boost::optional<Tag &>();
     }
     return this->tags.at(current_tag++);
 }
@@ -48,14 +48,14 @@ void Image::unload() {
 }
 
 void Image::addTag(Tag && tag) {
-    this->tags.push_back(std::make_shared<Tag>(tag));
+    this->tags.push_back(tag);
 }
 
-void Image::setTags(std::vector<shared_ptr<Tag>> && tags) {
+void Image::setTags(std::vector<Tag> && tags) {
     this->tags = tags;
 }
 
-const std::vector<shared_ptr<Tag>> & Image::getTags() {
+const std::vector<Tag> & Image::getTags() const {
     return this->tags;
 }
 

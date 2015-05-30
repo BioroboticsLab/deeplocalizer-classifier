@@ -16,7 +16,8 @@ public:
     ImageTagWidget(QWidget * parent);
     void setRandomImage(int height, int width);
     void loadFile(const QString &);
-    void setTag(std::shared_ptr<deeplocalizer::tagger::Tag> tag);
+    void setTag(deeplocalizer::tagger::Tag * tag,
+                const cv::Mat & img);
 public slots:
     void toggleTag();
 signals:
@@ -25,7 +26,7 @@ protected:
     void mousePressEvent(QMouseEvent * event);
 private:
     cv::Mat _img;
-    std::shared_ptr<deeplocalizer::tagger::Tag> _tag;
+    deeplocalizer::tagger::Tag * _tag;
     void init();
     void redraw();
 };

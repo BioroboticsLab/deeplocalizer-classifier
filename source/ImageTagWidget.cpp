@@ -28,9 +28,9 @@ void ImageTagWidget::loadFile(const QString &filename) {
     this->setPixmap(pixmap);
 }
 
-void ImageTagWidget::setTag(shared_ptr<Tag> tag) {
+void ImageTagWidget::setTag(Tag * tag, const cv::Mat & img) {
     _tag = tag;
-    this->setPixmap(cvMatToQPixmap(tag->getSubimage()));
+    this->setPixmap(cvMatToQPixmap(tag->getSubimage(img)));
     cv::Rect box = tag->getBoundingBox();
     this->setFixedSize(box.width, box.height);
     this->redraw();
@@ -58,7 +58,7 @@ void ImageTagWidget::init() {
 }
 
 
-void ImageTagWidget::mousePressEvent(QMouseEvent *event) {
+void ImageTagWidget::mousePressEvent(QMouseEvent *) {
     if (this->clickable) {
         emit clicked();
     }
@@ -66,4 +66,5 @@ void ImageTagWidget::mousePressEvent(QMouseEvent *event) {
 
 void ImageTagWidget::toggleTag() {
     _tag->toggleIsTag();
+    this->redraw();
 }
