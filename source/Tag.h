@@ -18,11 +18,7 @@ const int TAG_HEIGHT = 128;
 class Tag {
 public:
     Tag();
-    Tag(QString imagepath, cv::Rect boundingBox,
-        boost::optional<pipeline::Ellipse> ellipse);
-
-    const QString &getImagepath() const;
-    void setImagepath(const QString &imagepath);
+    Tag(cv::Rect boundingBox, boost::optional<pipeline::Ellipse> ellipse);
 
     cv::Rect getBoundingBox() const;
     void setBoundingBox(cv::Rect boundingBox);
@@ -38,7 +34,6 @@ public:
     bool operator==(const Tag &other) const;
 
 private:
-    QString _imagepath;
     cv::Rect _boundingBox;
     boost::optional<pipeline::Ellipse> _ellipse;
     bool _is_tag;
@@ -46,7 +41,6 @@ private:
     friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive & ar, const unsigned int) {
-        ar & BOOST_SERIALIZATION_NVP(_imagepath);
         ar & BOOST_SERIALIZATION_NVP(_boundingBox);
         ar & BOOST_SERIALIZATION_NVP(_ellipse);
         ar & BOOST_SERIALIZATION_NVP(_is_tag);
