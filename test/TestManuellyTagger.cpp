@@ -72,7 +72,7 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
                             n_descrs.at(i).filename.toStdString());
                     io::remove(img.filename.toStdString());
                 }
-                // REQUIRE_THROWS(n_path_loc.nextImageDescr());
+                REQUIRE_THROWS(n_path_loc.nextImageDescr());
             }
         }
     }

@@ -26,7 +26,8 @@ ManuellyTagger::ManuellyTagger(const std::vector<ImageDescription> & img_descr)
 }
 
 ImageDescription ManuellyTagger::nextImageDescr() {
-    assert(_images_with_proposals.size() > 0);
+    ASSERT(_images_with_proposals.size() > 0,
+           "no more images left to classify. Feel Good, you are done!");
     ImageDescription img = _images_with_proposals.front();
     _images_with_proposals.pop_front();
     return img;
