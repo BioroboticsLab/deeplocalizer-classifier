@@ -21,12 +21,9 @@ public:
 
     explicit ManuellTagWindow(QWidget *parent = 0);
     ~ManuellTagWindow();
-    void loadImage(Image & img);
-    void isATag();
-    void isNotaTag();
+    void loadImage(ImageDescription & img);
     void showImage();
     void showTags(std::vector<Tag> & tags);
-    void showNextTag();
 protected:
     void keyPressEvent(QKeyEvent *event);
 private:
@@ -34,8 +31,8 @@ private:
     QGridLayout * _grid_layout;
     std::vector<QString> paths;
     std::unique_ptr<ManuellyTagger> tagger;
-    Tag * tag_center;
-    std::shared_ptr<Image> _current_image;
+    ImageDescription _current_image_descr;
+    Image _current_image;
 };
 }
 }
