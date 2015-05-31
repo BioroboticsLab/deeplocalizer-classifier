@@ -68,15 +68,23 @@ Image::Image(const ImageDescription & descr) : _filename(descr.filename)  {
 }
 
 void Image::addBorder() {
-    auto mat_with_border = cv::Mat(_mat.rows + 2*TAG_HEIGHT,
-                                   _mat.cols + 2*TAG_WIDTH, CV_8U);
-    cv::copyMakeBorder(_mat, mat_with_border, TAG_HEIGHT, TAG_HEIGHT,
-                       TAG_WIDTH, TAG_WIDTH, cv::BORDER_REPLICATE);
+    auto mat_with_border = cv::Mat(_mat.rows + TAG_HEIGHT,
+                                   _mat.cols + TAG_WIDTH, CV_8U);
+    cv::copyMakeBorder(_mat, mat_with_border, TAG_HEIGHT / 2, TAG_HEIGHT / 2,
+                       TAG_WIDTH / 2, TAG_WIDTH / 2, cv::BORDER_REPLICATE);
     this->_mat.release();
     this->_mat = mat_with_border;
 }
 
 cv::Mat Image::getCvMat() const {
     return _mat;
+}
+
+bool Image::write(io::path path) const {
+    if (path.empty()) {
+        return cv::imwrite(_filename.toStdString(), _mat);
+    } else {
+        return cv::imwrite(path.string(), _mat);
+    }
 }
 

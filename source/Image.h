@@ -44,6 +44,8 @@ public:
     explicit Image(const ImageDescription & descr);
     cv::Mat getCvMat() const;
     void addBorder();
+    bool write(boost::filesystem::path path = {}) const;
+
 private:
     cv::Mat _mat;
     QString _filename;
