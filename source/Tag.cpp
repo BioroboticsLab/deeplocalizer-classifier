@@ -4,24 +4,68 @@
 
 #include "Tag.h"
 
+
+namespace deeplocalizer {
+namespace tagger {
+
 using boost::optional;
 using namespace std;
-using namespace deeplocalizer::tagger;
+
+bool contains(const cv::Mat & m, const cv::Rect & rect) {
+    return (rect.x >= 0 && rect.y >= 0 && rect.width >= 0 && rect.height >= 0 &&
+            rect.x + rect.width < m.cols && rect.y + rect.height < m.rows);
+}
+
+const cv::Rect centerBoxAtEllipse(const cv::Rect & boundingBox,
+                                  const cv::Mat & image ,
+                                  const optional<pipeline::Ellipse> & ellipse) {
+    if(ellipse.is_initialized()) {
+        cv::Point2i center = ellipse.get().getCen();
+
+        cv::Rect box(center.x - TAG_WIDTH / 2, TAG_WIDTH,
+                     center.y - TAG_HEIGHT / 2, TAG_HEIGHT);
+        if (contains(image, box)) {
+            return box;
+        }
+    }
+    return boundingBox;
+}
+
+std::atomic_long Tag::id_counter(0);
+
+long Tag::generateId() {
+    return Tag::id_counter.fetch_add(1, std::memory_order_relaxed);
+}
 
 Tag::Tag() {
+    _id = Tag::generateId();
+}
 
+Tag::Tag(const pipeline::Tag & pipetag, const cv::Mat & image) {
+    _id = Tag::generateId();
+    boost::optional<pipeline::Ellipse> ellipse;
+    for(auto candidate : pipetag.getCandidatesConst()) {
+        if (!ellipse.is_initialized()) {
+            ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
+        } else if (ellipse.get() < candidate.getEllipse()) {
+            ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
+        }
+    }
+    _boundingBox = centerBoxAtEllipse(pipetag.getBox(), image,  ellipse);
+    _ellipse = ellipse;
 }
 
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
         _boundingBox(boundingBox), _ellipse(ellipse)
 {
+    _id = Tag::generateId();
     _is_tag = _ellipse.is_initialized() && _ellipse.get().getVote() > 1500;
 }
 
 const optional<pipeline::Ellipse> & Tag::getEllipse () const {
     return _ellipse;
 }
-cv::Rect Tag::getBoundingBox() const {
+const cv::Rect & Tag::getBoundingBox() const {
     return _boundingBox;
 }
 
@@ -58,3 +102,7 @@ void Tag::setIsTag(bool isTag) {
 const cv::Mat Tag::getSubimage(const cv::Mat & orginal) const {
     return orginal(_boundingBox).clone();
 }
+}
+}
+
+

@@ -12,6 +12,7 @@
 #include "Image.h"
 
 Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDescription)
+Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
 
 namespace deeplocalizer {
 namespace tagger {
@@ -21,8 +22,11 @@ namespace tagger {
 
     public slots:
         void process(ImageDescription img);
+        void findEllipse(cv::Mat mat, Tag tag);
+
     signals:
         void resultReady(ImageDescription img);
+        void tagWithEllipseReady(Tag tag);
 
     private:
         pipeline::Preprocessor _preprocessor;

@@ -3,6 +3,7 @@
 #define DEEP_LOCALIZER_SERIALIZATION_H
 
 #include <boost/serialization/string.hpp>
+#include <QString>
 
 namespace boost {
     namespace serialization {
