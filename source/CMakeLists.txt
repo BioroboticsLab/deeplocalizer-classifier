@@ -1,5 +1,5 @@
 file(GLOB_RECURSE src RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-list(REMOVE_ITEM src "main.cpp" "add_border.cpp")
+list(REMOVE_ITEM src "main.cpp" "add_border.cpp" "generate_proposals.cpp")
 file(GLOB_RECURSE hdr RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h *.hpp)
 file(GLOB_RECURSE ui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.ui)
 file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
@@ -29,6 +29,9 @@ add_executable(add_border "add_border.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 target_link_libraries(add_border ${libs})
 
+add_executable(generate_proposals "generate_proposals.cpp"
+     ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
+target_link_libraries(generate_proposals ${libs})
 
 # automatic copy of required dlls to install prefix for windows
 if(WIN32)

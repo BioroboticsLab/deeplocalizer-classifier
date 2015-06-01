@@ -35,7 +35,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
                 gen->connect(gen.get(), &ProposalGenerator::finished, [&]() {
                     REQUIRE(not gen->getProposalImages().empty() );
                     const auto & img = gen->getProposalImages().front();
-                    REQUIRE(img->getTags().size() > 0);
+                    REQUIRE(img.getTags().size() > 0);
                 });
             }
             THEN ( "the todo list will be empty") {

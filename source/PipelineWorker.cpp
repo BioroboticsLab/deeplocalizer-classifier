@@ -1,4 +1,5 @@
 #include "PipelineWorker.h"
+#include "utils.h"
 
 #include <boost/filesystem.hpp>
 #include <pipeline/datastructure/Tag.h>
@@ -52,16 +53,12 @@ std::vector<Tag> PipelineWorker::tagsProposals(ImageDescription & img_descr) {
     return tags;
 }
 
-void PipelineWorker::process(std::shared_ptr<ImageDescription> img) {
-    std::string std_image_path = img->filename.toStdString();
-    std::cout << "Loading next image: " << std_image_path << std::endl;
-    if(! io::exists(std_image_path)) {
-
-        throw std::runtime_error("Could not open file: `" + std_image_path + "`");
-    }
-    img->setTags(this->tagsProposals(*img));
-    std::cout << "Image ready: " << std_image_path << std::endl;
-    emit resultReady(std::move(img));
+void PipelineWorker::process(ImageDescription img) {
+    std::string std_image_path = img.filename.toStdString();
+    ASSERT(io::exists(std_image_path),
+           "Could not open file: `" << std_image_path << "`");
+    img.setTags(this->tagsProposals(img));
+    emit resultReady(img);
 }
 }
 }

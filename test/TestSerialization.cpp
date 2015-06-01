@@ -93,7 +93,7 @@ TEST_CASE( "Serialization", "[serialize]" ) {
                     for(unsigned int i = 1; i < gen->getProposalImages().size(); i++) {
                         auto gen_img = gen->getProposalImages().at(i);
                         auto load_img = load_gen->getProposalImages().at(i);
-                        REQUIRE(*gen_img == *load_img);
+                        REQUIRE(gen_img == load_img);
                     }
 
                     REQUIRE( gen->getBeforePipelineImages().size() ==
@@ -102,7 +102,7 @@ TEST_CASE( "Serialization", "[serialize]" ) {
                     for(unsigned int i = 1; i < gen->getBeforePipelineImages().size(); i++) {
                         auto gen_img = gen->getBeforePipelineImages().at(i);
                         auto load_img = load_gen->getBeforePipelineImages().at(i);
-                        REQUIRE(*gen_img == *load_img);
+                        REQUIRE(gen_img == load_img);
                     }
 
                     io::remove(uniquePath);
