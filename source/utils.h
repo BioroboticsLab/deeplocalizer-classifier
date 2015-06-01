@@ -1,7 +1,3 @@
-//
-// Created by leon on 18.05.15.
-//
-
 #ifndef DEEP_LOCALIZER_QTHELPER_H
 #define DEEP_LOCALIZER_QTHELPER_H
 
