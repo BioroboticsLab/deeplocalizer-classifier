@@ -33,7 +33,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
     # enable C++1y
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -fPIE -fPIC")
     # enable all warnings
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wsign-promo -Wno-missing-braces -Wno-maybe-uninitialized")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wsign-promo -Wno-missing-braces ")
     # warnings are errors
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-error=unused-variable -Wno-error=unused-parameter")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -75,7 +75,7 @@ message("${CLANG_VERSION}")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # clang doesnt know about unused-but-set-variable warning
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-but-set-variable")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-but-set-variable -Wno-maybe-uninitialized")
 
 	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
 					OUTPUT_VARIABLE GCC_VERSION)
