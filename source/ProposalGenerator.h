@@ -31,17 +31,11 @@ signals:
 public:
     explicit ProposalGenerator(const std::vector<QString>& _image_paths);
     explicit ProposalGenerator(const std::vector<ImageDescription>&  _image_desc);
+    explicit ProposalGenerator(const std::vector<ImageDescription> & images_todo,
+                               const std::vector<ImageDescription> & images_done);
 
     void processPipeline();
-    void save(const std::string & path) const;
-    static std::unique_ptr<ProposalGenerator> load(const std::string & path);
-    virtual ~ProposalGenerator() {
-        for(auto &t: _threads) {
-            t->quit();
-            t->wait();
-            delete t;
-        }
-    }
+    void saveProposals(const std::string &path) const;
 
     inline const std::deque<ImageDescription> & getBeforePipelineImages() const {
         return _images_before_pipeline;

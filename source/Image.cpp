@@ -2,11 +2,20 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/deque.hpp>
+#include "serialization.h"
+
 #include "Image.h"
 #include "utils.h"
 
+namespace deeplocalizer {
+namespace tagger {
+
 using namespace std;
-using namespace deeplocalizer::tagger;
 namespace io = boost::filesystem;
 
 ImageDescription::ImageDescription() {
@@ -60,6 +69,22 @@ std::vector<ImageDescription> ImageDescription::fromPathFile(
 
     return descs;
 }
+
+
+void ImageDescription::saves(const std::string & path, const std::deque<ImageDescription> * imgs) {
+    std::ofstream os(path);
+    boost::archive::binary_oarchive archive(os);
+    archive << boost::serialization::make_nvp("images", imgs);
+}
+
+std::unique_ptr<std::deque<ImageDescription>> ImageDescription::loads(const std::string & path) {
+    std::ifstream is(path);
+    boost::archive::binary_iarchive archive(is);
+    std::deque<ImageDescription> * imgs;
+    archive >> boost::serialization::make_nvp("images", imgs);
+    return std::unique_ptr<std::deque<ImageDescription>>(imgs);
+}
+
 Image::Image() {
 }
 
@@ -87,4 +112,5 @@ bool Image::write(io::path path) const {
         return cv::imwrite(path.string(), _mat);
     }
 }
-
+}
+}

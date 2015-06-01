@@ -2,13 +2,9 @@
 #include "ProposalGenerator.h"
 
 #include <thread>
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include "utils.h"
 
 #include "serialization.h"
-#include "utils.h"
 
 namespace deeplocalizer {
 namespace tagger {
@@ -25,6 +21,16 @@ ProposalGenerator::ProposalGenerator(const std::vector<ImageDescription> & image
     this->init();
 }
 
+ProposalGenerator::ProposalGenerator(
+        const std::vector<ImageDescription> & images_todo,
+        const std::vector<ImageDescription> & images_done
+)
+        : _images_before_pipeline(images_todo.cbegin(), images_todo.cend()),
+          _images_with_proposals(images_done.cbegin(), images_done.cend()),
+          _n_images(images_todo.size() + images_done.size())
+{
+    this->init();
+}
 ProposalGenerator::ProposalGenerator(const std::vector<QString>& image_paths)
     : _n_images(image_paths.size())
 {
@@ -36,7 +42,6 @@ ProposalGenerator::ProposalGenerator(const std::vector<QString>& image_paths)
     }
     this->init();
 }
-
 void ProposalGenerator::init() {
     int cpus = std::thread::hardware_concurrency();
     for(int i = 0; i < (cpus != 0 ? cpus: 1); i++) {
@@ -67,6 +72,9 @@ void ProposalGenerator::processPipeline() {
         auto & worker = _workers.at(worker_idx);
         QMetaObject::invokeMethod(worker, "process", Q_ARG(ImageDescription, img));
     }
+    if (_images_with_proposals.size() == _n_images) {
+        emit finished();
+    }
 }
 
 void ProposalGenerator::imageProcessed(ImageDescription img) {
@@ -77,19 +85,10 @@ void ProposalGenerator::imageProcessed(ImageDescription img) {
     }
 }
 
-void ProposalGenerator::save(const std::string & path) const {
-    std::ofstream os(path);
-    boost::archive::binary_oarchive archive(os);
-    archive << boost::serialization::make_nvp("tagger", *this);
+void ProposalGenerator::saveProposals(const std::string &path) const {
+    ImageDescription::saves(path, &_images_with_proposals);
 }
 
-std::unique_ptr<ProposalGenerator> ProposalGenerator::load(const std::string & path) {
-    std::ifstream is(path);
-    boost::archive::binary_iarchive archive(is);
-    ProposalGenerator * loc = new ProposalGenerator;
-    archive >> boost::serialization::make_nvp("tagger", loc);
-    return std::unique_ptr<ProposalGenerator>(loc);
-}
 
 }
 }

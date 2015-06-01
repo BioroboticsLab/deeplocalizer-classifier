@@ -23,6 +23,8 @@ public:
     void setTags(std::vector<Tag> && tag);
     const std::vector<Tag> & getTags() const;
     bool operator==(const ImageDescription & other) const;
+    static void saves(const std::string &path, const std::deque<ImageDescription> * imgs);
+    static std::unique_ptr<std::deque<ImageDescription>> loads(const std::string &path);
     static std::vector<ImageDescription> fromPathFile(const std::string &path);
     static std::vector<ImageDescription> fromPathFile(const boost::filesystem::path&pathfile);
 private:
