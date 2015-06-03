@@ -112,6 +112,8 @@ void ManuellTagWindow::setupConnections() {
     this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
     this->connect(_nextAct, &QAction::triggered, this, &ManuellTagWindow::next);
     this->connect(_backAct, &QAction::triggered, this, &ManuellTagWindow::back);
+    this->connect(_tagger, &ManuellyTagger::loadedImage, this,
+                  &ManuellTagWindow::setImage);
     this->connect(_tagger, &ManuellyTagger::outOfRange, [](int) {
         QMessageBox box;
         box.setWindowTitle("DONE!");

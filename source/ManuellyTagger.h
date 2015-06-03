@@ -39,7 +39,7 @@ public slots:
     void loadLastImage();
     void loadImage(unsigned long idx);
 signals:
-    void image(ImageDescription * desc, Image * img);
+    void loadedImage(ImageDescription *desc, Image *img);
     void outOfRange(unsigned long idx);
     void lastImage();
     void firstImage();
