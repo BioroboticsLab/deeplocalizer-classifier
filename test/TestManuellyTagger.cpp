@@ -43,36 +43,55 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
         }
     }
 
-    SECTION( "gives you images descriptions" ) {
-        ManuellyTagger gen(image_descrs);
-        GIVEN( "one image with bees" ) {
-            THEN ( "it will give you only one image") {
-                auto img_descr = gen.nextImageDescr();
-                REQUIRE(img_descr == image_descrs.at(0));
+    SECTION( "sends signals" ) {
+        ManuellyTagger * tagger = new ManuellyTagger(image_descrs);
+        GIVEN("an index out of range") {
+            THEN("it will emit the outOfRange signal") {
+                bool outOfRangeEmitted = false;
+                auto c = tagger->connect(tagger, &ManuellyTagger::outOfRange, [&](unsigned long idx){
+                    REQUIRE(idx == ULONG_MAX);
+                    outOfRangeEmitted = true;
+                });
+                tagger->loadImage(ULONG_MAX);
+                REQUIRE(outOfRangeEmitted);
+                tagger->disconnect(c);
             }
         }
-        GIVEN( "multiple images" ) {
-            THEN ( "it will give you multiple images") {
-                int n = 5;
-                std::vector<ImageDescription> n_descrs;
-                cv::Mat mat{cv::Size{64, 64}, CV_8U, cv::Scalar(0)};
-                for(int i = 0; i < n; i++) {
-                    io::path path = io::unique_path("/tmp/%%%%%%%%%%%%.png");
-                    cv::imwrite(path.string(), mat);
-                    auto qpath = QString::fromStdString(path.string());
-                    n_descrs.push_back(ImageDescription{qpath});
-                }
+        GIVEN("the first image") {
+             THEN("it will emit the firstImage signal") {
+                 bool firstImageEmitted = false;
+                 auto c = tagger->connect(tagger, &ManuellyTagger::firstImage, [&]() {
+                     firstImageEmitted = true;
+                 });
+                 tagger->loadImage(0);
+                 REQUIRE(firstImageEmitted);
+                 tagger->disconnect(c);
+             }
+        }
+        GIVEN("the last image") {
+            THEN("it will emit the lastImage signal") {
+                bool lastImageEmitted = false;
+                auto c = tagger->connect(tagger, &ManuellyTagger::lastImage, [&]() {
+                    lastImageEmitted = true;
+                });
+                tagger->loadImage(0);
+                REQUIRE(lastImageEmitted);
+                tagger->disconnect(c);
+            }
+        }
 
-                ManuellyTagger n_path_loc(n_descrs);
-
-                for(int i = 0; i < n; i++) {
-                    INFO("AT i: " << i);
-                    auto img = n_path_loc.nextImageDescr();
-                    REQUIRE(img.filename.toStdString() ==
-                            n_descrs.at(i).filename.toStdString());
-                    io::remove(img.filename.toStdString());
-                }
-                REQUIRE_THROWS(n_path_loc.nextImageDescr());
+        GIVEN("a call to the loadImage slot") {
+            THEN("it will emit an loadedImage signal as soon the image is loaded") {
+                bool loadedImageEmitted = false;
+                auto c = tagger->connect(tagger, &ManuellyTagger::loadedImage,
+                                         [&](ImageDescription * desc, Image * img) {
+                    REQUIRE(*desc == tagger->getProposalImages().at(0));
+                    REQUIRE(*img == Image(*desc));
+                    loadedImageEmitted = true;
+                });
+                tagger->loadImage(0);
+                REQUIRE(loadedImageEmitted);
+                tagger->disconnect(c);
             }
         }
     }
