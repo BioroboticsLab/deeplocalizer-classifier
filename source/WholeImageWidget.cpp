@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <QPainter>
 #include <QScrollArea>
+#include <QGuiApplication>
 #include <QScrollBar>
 #include <QMouseEvent>
 #include "PipelineWorker.h"
@@ -38,16 +39,15 @@ void WholeImageWidget::init() {
             &WholeImageWidget::tagProcessed, Qt::QueuedConnection);
     _thread->start();
 }
-void WholeImageWidget::createTag(int x, int y) {
-    Tag && tag = Tag(cv::Rect(x - TAG_WIDTH / 2, y - TAG_HEIGHT / 2, TAG_WIDTH, TAG_HEIGHT),
-                     optional<pipeline::Ellipse>());
-    tag.setIsTag(true);
-    qDebug() << "created new tag " << tag.getBoundingBox().x << ", " << tag.getBoundingBox().y;
-    _newly_added_tags.emplace_back(tag);
-    findEllipse(tag);
+
+Tag WholeImageWidget::createTag(int x, int y) {
+    return Tag(cv::Rect(x - TAG_WIDTH / 2, y - TAG_HEIGHT / 2, TAG_WIDTH,
+                        TAG_HEIGHT),
+               optional<pipeline::Ellipse>());
 }
 
 void WholeImageWidget::findEllipse(const Tag &tag) {
+    _newly_added_tags.push_back(tag);
     QMetaObject::invokeMethod(_worker, "findEllipse", Qt::QueuedConnection,
                               Q_ARG(cv::Mat, tag.getSubimage(_mat)), Q_ARG(Tag, tag));
 }
@@ -63,9 +63,6 @@ void WholeImageWidget::tagProcessed(Tag tag) {
     );
     _tags->push_back(tag);
     repaint();
-}
-
-void WholeImageWidget::keyPressEvent(QKeyEvent * ) {
 }
 
 void WholeImageWidget::paintEvent(QPaintEvent *) {
@@ -107,14 +104,20 @@ void WholeImageWidget::wheelEvent(QWheelEvent * event) {
 void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
     qDebug() << "mouse pressed";
     auto pos = event->pos() / _scale;
-    auto maybe_tag = getTag(pos.x(), pos.y());
-    if (maybe_tag) {
+    auto opt_tag = getTag(pos.x(), pos.y());
+    if (opt_tag) {
         _tags->erase(std::remove_if(_tags->begin(), _tags->end(),
-                    [&maybe_tag](auto & t){
-                        return t.getId() == maybe_tag.get().getId();
+                    [&opt_tag](auto & t){
+                        return t.getId() == opt_tag.get().getId();
                     }));
     } else {
-        createTag(pos.x(), pos.y());
+        auto modifier = QGuiApplication::queryKeyboardModifiers();
+        Tag tag = createTag(pos.x(), pos.y());
+        if (modifier.testFlag(Qt::ShiftModifier)) {
+            _tags->push_back(tag);
+        } else {
+            findEllipse(tag);
+        }
     }
     repaint();
 }

@@ -30,12 +30,11 @@ public:
     void setTags(cv::Mat mat, std::vector<Tag> * tags);
     virtual QSize sizeHint() const;
 public slots:
-    void createTag(int x, int y);
+    Tag createTag(int x, int y);
     void tagProcessed(Tag tag);
 signals:
     void imageFinished();
 protected:
-    virtual void keyPressEvent(QKeyEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent * event);
     virtual void paintEvent(QPaintEvent *);
