@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
         return run(qapp, out, pathfile);
     } else {
-        std::cout << "No output directory given." << std::endl;
+        std::cout << "No pathfile or output directory given." << std::endl;
         printUsage();
         return 1;
     }
