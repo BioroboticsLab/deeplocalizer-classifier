@@ -35,6 +35,7 @@ public:
     const cv::Mat getSubimage(const cv::Mat &orginal) const;
 
     bool operator==(const Tag &other) const;
+    void draw(QPainter & p);
 
 private:
     long _id;

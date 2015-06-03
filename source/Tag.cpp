@@ -102,6 +102,26 @@ void Tag::setIsTag(bool isTag) {
 const cv::Mat Tag::getSubimage(const cv::Mat & orginal) const {
     return orginal(_boundingBox).clone();
 }
+void Tag::draw(QPainter & p) {
+    auto bb = _boundingBox;
+    if (_is_tag) {
+        p.setPen(QPen(Qt::green, 3));
+    } else {
+        p.setPen(QPen(Qt::red, 3));
+    }
+    p.drawRect(QRect(bb.x, bb.y, bb.height, bb.width));
+    if (_ellipse) {
+        auto e = _ellipse.get();
+        p.setPen(Qt::blue);
+        auto t = p.worldTransform();
+        QPoint center(bb.x+e.getCen().x, bb.y+e.getCen().y);
+        p.translate(center);
+        p.rotate(e.getAngle());
+        p.drawPoint(QPoint(0, 0));
+        p.drawEllipse(QPoint(0, 0), e.getAxis().width, e.getAxis().height);
+        p.setWorldTransform(t);
+    }
+}
 }
 }
 
