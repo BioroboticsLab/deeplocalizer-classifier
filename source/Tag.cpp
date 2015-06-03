@@ -111,24 +111,37 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     box.height+= 2*border;
     return orginal(box).clone();
 }
-void Tag::draw(QPainter & p) {
+
+void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) {
+    static const QPoint zero(0, 0);
     auto bb = _boundingBox;
     if (_is_tag) {
-        p.setPen(QPen(Qt::green, 3));
+        p.setPen(QPen(Qt::green, lineWidth));
     } else {
-        p.setPen(QPen(Qt::red, 3));
+        p.setPen(QPen(Qt::red, lineWidth));
     }
     p.drawRect(QRect(bb.x, bb.y, bb.height, bb.width));
     if (_ellipse) {
         auto e = _ellipse.get();
         p.setPen(Qt::blue);
-        auto t = p.worldTransform();
         QPoint center(bb.x+e.getCen().x, bb.y+e.getCen().y);
-        p.translate(center);
-        p.rotate(e.getAngle());
-        p.drawPoint(QPoint(0, 0));
-        p.drawEllipse(QPoint(0, 0), e.getAxis().width, e.getAxis().height);
-        p.setWorldTransform(t);
+        QFont font = p.font();
+        font.setPointSizeF(18);
+        p.setPen(Qt::blue);
+        if(drawVote) {
+            p.setFont(font);
+            p.drawText(bb.x - 10 , bb.y - 10, QString::number(e.getVote()));
+        }
+        if(drawEllipse) {
+            p.setPen(QPen(Qt::blue, lineWidth));
+            p.save();
+            p.translate(center);
+            p.rotate(e.getAngle());
+            p.drawLine(-4, 0, 4, 0);
+            p.drawLine(0, 4, 0, -4);
+            p.drawEllipse(zero, e.getAxis().width, e.getAxis().height);
+            p.restore();
+        }
     }
 }
 long Tag::getId() const {

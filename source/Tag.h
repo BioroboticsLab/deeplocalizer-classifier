@@ -38,9 +38,8 @@ public:
 
     cv::Mat getSubimage(const cv::Mat &orginal, unsigned int border=0) const;
     bool operator==(const Tag &other) const;
-    void guessIsTag(int threshold);
-    void draw(QPainter & p);
     void guessIsTag(int threshold = IS_TAG_THRESHOLD);
+    void draw(QPainter & p, int lineWidth = 3, bool drawVote = true, bool drawEllipse = true);
 
 private:
     unsigned long _id;
