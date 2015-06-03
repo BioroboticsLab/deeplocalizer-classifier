@@ -103,8 +103,13 @@ void Tag::setIsTag(bool isTag) {
     this->_is_tag = isTag;
 }
 
-const cv::Mat Tag::getSubimage(const cv::Mat & orginal) const {
-    return orginal(_boundingBox).clone();
+cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
+    cv::Rect box = _boundingBox;
+    box.x -= border;
+    box.y -= border;
+    box.width += 2*border;
+    box.height+= 2*border;
+    return orginal(box).clone();
 }
 void Tag::draw(QPainter & p) {
     auto bb = _boundingBox;

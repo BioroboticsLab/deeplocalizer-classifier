@@ -36,7 +36,7 @@ public:
     void setIsTag(bool is_tag);
     void toggleIsTag();
 
-    const cv::Mat getSubimage(const cv::Mat &orginal) const;
+    cv::Mat getSubimage(const cv::Mat &orginal, unsigned int border=0) const;
     bool operator==(const Tag &other) const;
     void guessIsTag(int threshold);
     void draw(QPainter & p);
