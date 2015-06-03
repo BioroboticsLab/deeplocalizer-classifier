@@ -9,22 +9,29 @@ using boost::optional;
 namespace deeplocalizer {
 namespace tagger {
 
-ManuellTagWindow::ManuellTagWindow(std::deque<ImageDescription> && _image_desc) :
+ManuellTagWindow::ManuellTagWindow(ManuellyTagger * tagger) :
     QMainWindow(nullptr),
-    ui(new Ui::ManuellTagWindow),
-    _grid_layout(new QGridLayout),
-    _current_image(Image(_image_desc.front())),
-    _current_desc(_image_desc.front()),
-    _images_with_proposals(_image_desc)
+    _tagger(tagger)
 {
+    init();
+}
+ManuellTagWindow::ManuellTagWindow(std::deque<ImageDescription> && descriptions) :
+    QMainWindow(nullptr),
+    _tagger(new ManuellyTagger(std::move(descriptions)))
+{
+    init();
+}
+
+void ManuellTagWindow::init() {
+    ui = new Ui::ManuellTagWindow;
+    _grid_layout = new QGridLayout;
     ui->setupUi(this);
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
     setupConnections();
-    showTags();
+    _state = State::Tags;
+    _tagger->loadImage(0);
 }
-
-
 ManuellTagWindow::~ManuellTagWindow()
 {
     delete ui;
@@ -36,10 +43,9 @@ void ManuellTagWindow::keyPressEvent(QKeyEvent *) {
 
 void ManuellTagWindow::showImage() {
     _state = State::Image;
-    _whole_image->setTags(_current_image.getCvMat(), &_current_desc.getTags());
+    _whole_image->setTags(_image->getCvMat(), &_desc->getTags());
 
     auto w = ui->scrollArea->takeWidget();
-    ASSERT(w == ui->tags_container, "expected _tags_containter");
     ui->scrollArea->setWidget(_whole_image);
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->show();
@@ -47,8 +53,7 @@ void ManuellTagWindow::showImage() {
 
 void ManuellTagWindow::showTags() {
     _state = State::Tags;
-    auto & tags = _current_desc.getTags();
-    qDebug() << ui->scrollArea->widget()->geometry();
+    auto & tags = _desc->getTags();
     std::sort(tags.begin(), tags.end(), [](auto & t1, auto & t2) {
         return t1.getEllipse() < t2.getEllipse();
     });
@@ -57,7 +62,7 @@ void ManuellTagWindow::showTags() {
         TagWidgetPtr widget = std::make_shared<TagWidget>();
         widget->connect(widget.get(), &TagWidget::clicked,
                         widget.get(), &TagWidget::toggleTag);
-        auto mat = tag.getSubimage(_current_image.getCvMat(), widget->border());
+        auto mat = tag.getSubimage(_image->getCvMat(), widget->border());
         widget->setTag(&tag, mat);
         _tag_widgets.push_back(widget);
     }
@@ -86,45 +91,28 @@ void ManuellTagWindow::arangeTagWidgets() {
     }
 }
 
-void ManuellTagWindow::loadImage(unsigned long idx) {
-    if (idx >= _images_with_proposals.size()) {
-        QMessageBox box;
-        box.setWindowTitle("DONE!");
-        box.setText("You are done! Feel very very happy! :-)");
-        box.exec();
-        return;
-    }
-    _image_idx = idx;
-    _current_image = Image(_images_with_proposals.at(_image_idx));
-    _current_desc = _images_with_proposals.at(_image_idx);
-}
-
 void ManuellTagWindow::resizeEvent(QResizeEvent * ) {
     if(_state == State::Tags) {
         arangeTagWidgets();
     }
 }
 
-void ManuellTagWindow::loadNextImage() {
-    loadImage(_image_idx + 1);
-}
 
-void ManuellTagWindow::loadLastImage() {
-    if (_image_idx == 0) { return; }
-    loadImage(_image_idx - 1);
-}
-
-Image &ManuellTagWindow::currentImage() {
-    return _current_image;
-}
 void ManuellTagWindow::setupConnections() {
-    ui->push_next->connect(ui->push_next, &QPushButton::clicked, this, &ManuellTagWindow::next);
-    ui->push_next->connect(ui->push_back, &QPushButton::clicked, this, &ManuellTagWindow::back);
+    this->connect(ui->push_next, &QPushButton::clicked, this, &ManuellTagWindow::next);
+    this->connect(ui->push_back, &QPushButton::clicked, this, &ManuellTagWindow::back);
+    this->connect(_tagger, &ManuellyTagger::image, this, &ManuellTagWindow::setImage);
+    this->connect(_tagger, &ManuellyTagger::outOfRange, [](int) {
+        QMessageBox box;
+        box.setWindowTitle("DONE!");
+        box.setText("You are done! Feel very very happy! :-)");
+        box.exec();
+    });
 }
 void ManuellTagWindow::next() {
     if (_state == State::Image) {
-        loadNextImage();
-        showTags();
+        _next_state = State::Tags;
+        _tagger->loadNextImage();
     } else if(_state == State::Tags) {
         showImage();
     }
@@ -133,9 +121,19 @@ void ManuellTagWindow::back() {
     if (_state == State::Image) {
         showTags();
     } else if(_state == State::Tags) {
-        loadLastImage();
-        showImage();
+        _next_state = State::Image;
+        _tagger->loadLastImage();
     }
+}
+void ManuellTagWindow::setImage(ImageDescription *desc, Image *img) {
+    _desc = desc;
+    _image = img;
+    if (_next_state == State::Image) {
+        showImage();
+    } else {
+        showTags();
+    }
+
 }
 }
 }

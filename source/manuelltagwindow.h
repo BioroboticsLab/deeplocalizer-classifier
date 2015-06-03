@@ -19,15 +19,12 @@ class ManuellTagWindow : public QMainWindow
 
 public:
     explicit ManuellTagWindow(std::deque<ImageDescription> && _image_desc);
+    explicit ManuellTagWindow(ManuellyTagger * tagger);
     ~ManuellTagWindow();
-    Image & currentImage();
 public slots:
     void next();
     void back();
-    void loadNextImage();
-    void loadLastImage();
-    void loadImage(unsigned long idx);
-
+    void setImage(ImageDescription * desc, Image * img);
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent * );
@@ -35,17 +32,17 @@ protected:
 private:
     enum class State{Tags, Image};
     Ui::ManuellTagWindow *ui;
+    ManuellyTagger * _tagger;
     QWidget * _tags_container;
     QGridLayout * _grid_layout;
     WholeImageWidget * _whole_image;
     std::vector<TagWidgetPtr> _tag_widgets;
-    unsigned long _image_idx = 0;
-    Image _current_image;
-    ImageDescription & _current_desc;
-    State _state;
-    std::deque<ImageDescription> _images_with_proposals;
-    std::deque<ImageDescription> _images_verified;
+    State _state = State::Tags;
+    State _next_state = State::Tags;
+    ImageDescription * _desc;
+    Image * _image;
 
+    void init();
     void showImage();
     void showTags();
     void arangeTagWidgets();

@@ -33,37 +33,38 @@ namespace tagger {
 class ManuellyTagger : public QObject {
     Q_OBJECT
 
+public slots:
+    void save(const QString & path) const;
+    void loadNextImage();
+    void loadLastImage();
+    void loadImage(unsigned long idx);
 signals:
-    void finishedTagging();
+    void image(ImageDescription * desc, Image * img);
+    void outOfRange(unsigned long idx);
+    void lastImage();
+    void firstImage();
 public:
     explicit ManuellyTagger();
+    explicit ManuellyTagger(std::deque<ImageDescription> && descriptions);
     explicit ManuellyTagger(const std::vector<ImageDescription> & images_with_proposals);
 
-    ImageDescription nextImageDescr();
-    void addVerified(ImageDescription && img);
-
-    void save(const std::string & path) const;
     static std::unique_ptr<ManuellyTagger> load(const std::string & path);
-
     const std::deque<ImageDescription> & getProposalImages() const {
-        return _images_with_proposals;
-    }
-
-    const std::deque<ImageDescription> & getClassifiedImages() const {
-        return _images_verified;
+        return _image_descs;
     }
 
 private:
-    std::deque<ImageDescription> _images_with_proposals;
-    std::deque<ImageDescription> _images_verified;
-
+    std::deque<ImageDescription> _image_descs;
+    Image _image;
+    ImageDescription * _desc;
+    unsigned long _image_idx = 0;
 
     friend class boost::serialization::access;
     template <class Archive>
     void serialize( Archive & ar, const unsigned int)
     {
-        ar & BOOST_SERIALIZATION_NVP(_images_with_proposals);
-        ar & BOOST_SERIALIZATION_NVP(_images_verified);
+        ar & BOOST_SERIALIZATION_NVP(_image_descs);
+        ar & BOOST_SERIALIZATION_NVP(_image_idx);
     }
 };
 }
