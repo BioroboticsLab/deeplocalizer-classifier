@@ -28,7 +28,11 @@ void ManuellTagWindow::init() {
     ui->setupUi(this);
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
+    _backAct = new QAction(this);
+    _nextAct = new QAction(this);
+
     setupConnections();
+    setupShortcuts();
     _state = State::Tags;
     _tagger->loadImage(0);
 }
@@ -44,8 +48,7 @@ void ManuellTagWindow::keyPressEvent(QKeyEvent *) {
 void ManuellTagWindow::showImage() {
     _state = State::Image;
     _whole_image->setTags(_image->getCvMat(), &_desc->getTags());
-
-    auto w = ui->scrollArea->takeWidget();
+    ui->scrollArea->takeWidget();
     ui->scrollArea->setWidget(_whole_image);
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->show();
@@ -98,10 +101,17 @@ void ManuellTagWindow::resizeEvent(QResizeEvent * ) {
 }
 
 
+void ManuellTagWindow::setupShortcuts() {
+    _backAct->setShortcut(QKeySequence(Qt::Key_Shift + Qt::Key_Enter));
+    this->addAction(_backAct);
+    _nextAct->setShortcuts({QKeySequence(Qt::Key_Enter), QKeySequence(Qt::Key_Space)});
+    this->addAction(_nextAct);
+}
 void ManuellTagWindow::setupConnections() {
-    this->connect(ui->push_next, &QPushButton::clicked, this, &ManuellTagWindow::next);
-    this->connect(ui->push_back, &QPushButton::clicked, this, &ManuellTagWindow::back);
-    this->connect(_tagger, &ManuellyTagger::image, this, &ManuellTagWindow::setImage);
+    this->connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
+    this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
+    this->connect(_nextAct, &QAction::triggered, this, &ManuellTagWindow::next);
+    this->connect(_backAct, &QAction::triggered, this, &ManuellTagWindow::back);
     this->connect(_tagger, &ManuellyTagger::outOfRange, [](int) {
         QMessageBox box;
         box.setWindowTitle("DONE!");

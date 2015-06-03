@@ -41,12 +41,16 @@ private:
     State _next_state = State::Tags;
     ImageDescription * _desc;
     Image * _image;
+    QAction * _nextAct;
+    QAction * _backAct;
+    std::deque<std::shared_ptr<QPushButton>> _image_names;
 
     void init();
     void showImage();
     void showTags();
     void arangeTagWidgets();
     void setupConnections();
+    void setupShortcuts();
     void eraseNegativeTags();
 };
 }
