@@ -1,5 +1,5 @@
 file(GLOB_RECURSE src RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-list(REMOVE_ITEM src "main.cpp" "add_border.cpp" "generate_proposals.cpp")
+list(REMOVE_ITEM src "tagger.cpp" "add_border.cpp" "generate_proposals.cpp")
 file(GLOB_RECURSE hdr RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h *.hpp)
 file(GLOB_RECURSE ui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.ui)
 file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
@@ -7,12 +7,12 @@ file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
 qt5_add_resources(UI_RESOURCES ${qrc})
 qt5_wrap_ui(UI_HEADERS ${ui})
 
-add_library(libdeeplocalizer
+add_library(deeplocalizer
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 
 
 set(libs
-    libdeeplocalizer
+    deeplocalizer
     Qt5::Widgets
     Qt5::OpenGL
     ${OPENGL_LIBRARIES}
@@ -20,10 +20,10 @@ set(libs
     ${Boost_LIBRARIES}
 )
 
-add_executable(manuelly-tagger "main.cpp"
+add_executable(tagger "tagger.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 
-target_link_libraries(manuelly-tagger ${libs})
+target_link_libraries(tagger ${libs})
 
 add_executable(add_border "add_border.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
