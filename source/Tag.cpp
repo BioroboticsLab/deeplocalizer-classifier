@@ -49,7 +49,6 @@ Tag::Tag(const pipeline::Tag & pipetag) {
             ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
         }
     }
-    this->guessIsTag(Tag::IS_TAG_THRESHOLD);
     if(ellipse) {
         _boundingBox = centerBoxAtEllipse(pipetag.getBox(), ellipse.get());
         _ellipse = ellipse;
@@ -62,7 +61,6 @@ Tag::Tag(const pipeline::Tag & pipetag) {
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
         _boundingBox(boundingBox), _ellipse(ellipse)
 {
-    this->guessIsTag(Tag::IS_TAG_THRESHOLD);
 }
 
 void Tag::guessIsTag(int threshold) {

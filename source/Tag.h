@@ -24,6 +24,7 @@ public:
     Tag();
     Tag(const pipeline::Tag & pipetag);
     Tag(cv::Rect boundingBox, boost::optional<pipeline::Ellipse> ellipse);
+    static const int IS_TAG_THRESHOLD = 1200;
 
     long getId() const;
     const cv::Rect & getBoundingBox() const;
@@ -39,13 +40,13 @@ public:
     bool operator==(const Tag &other) const;
     void guessIsTag(int threshold);
     void draw(QPainter & p);
+    void guessIsTag(int threshold = IS_TAG_THRESHOLD);
 
 private:
     unsigned long _id;
     cv::Rect _boundingBox;
     boost::optional<pipeline::Ellipse> _ellipse;
-    bool _is_tag;
-
+    bool _is_tag = true;
 
     static unsigned long generateId();
     static std::atomic_long id_counter;
@@ -56,7 +57,6 @@ private:
         ar & BOOST_SERIALIZATION_NVP(_ellipse);
         ar & BOOST_SERIALIZATION_NVP(_is_tag);
     }
-    static const int IS_TAG_THRESHOLD = 1600;
 };
 }
 }
