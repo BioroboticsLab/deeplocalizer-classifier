@@ -19,7 +19,7 @@ WholeImageWidget::WholeImageWidget(QScrollArea *parent) : QWidget(parent) {
     init();
 }
 
-WholeImageWidget::WholeImageWidget(QScrollArea * parent, cv::Mat mat, std::vector<Tag> tags) :
+WholeImageWidget::WholeImageWidget(QScrollArea * parent, cv::Mat mat, std::vector<Tag> * tags) :
         QWidget(parent)
 {
 
@@ -53,7 +53,7 @@ void WholeImageWidget::findEllipse(const Tag &tag) {
 }
 void WholeImageWidget::tagProcessed(Tag tag) {
     qDebug() << "tag processed" << tag.getBoundingBox().x;
-
+    tag.setIsTag(true);
     _newly_added_tags.erase(
             std::remove_if(_newly_added_tags.begin(),
                            _newly_added_tags.end(),
@@ -61,11 +61,11 @@ void WholeImageWidget::tagProcessed(Tag tag) {
                                return t.getId() != tag.getId();
                            })
     );
-    _tags.push_back(tag);
+    _tags->push_back(tag);
     repaint();
 }
 
-void WholeImageWidget::keyPressEvent(QKeyEvent * event) {
+void WholeImageWidget::keyPressEvent(QKeyEvent * ) {
 }
 
 void WholeImageWidget::paintEvent(QPaintEvent *) {
@@ -75,7 +75,7 @@ void WholeImageWidget::paintEvent(QPaintEvent *) {
 
     _painter.scale(_scale, _scale);
     _painter.drawPixmap(0, 0, _pixmap);
-    for(auto & t: _tags) {
+    for(auto & t: *_tags) {
         t.draw(_painter);
     }
     for(auto & t: _newly_added_tags) {
@@ -109,7 +109,7 @@ void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
     auto pos = event->pos() / _scale;
     auto maybe_tag = getTag(pos.x(), pos.y());
     if (maybe_tag) {
-        _tags.erase(std::remove_if(_tags.begin(), _tags.end(),
+        _tags->erase(std::remove_if(_tags->begin(), _tags->end(),
                     [&maybe_tag](auto & t){
                         return t.getId() == maybe_tag.get().getId();
                     }));
@@ -120,14 +120,14 @@ void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
 }
 
 boost::optional<Tag &> WholeImageWidget::getTag(int x, int y) {
-    for(auto & tag : _tags) {
+    for(auto & tag : *_tags) {
         if(tag.getBoundingBox().contains(cv::Point(x, y))) {
             return tag;
         }
     }
     return boost::optional<Tag &>();
 }
-void WholeImageWidget::setTags(cv::Mat mat, std::vector<Tag> tags) {
+void WholeImageWidget::setTags(cv::Mat mat, std::vector<Tag> * tags) {
     _mat = mat;
     _pixmap = cvMatToQPixmap(mat);
     _tags = tags;

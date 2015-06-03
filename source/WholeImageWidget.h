@@ -26,8 +26,8 @@ Q_OBJECT
 
 public:
     WholeImageWidget(QScrollArea * parent);
-    WholeImageWidget(QScrollArea * parent, cv::Mat mat, std::vector<Tag> tags);
-    void setTags(cv::Mat mat, std::vector<Tag> tags);
+    WholeImageWidget(QScrollArea * parent, cv::Mat mat, std::vector<Tag> * tags);
+    void setTags(cv::Mat mat, std::vector<Tag> * tags);
     virtual QSize sizeHint() const;
 public slots:
     void createTag(int x, int y);
@@ -45,7 +45,7 @@ private:
     QPixmap _pixmap;
     QPainter _painter;
     double _scale = 0.5;
-    std::vector<Tag> _tags;
+    std::vector<Tag> * _tags;
     std::list<Tag> _newly_added_tags;
     PipelineWorker *_worker;
     QThread *_thread;
