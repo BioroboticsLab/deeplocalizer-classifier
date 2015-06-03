@@ -114,6 +114,7 @@ void ManuellTagWindow::next() {
         _next_state = State::Tags;
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {
+        ManuellTagWindow::eraseNegativeTags();
         showImage();
     }
 }
@@ -135,5 +136,13 @@ void ManuellTagWindow::setImage(ImageDescription *desc, Image *img) {
     }
 
 }
+
+void ManuellTagWindow::eraseNegativeTags() {
+    auto & tags = _desc->getTags();
+    tags.erase(std::remove_if(tags.begin(), tags.end(), [](const auto & tag) {
+        return not tag.isTag();
+    }), tags.end());
+}
+
 }
 }

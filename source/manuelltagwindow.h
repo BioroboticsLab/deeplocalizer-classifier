@@ -47,6 +47,7 @@ private:
     void showTags();
     void arangeTagWidgets();
     void setupConnections();
+    void eraseNegativeTags();
 };
 }
 }
