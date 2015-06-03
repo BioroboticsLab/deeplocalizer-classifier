@@ -23,7 +23,6 @@ void setupOptions() {
 int run(QApplication & qapp, std::string proposals_file, std::string out_file) {
     auto proposals = ImageDescription::loads(proposals_file);
     ManuellTagWindow window(std::move(*proposals));
-    window.showImage();
     window.show();
     return qapp.exec();
 }
