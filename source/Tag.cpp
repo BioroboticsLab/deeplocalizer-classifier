@@ -4,6 +4,8 @@
 
 #include "Tag.h"
 
+#include <QPainter>
+#include <mutex>
 
 namespace deeplocalizer {
 namespace tagger {
@@ -16,32 +18,36 @@ bool contains(const cv::Mat & m, const cv::Rect & rect) {
             rect.x + rect.width < m.cols && rect.y + rect.height < m.rows);
 }
 
-const cv::Rect centerBoxAtEllipse(const cv::Rect & boundingBox,
-                                  const cv::Mat & image ,
+const cv::Rect centerBoxAtEllipse(const cv::Rect & bb,
                                   const optional<pipeline::Ellipse> & ellipse) {
     if(ellipse.is_initialized()) {
         cv::Point2i center = ellipse.get().getCen();
-
-        cv::Rect box(center.x - TAG_WIDTH / 2, TAG_WIDTH,
-                     center.y - TAG_HEIGHT / 2, TAG_HEIGHT);
-        if (contains(image, box)) {
-            return box;
-        }
+        cv::Rect box(bb.x + center.x - TAG_WIDTH / 2,
+                     bb.y + center.y - TAG_HEIGHT / 2,
+                     TAG_WIDTH, TAG_HEIGHT);
+        return box;
     }
-    return boundingBox;
+    return bb;
 }
 
 std::atomic_long Tag::id_counter(0);
 
-long Tag::generateId() {
-    return Tag::id_counter.fetch_add(1, std::memory_order_relaxed);
+unsigned long Tag::generateId() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<unsigned long> dis(0, ULONG_MAX);
+    static std::mutex m;
+    m.lock();
+    unsigned  long id = dis(gen);
+    m.unlock();
+    return id;
 }
 
 Tag::Tag() {
     _id = Tag::generateId();
 }
 
-Tag::Tag(const pipeline::Tag & pipetag, const cv::Mat & image) {
+Tag::Tag(const pipeline::Tag & pipetag) {
     _id = Tag::generateId();
     boost::optional<pipeline::Ellipse> ellipse;
     for(auto candidate : pipetag.getCandidatesConst()) {
@@ -51,17 +57,21 @@ Tag::Tag(const pipeline::Tag & pipetag, const cv::Mat & image) {
             ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
         }
     }
+
     _boundingBox = centerBoxAtEllipse(pipetag.getBox(), image,  ellipse);
     _ellipse = ellipse;
+    this->guessIsTag(Tag::IS_TAG_THRESHOLD);
 }
 
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
         _boundingBox(boundingBox), _ellipse(ellipse)
 {
-    _id = Tag::generateId();
-    _is_tag = _ellipse.is_initialized() && _ellipse.get().getVote() > 1500;
+    this->guessIsTag(Tag::IS_TAG_THRESHOLD);
 }
 
+void Tag::guessIsTag(int threshold) {
+    _is_tag = _ellipse.is_initialized() && _ellipse.get().getVote() > threshold;
+}
 const optional<pipeline::Ellipse> & Tag::getEllipse () const {
     return _ellipse;
 }
@@ -121,6 +131,9 @@ void Tag::draw(QPainter & p) {
         p.drawEllipse(QPoint(0, 0), e.getAxis().width, e.getAxis().height);
         p.setWorldTransform(t);
     }
+}
+long Tag::getId() const {
+    return _id;
 }
 }
 }
