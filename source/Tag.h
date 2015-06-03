@@ -22,7 +22,7 @@ const int TAG_HEIGHT = 96;
 class Tag {
 public:
     Tag();
-    Tag(const pipeline::Tag & pipetag, const cv::Mat & image);
+    Tag(const pipeline::Tag & pipetag);
     Tag(cv::Rect boundingBox, boost::optional<pipeline::Ellipse> ellipse);
 
     long getId() const;

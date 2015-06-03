@@ -11,23 +11,15 @@ namespace deeplocalizer {
 namespace tagger {
 
 using boost::optional;
-using namespace std;
 
-bool contains(const cv::Mat & m, const cv::Rect & rect) {
-    return (rect.x >= 0 && rect.y >= 0 && rect.width >= 0 && rect.height >= 0 &&
-            rect.x + rect.width < m.cols && rect.y + rect.height < m.rows);
-}
 
-const cv::Rect centerBoxAtEllipse(const cv::Rect & bb,
-                                  const optional<pipeline::Ellipse> & ellipse) {
-    if(ellipse.is_initialized()) {
-        cv::Point2i center = ellipse.get().getCen();
-        cv::Rect box(bb.x + center.x - TAG_WIDTH / 2,
-                     bb.y + center.y - TAG_HEIGHT / 2,
-                     TAG_WIDTH, TAG_HEIGHT);
-        return box;
-    }
-    return bb;
+cv::Rect centerBoxAtEllipse(const cv::Rect & bb,
+                            const pipeline::Ellipse & ellipse) {
+    cv::Point2i center = ellipse.getCen();
+    cv::Rect box(bb.x + center.x - TAG_WIDTH / 2,
+                 bb.y + center.y - TAG_HEIGHT / 2,
+                 TAG_WIDTH, TAG_HEIGHT);
+    return box;
 }
 
 std::atomic_long Tag::id_counter(0);
@@ -57,10 +49,14 @@ Tag::Tag(const pipeline::Tag & pipetag) {
             ellipse = optional<pipeline::Ellipse>(candidate.getEllipse());
         }
     }
-
-    _boundingBox = centerBoxAtEllipse(pipetag.getBox(), image,  ellipse);
-    _ellipse = ellipse;
     this->guessIsTag(Tag::IS_TAG_THRESHOLD);
+    if(ellipse) {
+        _boundingBox = centerBoxAtEllipse(pipetag.getBox(), ellipse.get());
+        _ellipse = ellipse;
+        _ellipse.get().setCen(cv::Point2i(TAG_WIDTH/2, TAG_HEIGHT/2));
+    } else {
+        _boundingBox = pipetag.getBox();
+    }
 }
 
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
