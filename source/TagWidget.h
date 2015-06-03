@@ -20,9 +20,10 @@ public:
     bool clickable = true;
     TagWidget();
     TagWidget(QWidget * parent);
-    void setRandomImage(int height, int width);
-    void loadFile(const QString &);
-    void setTag(Tag * tag, const cv::Mat & img);
+    void setTag(Tag * tag, cv::Mat mat);
+    void setBorder(unsigned int border);
+    unsigned int border();
+    static const unsigned int DEFAULT_BORDER = 16;
 public slots:
     void toggleTag();
 signals:
@@ -30,15 +31,16 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent * event);
     void paintEvent(QPaintEvent *);
+    virtual QSize sizeHint() const;
 private:
     cv::Mat _mat;
-    deeplocalizer::tagger::Tag * _tag;
+    Tag * _tag = nullptr;
+    unsigned int _border = DEFAULT_BORDER;
     QPainter _painter;
     QPixmap _pixmap;
     void init();
-    void redraw();
 };
-
+using TagWidgetPtr = std::shared_ptr<TagWidget>;
 }
 }
 

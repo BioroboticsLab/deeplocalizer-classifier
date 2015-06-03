@@ -20,34 +20,44 @@ TagWidget::TagWidget(QWidget *parent)
     this->init();
 }
 
-void TagWidget::setTag(Tag * tag, const cv::Mat & img) {
-    _tag = tag;
-    cv::Rect box = tag->getBoundingBox();
-    this->setFixedSize(box.width, box.height);
-    this->redraw();
-}
-
-void TagWidget::paintEvent(QPaintEvent *) {
-    _pixmap = cvMatToQPixmap(_mat);
-    _painter.begin(this);
-    _painter.scale(0.3, 0.3);
-    _painter.drawPixmap(0, 0, _pixmap);
-    _tag->draw(_painter);
-    _painter.end();
-}
-
-void TagWidget::redraw() {
-    this->style()->unpolish(this);
-    this->style()->polish(this);
-    this->update();
-}
-
 void TagWidget::init() {
     this->setAutoFillBackground(true);
     this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->layout()->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    this->setFixedSize(sizeHint());
+}
+void TagWidget::setTag(Tag * tag, cv::Mat mat) {
+    _tag = tag;
+    _mat = mat;
+    _pixmap = cvMatToQPixmap(_mat);
+    setFixedSize(sizeHint());
+    this->repaint();
 }
 
+QSize TagWidget::sizeHint() const {
+    if (_tag) {
+        auto box = _tag->getBoundingBox();
+        return QSize(box.width + 2*_border, box.height + 2*_border);
+    } else {
+        return QSize(TAG_WIDTH + 2*_border, TAG_HEIGHT + 2*_border);
+    }
+}
+
+void TagWidget::paintEvent(QPaintEvent *) {
+    static const int lineWidth = 1;
+    static const bool drawVote = false;
+    static const bool drawEllipse = false;
+
+    _painter.begin(this);
+    _painter.drawPixmap(0, 0, _pixmap);
+    if(_tag != nullptr) {
+        auto box = _tag->getBoundingBox();
+        _painter.save();
+        _painter.translate(QPoint(-box.x + _border, -box.y + _border));
+        _tag->draw(_painter, lineWidth, drawVote, drawEllipse);
+        _painter.restore();
+    }
+    _painter.end();
+}
 
 void TagWidget::mousePressEvent(QMouseEvent *) {
     if (this->clickable) {
@@ -57,7 +67,15 @@ void TagWidget::mousePressEvent(QMouseEvent *) {
 
 void TagWidget::toggleTag() {
     _tag->toggleIsTag();
-    this->redraw();
+    this->repaint();
+}
+
+void TagWidget::setBorder(unsigned int border) {
+    _border = border;
+}
+
+unsigned int TagWidget::border() {
+    return _border;
 }
 }
 }
