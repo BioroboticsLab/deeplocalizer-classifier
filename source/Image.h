@@ -47,6 +47,7 @@ public:
     cv::Mat getCvMat() const;
     void addBorder();
     bool write(boost::filesystem::path path = {}) const;
+    bool operator==(const Image & other) const;
 
 private:
     cv::Mat _mat;

@@ -112,5 +112,22 @@ bool Image::write(io::path path) const {
         return cv::imwrite(path.string(), _mat);
     }
 }
+
+bool Image::operator==(const Image &other) const {
+    if(_filename != other._filename) {
+        return false;
+    }
+    cv::Mat & m = const_cast<cv::Mat &>(_mat);
+    cv::Mat & o = const_cast<cv::Mat &>(other._mat);
+
+    if (m.empty() && o.empty()) {
+        return true;
+    }
+    if (m.cols != o.cols || m.rows != o.rows ||
+            m.dims != o.dims) {
+        return false;
+    }
+    return std::equal(m.begin<uchar>(), m.end<uchar>(), o.begin<uchar>(), o.end<uchar>());
+}
 }
 }
