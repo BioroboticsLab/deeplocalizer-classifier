@@ -31,39 +31,26 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="ImageTagWidget" name="imagetag_center">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+     <widget class="QScrollArea" name="scrollArea">
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QScrollArea" name="latestScrollArea">
       <property name="widgetResizable">
        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <widget class="QWidget" name="latestTags">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>851</width>
-         <height>205</height>
+         <width>853</width>
+         <height>421</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -112,13 +99,6 @@
    </attribute>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ImageTagWidget</class>
-   <extends>QLabel</extends>
-   <header>ImageTagWidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

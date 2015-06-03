@@ -1,32 +1,22 @@
 #include <QtWidgets/qapplication.h>
 #include <QKeyEvent>
 #include "manuelltagwindow.h"
-#include "ImageTagWidget.h"
+#include "TagWidget.h"
 
-using namespace deeplocalizer::tagger;
 using boost::optional;
+namespace deeplocalizer {
+namespace tagger {
 
-ManuellTagWindow::ManuellTagWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::ManuellTagWindow)
+ManuellTagWindow::ManuellTagWindow(std::deque<ImageDescription> && _image_desc) :
+    QMainWindow(nullptr),
+    ui(new Ui::ManuellTagWindow),
+    _grid_layout(new QGridLayout),
+    _current_image(Image(_image_desc.front())),
+    _current_desc(_image_desc.front()),
+    _images_with_proposals(_image_desc)
 {
-    _grid_layout = new QGridLayout;
-    this->tagger = std::unique_ptr<ManuellyTagger>(
-        new ManuellyTagger(
-            std::vector<ImageDescription>{
-                ImageDescription{"test/testdata/Cam_0_20140804152006_3.jpeg"}
-            }
-        )
-    );
     ui->setupUi(this);
-
-    this->ui->imagetag_center->setStyleSheet(
-            "QLabel {border: 10px solid yellow}\n"
-            "QLabel[is_tag=\"yes\"] {border: 10px solid green}\n"
-            "QLabel[is_tag=\"no\"] {border: 10px solid red}"
-    );
-    _current_image_descr = this->tagger->nextImageDescr();
-    _current_image = Image(_current_image_descr);
+    _whole_image = new WholeImageWidget(ui->scrollArea);
 }
 
 
@@ -40,6 +30,12 @@ void ManuellTagWindow::keyPressEvent(QKeyEvent *) {
 
 
 void ManuellTagWindow::showImage() {
+    _whole_image->setTags(_current_image.getCvMat(), _current_desc.getTags());
+
+    ui->scrollArea->setWidget(_whole_image);
+    ui->scrollArea->setBackgroundRole(QPalette::Dark);
+
+    ui->scrollArea->show();
 }
 
 void ManuellTagWindow::showTags(std::vector<Tag> & tags /*={}*/) {
@@ -47,20 +43,19 @@ void ManuellTagWindow::showTags(std::vector<Tag> & tags /*={}*/) {
     int row = 0;
     int cols = this->geometry().width() / 100;
     if (tags.empty()) {
-        tags = _current_image_descr.getTags();
+        tags = _images_with_proposals.at(0).getTags();
     }
-    delete ui->latestScrollArea->layout();
+    // delete ui->latestScrollArea->layout();
     std::sort(tags.begin(), tags.end(), [](auto & t1, auto & t2) {
         return t1.getEllipse() < t2.getEllipse();
     });
 
     for (auto tag : tags) {
-        ImageTagWidget * widget = new ImageTagWidget;
-        widget->connect(widget, &ImageTagWidget::clicked,
-                        widget, &ImageTagWidget::toggleTag);
-        widget->setTag(&tag, _current_image.getCvMat());
+        TagWidget * widget = new TagWidget;
+        widget->connect(widget, &TagWidget::clicked,
+                        widget, &TagWidget::toggleTag);
+        widget->setTag(&tag, this->currentImage().getCvMat());
         if (col == cols) {
-
             col = 0;
             row++;
         }
@@ -69,6 +64,16 @@ void ManuellTagWindow::showTags(std::vector<Tag> & tags /*={}*/) {
     }
     delete ui->latestTags->layout();
     ui->latestTags->setLayout(_grid_layout);
-    ui->imagetag_center->hide();
+    _whole_image->hide();
 }
 
+void ManuellTagWindow::nextImage() {
+    ++_image_idx;
+    _current_image = Image(_images_with_proposals.at(_image_idx));
+    _current_desc = _images_with_proposals.at(_image_idx);
+}
+Image &ManuellTagWindow::currentImage() {
+    return _current_image;
+}
+}
+}

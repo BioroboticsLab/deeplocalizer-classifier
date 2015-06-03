@@ -13,6 +13,7 @@
 
 Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDescription)
 Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
+Q_DECLARE_METATYPE(cv::Mat)
 
 namespace deeplocalizer {
 namespace tagger {
