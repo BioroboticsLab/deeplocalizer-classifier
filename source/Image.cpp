@@ -31,6 +31,9 @@ ImageDescription::ImageDescription(const QString _filename, std::vector<Tag> _ta
 
 }
 
+const std::vector<Tag> & ImageDescription::getTags() const {
+    return tags;
+}
 std::vector<Tag> & ImageDescription::getTags() {
     return tags;
 }

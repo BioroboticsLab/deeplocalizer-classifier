@@ -86,31 +86,6 @@ TEST_CASE( "Serialization", "[serialize]" ) {
         }
         io::remove(uniquePath);
     }
-    SECTION( "ProposalGenerator" ) {
-        GIVEN( "an image with tags" ) {
-            THEN(" the tags can be saved and reloaded") {
-                std::vector<QString> image_paths =
-                        {QString("testdata/with_5_tags.jpeg")};
-                auto gen = std::shared_ptr<ProposalGenerator>(new ProposalGenerator(image_paths));
-                registerQuit(gen.get());
-
-                gen->connect(gen.get(), &ProposalGenerator::finished, [&]() {
-                    std::cout << "finished called" << std::endl;
-                    gen->saveProposals(uniquePath.string());
-                    auto load_imgs = ImageDescription::loads(uniquePath.string());
-
-                    REQUIRE( gen->getProposalImages().size() == load_imgs->size());
-                    for(unsigned int i = 1; i < gen->getProposalImages().size(); i++) {
-                        auto gen_img = gen->getProposalImages().at(i);
-                        auto load_img = load_imgs->at(i);
-                        REQUIRE(gen_img == load_img);
-                    }
-                    io::remove(uniquePath);
-                });
-                gen->processPipeline();
-            }
-        }
-    }
 }
 
 int main( int argc, char** const argv )
@@ -118,5 +93,5 @@ int main( int argc, char** const argv )
     QCoreApplication * qapp = new QCoreApplication(argc, argv);
     deeplocalizer::registerQMetaTypes();
     exit_code = Catch::Session().run(argc, argv);
-    return qapp->exec();
+    return exit_code;
 }

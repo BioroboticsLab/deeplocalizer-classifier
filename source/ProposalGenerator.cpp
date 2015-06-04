@@ -51,8 +51,8 @@ void ProposalGenerator::init() {
         // connect(worker, &worker->error, this, &this->errorString);
         connect(this, &ProposalGenerator::finished, thread, &QThread::quit);
         connect(this, &ProposalGenerator::finished, thread, &QThread::deleteLater);
-        connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-        connect(thread, &QThread::finished, worker, &QThread::deleteLater);
+        thread->connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+        thread->connect(thread, &QThread::finished, worker, &QThread::deleteLater);
 
         connect(worker, &PipelineWorker::resultReady, this, &ProposalGenerator::imageProcessed);
         thread->start();
@@ -90,5 +90,11 @@ void ProposalGenerator::saveProposals(const std::string &path) const {
 }
 
 
+ProposalGenerator::~ProposalGenerator() {
+    for(auto & t : _threads) {
+        t->wait();
+        t->quit();
+    }
+}
 }
 }

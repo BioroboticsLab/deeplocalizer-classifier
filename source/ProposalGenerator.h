@@ -44,7 +44,7 @@ public:
     inline const std::deque<ImageDescription> & getProposalImages() const {
         return _images_with_proposals;
     }
-
+    virtual ~ProposalGenerator();
 private:
     explicit ProposalGenerator();
     void init();
