@@ -1,4 +1,3 @@
-
 #include <boost/program_options.hpp>
 
 #include "Image.h"
@@ -19,7 +18,7 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 
-io::path output_path(std::string filename) {
+io::path addWb(io::path filename) {
     io::path output_path(filename);
     auto extension = output_path.extension();
     output_path.replace_extension();
@@ -44,14 +43,16 @@ int main(int argc, char* argv[])
         std::string pathfile =
                 vm.at("pathfile").as<std::vector<std::string>>().at(0);
         auto image_descs = ImageDescription::fromPathFile(pathfile);
+        auto output_dir = io::path(vm.at("output_dir").as<std::string>());
+        io::create_directories(output_dir);
         for (auto &desc : image_descs) {
             Image img(desc);
             img.addBorder();
-            auto output_dir = vm.at("output_dir").as<std::string>();
-            auto output = output_path(
-                    output_dir + "/" + desc.filename.toStdString());
-            img.write(output);
-            std::cout << output.string() << std::endl;
+            auto input_path =  io::path(desc.filename.toStdString());
+            auto output = addWb(output_dir / input_path.filename());
+            if(not img.write(output)) {
+                std::cerr << "Fail to write image : " << output.string() << std::endl;
+            }
         }
     } else {
         std::cout << "No pathfile or output_dir are given" << std::endl;
