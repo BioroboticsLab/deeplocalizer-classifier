@@ -1,5 +1,5 @@
 
-#include "ManuellyTagger.h"
+#include "ManuallyTagger.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
@@ -17,13 +17,13 @@ namespace tagger {
 using boost::optional;
 namespace io = boost::filesystem;
 
-ManuellyTagger::ManuellyTagger() {  }
+ManuallyTagger::ManuallyTagger() {  }
 
-ManuellyTagger::ManuellyTagger(std::deque<ImageDescription> && descriptions) :
+ManuallyTagger::ManuallyTagger(std::deque<ImageDescription> && descriptions) :
     _image_descs(std::move(descriptions))
 { }
 
-ManuellyTagger::ManuellyTagger(const std::vector<ImageDescription> & img_descr)
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDescription> & img_descr)
 {
     for(const auto & descr : img_descr ) {
         ASSERT(io::exists(descr.filename.toStdString()),
@@ -32,29 +32,29 @@ ManuellyTagger::ManuellyTagger(const std::vector<ImageDescription> & img_descr)
     }
 }
 
-void ManuellyTagger::save(const QString & path) const {
+void ManuallyTagger::save(const QString & path) const {
     std::ofstream os(path.toStdString());
     boost::archive::xml_oarchive archive(os);
     archive << boost::serialization::make_nvp("tagger", *this);
 }
 
-std::unique_ptr<ManuellyTagger> ManuellyTagger::load(const std::string & path) {
+std::unique_ptr<ManuallyTagger> ManuallyTagger::load(const std::string & path) {
     std::ifstream is(path);
     boost::archive::xml_iarchive archive(is);
-    ManuellyTagger * tagger;
+    ManuallyTagger * tagger;
     archive >> boost::serialization::make_nvp("tagger", tagger);
-    return std::unique_ptr<ManuellyTagger>(tagger);
+    return std::unique_ptr<ManuallyTagger>(tagger);
 }
-void ManuellyTagger::loadNextImage() {
+void ManuallyTagger::loadNextImage() {
     loadImage(_image_idx + 1);
 }
 
-void ManuellyTagger::loadLastImage() {
+void ManuallyTagger::loadLastImage() {
     if (_image_idx == 0) { return; }
     loadImage(_image_idx - 1);
 }
 
-void ManuellyTagger::loadImage(unsigned long idx) {
+void ManuallyTagger::loadImage(unsigned long idx) {
     if (idx >= _image_descs.size()) {
         emit outOfRange(idx);
         return;

@@ -8,7 +8,7 @@
 #include <boost/filesystem/operations.hpp>
 
 #include "catch.hpp"
-#include "ManuellyTagger.h"
+#include "ManuallyTagger.h"
 #include "ProposalGenerator.h"
 #include "deeplocalizer.h"
 

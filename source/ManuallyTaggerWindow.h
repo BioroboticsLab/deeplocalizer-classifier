@@ -2,9 +2,9 @@
 #define MANUELLTAGWINDOW_H
 
 #include <QMainWindow>
-#include <ui_manuelltagwindow.h>
+#include <ui_ManuallyTaggerWindow.h>
 
-#include "ManuellyTagger.h"
+#include "ManuallyTagger.h"
 #include "WholeImageWidget.h"
 #include "TagWidget.h"
 
@@ -13,14 +13,14 @@ namespace deeplocalizer {
 namespace tagger {
 
 
-class ManuellTagWindow : public QMainWindow
+class ManuallyTagWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit ManuellTagWindow(std::deque<ImageDescription> && _image_desc);
-    explicit ManuellTagWindow(ManuellyTagger * tagger);
-    ~ManuellTagWindow();
+    explicit ManuallyTagWindow(std::deque<ImageDescription> && _image_desc);
+    explicit ManuallyTagWindow(ManuallyTagger * tagger);
+    ~ManuallyTagWindow();
 public slots:
     void next();
     void back();
@@ -33,8 +33,8 @@ protected:
 
 private:
     enum class State{Tags, Image};
-    Ui::ManuellTagWindow *ui;
-    ManuellyTagger * _tagger;
+    Ui::ManuallyTaggerWindow *ui;
+    ManuallyTagger * _tagger;
     QWidget * _tags_container;
     QGridLayout * _grid_layout;
     WholeImageWidget * _whole_image;

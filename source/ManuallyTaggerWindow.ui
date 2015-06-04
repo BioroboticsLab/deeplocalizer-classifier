@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ManuellTagWindow</class>
- <widget class="QMainWindow" name="ManuellTagWindow">
+ <class>ManuallyTaggerWindow</class>
+ <widget class="QMainWindow" name="ManuallyTagggerWindow">
   <property name="geometry">
    <rect>
     <x>0</x>

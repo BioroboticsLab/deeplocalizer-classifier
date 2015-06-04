@@ -1,5 +1,5 @@
 
-#include "manuelltagwindow.h"
+#include "ManuallyTaggerWindow.h"
 #include "deeplocalizer.h"
 #include <QApplication>
 #include <boost/program_options.hpp>
@@ -22,7 +22,7 @@ void setupOptions() {
 }
 int run(QApplication & qapp, std::string proposals_file, std::string out_file) {
     auto proposals = ImageDescription::loads(proposals_file);
-    ManuellTagWindow window(std::move(*proposals));
+    ManuallyTagWindow window(std::move(*proposals));
     window.show();
     return qapp.exec();
 }

@@ -2,29 +2,29 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QScrollBar>
-#include "manuelltagwindow.h"
+#include "ManuallyTaggerWindow.h"
 #include "utils.h"
 
 using boost::optional;
 namespace deeplocalizer {
 namespace tagger {
 
-ManuellTagWindow::ManuellTagWindow(ManuellyTagger * tagger) :
+ManuallyTagWindow::ManuallyTagWindow(ManuallyTagger * tagger) :
     QMainWindow(nullptr),
     _tagger(tagger)
 {
     init();
 }
 
-ManuellTagWindow::ManuellTagWindow(std::deque<ImageDescription> && descriptions) :
+ManuallyTagWindow::ManuallyTagWindow(std::deque<ImageDescription> && descriptions) :
     QMainWindow(nullptr),
-    _tagger(new ManuellyTagger(std::move(descriptions)))
+    _tagger(new ManuallyTagger(std::move(descriptions)))
 {
     init();
 }
 
-void ManuellTagWindow::init() {
-    ui = new Ui::ManuellTagWindow;
+void ManuallyTagWindow::init() {
+    ui = new Ui::ManuallyTaggerWindow;
     _grid_layout = new QGridLayout;
     ui->setupUi(this);
     _whole_image = new WholeImageWidget(ui->scrollArea);
@@ -35,16 +35,16 @@ void ManuellTagWindow::init() {
     _tagger->loadImage(0);
 }
 
-ManuellTagWindow::~ManuellTagWindow()
+ManuallyTagWindow::~ManuallyTagWindow()
 {
     delete ui;
 }
 
-void ManuellTagWindow::keyPressEvent(QKeyEvent *) {
+void ManuallyTagWindow::keyPressEvent(QKeyEvent *) {
 }
 
 
-void ManuellTagWindow::showImage() {
+void ManuallyTagWindow::showImage() {
     _state = State::Image;
     _whole_image->setTags(_image->getCvMat(), &_desc->getTags());
     ui->scrollArea->takeWidget();
@@ -53,7 +53,7 @@ void ManuellTagWindow::showImage() {
     ui->scrollArea->show();
 }
 
-void ManuellTagWindow::showTags() {
+void ManuallyTagWindow::showTags() {
     _state = State::Tags;
     auto & tags = _desc->getTags();
     std::sort(tags.begin(), tags.end(), [](auto & t1, auto & t2) {
@@ -79,7 +79,7 @@ void ManuellTagWindow::showTags() {
     _whole_image->hide();
 }
 
-void ManuellTagWindow::arangeTagWidgets() {
+void ManuallyTagWindow::arangeTagWidgets() {
     int col = 0;
     int row = 0;
     int width = ui->scrollArea->geometry().width();
@@ -93,13 +93,13 @@ void ManuellTagWindow::arangeTagWidgets() {
     }
 }
 
-void ManuellTagWindow::resizeEvent(QResizeEvent * ) {
+void ManuallyTagWindow::resizeEvent(QResizeEvent * ) {
     if(_state == State::Tags) {
         arangeTagWidgets();
     }
 }
 
-void ManuellTagWindow::setupActions() {
+void ManuallyTagWindow::setupActions() {
 
     _backAct = new QAction(this);
     _nextAct = new QAction(this);
@@ -115,34 +115,34 @@ void ManuellTagWindow::setupActions() {
     _scrollBackAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
     this->addAction(_scrollBackAct);
 
-    this->connect(_nextAct, &QAction::triggered, this, &ManuellTagWindow::next);
-    this->connect(_backAct, &QAction::triggered, this, &ManuellTagWindow::back);
-    this->connect(_scrollAct, &QAction::triggered, this, &ManuellTagWindow::scroll);
-    this->connect(_scrollBackAct, &QAction::triggered, this, &ManuellTagWindow::scrollBack);
+    this->connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::next);
+    this->connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::back);
+    this->connect(_scrollAct, &QAction::triggered, this, &ManuallyTagWindow::scroll);
+    this->connect(_scrollBackAct, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
 }
 
-void ManuellTagWindow::setupConnections() {
+void ManuallyTagWindow::setupConnections() {
     this->connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
     this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
-    this->connect(_tagger, &ManuellyTagger::loadedImage, this,
-                  &ManuellTagWindow::setImage);
-    this->connect(_tagger, &ManuellyTagger::outOfRange, [](int) {
+    this->connect(_tagger, &ManuallyTagger::loadedImage, this,
+                  &ManuallyTagWindow::setImage);
+    this->connect(_tagger, &ManuallyTagger::outOfRange, [](int) {
         QMessageBox box;
         box.setWindowTitle("DONE!");
         box.setText("You are done! Feel very very happy! :-)");
         box.exec();
     });
 }
-void ManuellTagWindow::next() {
+void ManuallyTagWindow::next() {
     if (_state == State::Image) {
         _next_state = State::Tags;
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {
-        ManuellTagWindow::eraseNegativeTags();
+        ManuallyTagWindow::eraseNegativeTags();
         showImage();
     }
 }
-void ManuellTagWindow::back() {
+void ManuallyTagWindow::back() {
     if (_state == State::Image) {
         showTags();
     } else if(_state == State::Tags) {
@@ -150,7 +150,7 @@ void ManuellTagWindow::back() {
         _tagger->loadLastImage();
     }
 }
-void ManuellTagWindow::scroll() {
+void ManuallyTagWindow::scroll() {
     QScrollBar * vert = ui->scrollArea->verticalScrollBar();
     QScrollBar * horz = ui->scrollArea->horizontalScrollBar();
     int next_horz = horz->value() + horz->pageStep() / 2;
@@ -172,7 +172,7 @@ void ManuellTagWindow::scroll() {
     }
 }
 
-void ManuellTagWindow::scrollBack() {
+void ManuallyTagWindow::scrollBack() {
     QScrollBar * vert = ui->scrollArea->verticalScrollBar();
     QScrollBar * horz = ui->scrollArea->horizontalScrollBar();
     int last_horz = horz->value() - horz->pageStep() / 2;
@@ -192,7 +192,7 @@ void ManuellTagWindow::scrollBack() {
         horz->setValue(last_horz);
     }
 }
-void ManuellTagWindow::setImage(ImageDescription *desc, Image *img) {
+void ManuallyTagWindow::setImage(ImageDescription *desc, Image *img) {
     _desc = desc;
     _image = img;
     if (_next_state == State::Image) {
@@ -203,7 +203,7 @@ void ManuellTagWindow::setImage(ImageDescription *desc, Image *img) {
 
 }
 
-void ManuellTagWindow::eraseNegativeTags() {
+void ManuallyTagWindow::eraseNegativeTags() {
     auto & tags = _desc->getTags();
     tags.erase(std::remove_if(tags.begin(), tags.end(), [](const auto & tag) {
         return not tag.isTag();

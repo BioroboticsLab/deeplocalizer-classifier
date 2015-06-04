@@ -6,12 +6,12 @@
 #include <boost/filesystem/operations.hpp>
 
 #include "catch.hpp"
-#include "ManuellyTagger.h"
+#include "ManuallyTagger.h"
 
 using namespace deeplocalizer::tagger;
 namespace io = boost::filesystem;
 
-TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
+TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
     std::vector<ImageDescription> image_descrs{
         ImageDescription{
             "testdata/with_5_tags.jpeg",
@@ -30,12 +30,12 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
                 std::vector<ImageDescription>wrong_paths{
                     ImageDescription("noexistend.png")
                 };
-                REQUIRE_THROWS(new ManuellyTagger(wrong_paths));
+                REQUIRE_THROWS(new ManuallyTagger(wrong_paths));
             }
         }
         GIVEN( " some paths to existend images" ) {
             THEN(" it will construct a instance with valid default members") {
-                ManuellyTagger tagger(image_descrs);
+                ManuallyTagger tagger(image_descrs);
                 auto pimgs = tagger.getProposalImages();
                 REQUIRE(std::equal(pimgs.cbegin(), pimgs.cend(),
                                    image_descrs.cbegin()));
@@ -44,11 +44,11 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
     }
 
     SECTION( "sends signals" ) {
-        ManuellyTagger * tagger = new ManuellyTagger(image_descrs);
+        ManuallyTagger * tagger = new ManuallyTagger(image_descrs);
         GIVEN("an index out of range") {
             THEN("it will emit the outOfRange signal") {
                 bool outOfRangeEmitted = false;
-                auto c = tagger->connect(tagger, &ManuellyTagger::outOfRange, [&](unsigned long idx){
+                auto c = tagger->connect(tagger, &ManuallyTagger::outOfRange, [&](unsigned long idx){
                     REQUIRE(idx == ULONG_MAX);
                     outOfRangeEmitted = true;
                 });
@@ -60,7 +60,7 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
         GIVEN("the first image") {
              THEN("it will emit the firstImage signal") {
                  bool firstImageEmitted = false;
-                 auto c = tagger->connect(tagger, &ManuellyTagger::firstImage, [&]() {
+                 auto c = tagger->connect(tagger, &ManuallyTagger::firstImage, [&]() {
                      firstImageEmitted = true;
                  });
                  tagger->loadImage(0);
@@ -71,7 +71,7 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
         GIVEN("the last image") {
             THEN("it will emit the lastImage signal") {
                 bool lastImageEmitted = false;
-                auto c = tagger->connect(tagger, &ManuellyTagger::lastImage, [&]() {
+                auto c = tagger->connect(tagger, &ManuallyTagger::lastImage, [&]() {
                     lastImageEmitted = true;
                 });
                 tagger->loadImage(0);
@@ -83,7 +83,7 @@ TEST_CASE( "ManuellyTagger ", "[ManuellyTagger]" ) {
         GIVEN("a call to the loadImage slot") {
             THEN("it will emit an loadedImage signal as soon the image is loaded") {
                 bool loadedImageEmitted = false;
-                auto c = tagger->connect(tagger, &ManuellyTagger::loadedImage,
+                auto c = tagger->connect(tagger, &ManuallyTagger::loadedImage,
                                          [&](ImageDescription * desc, Image * img) {
                     REQUIRE(*desc == tagger->getProposalImages().at(0));
                     REQUIRE(*img == Image(*desc));

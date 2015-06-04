@@ -30,7 +30,7 @@ namespace deeplocalizer {
 namespace tagger {
 
 
-class ManuellyTagger : public QObject {
+class ManuallyTagger : public QObject {
     Q_OBJECT
 
 public slots:
@@ -44,11 +44,11 @@ signals:
     void lastImage();
     void firstImage();
 public:
-    explicit ManuellyTagger();
-    explicit ManuellyTagger(std::deque<ImageDescription> && descriptions);
-    explicit ManuellyTagger(const std::vector<ImageDescription> & images_with_proposals);
+    explicit ManuallyTagger();
+    explicit ManuallyTagger(std::deque<ImageDescription> && descriptions);
+    explicit ManuallyTagger(const std::vector<ImageDescription> & images_with_proposals);
 
-    static std::unique_ptr<ManuellyTagger> load(const std::string & path);
+    static std::unique_ptr<ManuallyTagger> load(const std::string & path);
     const std::deque<ImageDescription> & getProposalImages() const {
         return _image_descs;
     }
