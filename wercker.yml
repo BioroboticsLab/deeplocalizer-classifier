@@ -1,0 +1,19 @@
+build:
+  box:
+    id: berleon/deeplocalizer-docker
+    username: $DOCKER_USER
+    password: $DOCKER_PWD
+  steps:
+    - add-ssh-key:
+        keyname: REDMINE_FU_BERLIN_KEY
+    - add-to-known_hosts:
+        hostname: maserati.mi.fu-berlin.de
+    - script:
+        name: submodules
+        code: |
+           git submodule init
+           git submodule update
+    - script:
+        name: test
+        code: |
+           ./scripts/test.sh
