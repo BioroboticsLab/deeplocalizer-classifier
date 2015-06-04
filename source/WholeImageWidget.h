@@ -43,7 +43,7 @@ private:
     cv::Mat _mat;
     QPixmap _pixmap;
     QPainter _painter;
-    double _scale = 0.5;
+    double _scale = 0.8;
     std::vector<Tag> * _tags;
     std::list<Tag> _newly_added_tags;
     PipelineWorker *_worker;

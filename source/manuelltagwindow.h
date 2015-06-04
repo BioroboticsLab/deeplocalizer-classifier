@@ -24,6 +24,8 @@ public:
 public slots:
     void next();
     void back();
+    void scroll();
+    void scrollBack();
     void setImage(ImageDescription * desc, Image * img);
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -43,6 +45,8 @@ private:
     Image * _image;
     QAction * _nextAct;
     QAction * _backAct;
+    QAction * _scrollAct;
+    QAction * _scrollBackAct;
     std::deque<std::shared_ptr<QPushButton>> _image_names;
 
     void init();
@@ -50,7 +54,7 @@ private:
     void showTags();
     void arangeTagWidgets();
     void setupConnections();
-    void setupShortcuts();
+    void setupActions();
     void eraseNegativeTags();
 };
 }

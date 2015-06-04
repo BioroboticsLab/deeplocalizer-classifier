@@ -1,8 +1,8 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QKeyEvent>
+#include <QScrollBar>
 #include "manuelltagwindow.h"
-#include "TagWidget.h"
 #include "utils.h"
 
 using boost::optional;
@@ -15,6 +15,7 @@ ManuellTagWindow::ManuellTagWindow(ManuellyTagger * tagger) :
 {
     init();
 }
+
 ManuellTagWindow::ManuellTagWindow(std::deque<ImageDescription> && descriptions) :
     QMainWindow(nullptr),
     _tagger(new ManuellyTagger(std::move(descriptions)))
@@ -28,14 +29,12 @@ void ManuellTagWindow::init() {
     ui->setupUi(this);
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
-    _backAct = new QAction(this);
-    _nextAct = new QAction(this);
-
+    setupActions();
     setupConnections();
-    setupShortcuts();
     _state = State::Tags;
     _tagger->loadImage(0);
 }
+
 ManuellTagWindow::~ManuellTagWindow()
 {
     delete ui;
@@ -100,18 +99,31 @@ void ManuellTagWindow::resizeEvent(QResizeEvent * ) {
     }
 }
 
+void ManuellTagWindow::setupActions() {
 
-void ManuellTagWindow::setupShortcuts() {
+    _backAct = new QAction(this);
+    _nextAct = new QAction(this);
+    _scrollAct = new QAction(this);
+    _scrollBackAct = new QAction(this);
+
     _backAct->setShortcut(QKeySequence(Qt::Key_Shift + Qt::Key_Enter));
     this->addAction(_backAct);
-    _nextAct->setShortcuts({QKeySequence(Qt::Key_Enter), QKeySequence(Qt::Key_Space)});
+    _nextAct->setShortcuts({QKeySequence(Qt::Key_Enter)});
     this->addAction(_nextAct);
+     _scrollAct->setShortcut(QKeySequence(Qt::Key_Space));
+    this->addAction(_scrollAct);
+    _scrollBackAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
+    this->addAction(_scrollBackAct);
+
+    this->connect(_nextAct, &QAction::triggered, this, &ManuellTagWindow::next);
+    this->connect(_backAct, &QAction::triggered, this, &ManuellTagWindow::back);
+    this->connect(_scrollAct, &QAction::triggered, this, &ManuellTagWindow::scroll);
+    this->connect(_scrollBackAct, &QAction::triggered, this, &ManuellTagWindow::scrollBack);
 }
+
 void ManuellTagWindow::setupConnections() {
     this->connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
     this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
-    this->connect(_nextAct, &QAction::triggered, this, &ManuellTagWindow::next);
-    this->connect(_backAct, &QAction::triggered, this, &ManuellTagWindow::back);
     this->connect(_tagger, &ManuellyTagger::loadedImage, this,
                   &ManuellTagWindow::setImage);
     this->connect(_tagger, &ManuellyTagger::outOfRange, [](int) {
@@ -136,6 +148,48 @@ void ManuellTagWindow::back() {
     } else if(_state == State::Tags) {
         _next_state = State::Image;
         _tagger->loadLastImage();
+    }
+}
+void ManuellTagWindow::scroll() {
+    QScrollBar * vert = ui->scrollArea->verticalScrollBar();
+    QScrollBar * horz = ui->scrollArea->horizontalScrollBar();
+    int next_horz = horz->value() + horz->pageStep() / 2;
+    int next_vert = vert->value() + static_cast<int>(vert->pageStep() * 0.8);
+
+    if(horz->value() == horz->maximum() && vert->value() == vert->maximum()) {
+        next();
+    } else if(horz->value() == horz->maximum()) {
+        horz->setValue(0);
+        if(next_vert > vert->maximum()) {
+            vert->setValue(vert->maximum());
+        } else {
+            vert->setValue(next_vert);
+        }
+    } else if(next_horz > horz->maximum()) {
+        horz->setValue(horz->maximum());
+    } else {
+        horz->setValue(next_horz);
+    }
+}
+
+void ManuellTagWindow::scrollBack() {
+    QScrollBar * vert = ui->scrollArea->verticalScrollBar();
+    QScrollBar * horz = ui->scrollArea->horizontalScrollBar();
+    int last_horz = horz->value() - horz->pageStep() / 2;
+    int last_vert = vert->value() - static_cast<int>(vert->pageStep() * 0.8);
+    if(horz->value() == horz->minimum() && vert->value() == vert->minimum()) {
+        back();
+    } else if(horz->value() == horz->minimum()) {
+        horz->setValue(horz->maximum());
+        if(last_vert < vert->minimum()) {
+            vert->setValue(vert->minimum());
+        } else {
+            vert->setValue(last_vert);
+        }
+    } else if(last_horz < horz->minimum()) {
+        horz->setValue(horz->minimum());
+    } else {
+        horz->setValue(last_horz);
     }
 }
 void ManuellTagWindow::setImage(ImageDescription *desc, Image *img) {

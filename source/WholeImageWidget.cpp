@@ -86,7 +86,6 @@ void adjustScrollBar(QScrollBar *scrollBar, double factor)
                             + ((factor - 1) * scrollBar->pageStep()/2)));
 }
 void WholeImageWidget::wheelEvent(QWheelEvent * event) {
-    //if(event->buttony() == Qt::LeftButton) {
     double factor;
     if (event->delta() > 0) {
         factor =1.25;
