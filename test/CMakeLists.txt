@@ -16,7 +16,7 @@ foreach(test ${tests})
         ${OPENGL_LIBRARIES}
         ${OpenCV_LIBS}
         ${Boost_LIBRARIES}
-        libdeeplocalizer)
+        deeplocalizer)
     set(test_bin ${CMAKE_CURRENT_BINARY_DIR}/${name})
     add_test(${name} ${test_bin} --force-colour)
     set(test_bins ${test_bins} ${test_bin})
