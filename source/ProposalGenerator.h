@@ -5,12 +5,6 @@
 #include <QObject>
 #include <QThread>
 
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/basic_archive.hpp>
-#include <boost/optional/optional.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-
 #include "Image.h"
 #include "PipelineWorker.h"
 #include "serialization.h"
@@ -35,7 +29,6 @@ public:
                                const std::vector<ImageDesc> & images_done);
 
     void processPipeline();
-    void saveProposals(const std::string &path) const;
 
     inline const std::deque<ImageDesc> & getBeforePipelineImages() const {
         return _images_before_pipeline;
@@ -55,15 +48,6 @@ private:
 
     std::vector<QThread *> _threads;
     std::vector<PipelineWorker *> _workers;
-
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialize( Archive & ar, const unsigned int)
-    {
-        ar & BOOST_SERIALIZATION_NVP(_images_before_pipeline);
-        ar & BOOST_SERIALIZATION_NVP(_images_with_proposals);
-    }
 };
 }
 }

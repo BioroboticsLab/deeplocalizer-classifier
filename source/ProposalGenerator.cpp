@@ -42,17 +42,17 @@ ProposalGenerator::ProposalGenerator(const std::vector<QString>& image_paths)
     }
     this->init();
 }
+
 void ProposalGenerator::init() {
     int cpus = std::thread::hardware_concurrency();
     for(int i = 0; i < (cpus != 0 ? cpus: 1); i++) {
         auto worker = new PipelineWorker();
         auto thread = new QThread;
         worker->moveToThread(thread);
-        // connect(worker, &worker->error, this, &this->errorString);
+
         connect(this, &ProposalGenerator::finished, thread, &QThread::quit);
-        connect(this, &ProposalGenerator::finished, thread, &QThread::deleteLater);
+        connect(this, &ProposalGenerator::finished, worker, &PipelineWorker::deleteLater);
         thread->connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-        thread->connect(thread, &QThread::finished, worker, &QThread::deleteLater);
 
         connect(worker, &PipelineWorker::resultReady, this, &ProposalGenerator::imageProcessed);
         thread->start();
@@ -79,22 +79,14 @@ void ProposalGenerator::processPipeline() {
 
 void ProposalGenerator::imageProcessed(ImageDesc img) {
     _images_with_proposals.push_back(img);
+    img.save();
     emit progress(_images_with_proposals.size() / static_cast<double>(_n_images));
     if (_images_with_proposals.size() == _n_images) {
         emit finished();
     }
 }
 
-void ProposalGenerator::saveProposals(const std::string &path) const {
-    ImageDesc::saves(path, &_images_with_proposals);
-}
-
-
 ProposalGenerator::~ProposalGenerator() {
-    for(auto & t : _threads) {
-        t->wait();
-        t->quit();
-    }
 }
 }
 }

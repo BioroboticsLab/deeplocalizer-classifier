@@ -1,12 +1,8 @@
 
 #include "ManuallyTagger.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include "pipeline/Localizer.h"
 #include "serialization.h"
@@ -20,7 +16,7 @@ namespace io = boost::filesystem;
 
 ManuallyTagger::ManuallyTagger() {  }
 
-ManuallyTagger::ManuallyTagger(std::deque<ImageDesc> & descriptions)
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions)
 {
     for(auto & descr : descriptions ) {
         ASSERT(io::exists(descr.filename.toStdString()),
@@ -29,18 +25,19 @@ ManuallyTagger::ManuallyTagger(std::deque<ImageDesc> & descriptions)
     }
 }
 
-ManuallyTagger::ManuallyTagger(std::deque<ImageDescPtr> && descriptions) :
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions)
+{
+    for(auto & descr : descriptions ) {
+        ASSERT(io::exists(descr->filename.toStdString()),
+               "Could not open file " << descr->filename.toStdString());
+        _image_descs.push_back(descr);
+    }
+}
+
+ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions) :
     _image_descs(std::move(descriptions))
 { }
 
-ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & img_descr)
-{
-    for(auto & descr : img_descr ) {
-        ASSERT(io::exists(descr.filename.toStdString()),
-               "Could not open file " << descr.filename.toStdString());
-        _image_descs.push_back(std::make_shared<ImageDesc>(descr));
-    }
-}
 
 void ManuallyTagger::save(const QString & path) const {
     std::ofstream os(path.toStdString());

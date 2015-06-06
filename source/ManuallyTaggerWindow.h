@@ -18,8 +18,8 @@ class ManuallyTagWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ManuallyTagWindow(std::deque<ImageDesc> && _image_desc);
-    explicit ManuallyTagWindow(ManuallyTagger * tagger);
+    explicit ManuallyTagWindow(std::vector<ImageDescPtr> && _image_desc);
+    explicit ManuallyTagWindow(std::unique_ptr<ManuallyTagger> tagger);
     ~ManuallyTagWindow();
 public slots:
     void next();
@@ -34,7 +34,7 @@ protected:
 private:
     enum class State{Tags, Image};
     Ui::ManuallyTaggerWindow *ui;
-    ManuallyTagger * _tagger;
+    std::unique_ptr<ManuallyTagger> _tagger;
     QWidget * _tags_container;
     QGridLayout * _grid_layout;
     WholeImageWidget * _whole_image;

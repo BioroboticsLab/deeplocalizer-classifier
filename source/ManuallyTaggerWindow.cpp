@@ -9,21 +9,17 @@ using boost::optional;
 namespace deeplocalizer {
 namespace tagger {
 
-ManuallyTagWindow::ManuallyTagWindow(ManuallyTagger * tagger) :
+ManuallyTagWindow::ManuallyTagWindow(std::unique_ptr<ManuallyTagger> tagger) :
     QMainWindow(nullptr),
-    _tagger(tagger)
+    _tagger(std::move(tagger))
 {
     init();
 }
 
-ManuallyTagWindow::ManuallyTagWindow(std::deque<ImageDesc> && descriptions) :
-    QMainWindow(nullptr)
+ManuallyTagWindow::ManuallyTagWindow(std::vector<ImageDescPtr> && descriptions) :
+    QMainWindow(nullptr),
+    _tagger(std::make_unique<ManuallyTagger>(std::move(descriptions)))
 {
-    std::deque<ImageDescPtr> image_desc_ptrs;
-    for(auto & desc: descriptions) {
-        image_desc_ptrs.emplace_back(std::make_shared<ImageDesc>(desc));
-    }
-    _tagger = new ManuallyTagger(std::move(image_desc_ptrs));
     init();
 }
 
@@ -128,9 +124,9 @@ void ManuallyTagWindow::setupActions() {
 void ManuallyTagWindow::setupConnections() {
     this->connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
     this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
-    this->connect(_tagger, &ManuallyTagger::loadedImage, this,
+    this->connect(_tagger.get(), &ManuallyTagger::loadedImage, this,
                   &ManuallyTagWindow::setImage);
-    this->connect(_tagger, &ManuallyTagger::outOfRange, [](int) {
+    this->connect(_tagger.get(), &ManuallyTagger::outOfRange, []() {
         QMessageBox box;
         box.setWindowTitle("DONE!");
         box.setText("You are done! Feel very very happy! :-)");

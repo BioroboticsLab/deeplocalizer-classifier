@@ -24,10 +24,13 @@ public:
     const std::vector<Tag> & getTags() const;
     std::vector<Tag> & getTags();
     bool operator==(const ImageDesc & other) const;
-    static void saves(const std::string &path, const std::deque<ImageDesc> * imgs);
-    static std::unique_ptr<std::deque<ImageDesc>> loads(const std::string &path);
+    void save();
+    void save(const std::string &path);
+    std::string save_path() const;
+    static std::shared_ptr<ImageDesc> load(const std::string &path);
     static std::vector<ImageDesc> fromPathFile(const std::string &path);
-    static std::vector<ImageDesc> fromPathFile(const boost::filesystem::path&pathfile);
+    static std::vector<ImageDesc> fromPathFile(const boost::filesystem::path & pathfile);
+    static std::vector<ImageDesc> fromPaths(const std::vector<QString> paths);
 private:
     std::vector<Tag> tags;
     unsigned long current_tag = 0;

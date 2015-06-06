@@ -18,52 +18,13 @@ using boost::optional;
 using boost::serialization::make_nvp;
 using namespace deeplocalizer::tagger;
 
-static int exit_code = 0;
 
-void registerQuit(ProposalGenerator * gen) {
-    gen->connect(gen,
-                 &ProposalGenerator::finished, QCoreApplication::instance(),
-                 [=]() {
-                     QCoreApplication::instance()->exit(exit_code);
-                 }, Qt::QueuedConnection);
-}
 
 
 TEST_CASE( "Serialization", "[serialize]" ) {
     ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
-    SECTION( "ImageDesc" ) {
-        INFO(uniquePath.string());
-        GIVEN( "an image" ) {
-            THEN("it can be serialized and deserialized") {
-                {
-                    std::ofstream os{uniquePath.string()};
-                    REQUIRE(os.good());
-                    boost::archive::xml_oarchive oa(os);
-                    oa << BOOST_SERIALIZATION_NVP(img);
-                }
-                {
-                    std::ifstream is{uniquePath.string()};
-                    REQUIRE(is.good());
-                    ImageDesc load_img;
-                    boost::archive::xml_iarchive ia(is);
-                    ia >> make_nvp("img", load_img);
-                    REQUIRE(load_img.filename == "image_path.jpeg");
-                }
-            }
-        }
-        GIVEN( "an vector of image descriptions" ) {
-            std::deque<ImageDesc> images{img};
-            THEN("it can be saved and loaded") {
-                ImageDesc::saves(uniquePath.string(), &images);
-                auto loaded_imgs = ImageDesc::loads(uniquePath.string());
-                REQUIRE(loaded_imgs->size() == 1);
-                REQUIRE(loaded_imgs->at(0) == img);
-            }
-        }
-        io::remove(uniquePath);
-    }
     SECTION( "Tag" ) {
         INFO(uniquePath.string());
         GIVEN( "a tag" ) {
@@ -92,6 +53,6 @@ int main( int argc, char** const argv )
 {
     QCoreApplication * qapp = new QCoreApplication(argc, argv);
     deeplocalizer::registerQMetaTypes();
-    exit_code = Catch::Session().run(argc, argv);
+    int exit_code = Catch::Session().run(argc, argv);
     return exit_code;
 }

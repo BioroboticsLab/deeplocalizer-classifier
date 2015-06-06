@@ -6,6 +6,7 @@
 #include <boost/optional.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/serialization/deque.hpp>
 #include "serialization.h"
 
@@ -59,33 +60,52 @@ bool ImageDesc::operator==(const ImageDesc & other) const {
 std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path) {
     return ImageDesc::fromPathFile(io::path(path));
 }
+
 std::vector<ImageDesc> ImageDesc::fromPathFile(
         const io::path& pathfile) {
     ASSERT(io::exists(pathfile), "File " << pathfile << " does not exists.");
     ifstream ifs{pathfile.string()};
     std::string path_to_image;
-    std::vector<ImageDesc> descs;
+    std::vector<QString> paths;
     for(int i = 0; std::getline(ifs, path_to_image); i++) {
         ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
-        descs.push_back(ImageDesc{QString::fromStdString(path_to_image)});
+        paths.emplace_back(QString::fromStdString(path_to_image));
     }
+    return fromPaths(paths);
+}
 
+std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<QString> paths)  {
+    std::vector<ImageDesc> descs;
+    for(auto & path: paths) {
+        ASSERT(io::exists(path.toStdString()), "File " << path.toStdString() << " does not exists.");
+        auto desc = ImageDesc(path);
+        if(io::exists(desc.save_path())) {
+            desc = *ImageDesc::load(desc.save_path());
+        }
+        descs.push_back(desc);
+    }
     return descs;
 }
-
-
-void ImageDesc::saves(const std::string & path, const std::deque<ImageDesc> * imgs) {
+std::string ImageDesc::save_path() const {
+    std::string str = filename.toStdString();
+    str.append(".desc");
+    return str;
+}
+void ImageDesc::save() {
+    save(save_path());
+}
+void ImageDesc::save(const std::string & path) {
     std::ofstream os(path);
     boost::archive::binary_oarchive archive(os);
-    archive << boost::serialization::make_nvp("images", imgs);
+    archive << boost::serialization::make_nvp("image_desc", *this);
 }
 
-std::unique_ptr<std::deque<ImageDesc>> ImageDesc::loads(const std::string & path) {
+ImageDescPtr ImageDesc::load(const std::string & path) {
     std::ifstream is(path);
     boost::archive::binary_iarchive archive(is);
-    std::deque<ImageDesc> * imgs;
-    archive >> boost::serialization::make_nvp("images", imgs);
-    return std::unique_ptr<std::deque<ImageDesc>>(imgs);
+    ImageDesc img_desc;
+    archive >> boost::serialization::make_nvp("image_desc", img_desc);
+    return std::make_shared<ImageDesc>(std::move(img_desc));
 }
 
 Image::Image() {

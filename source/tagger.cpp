@@ -15,14 +15,17 @@ po::positional_options_description positional_opt;
 void setupOptions() {
     desc_option.add_options()
             ("help,h", "Print help messages")
-            ("out,o", po::value<std::string>(), "Write tagging result to this file")
-            ("proposals", po::value<std::vector<std::string>>(), "File with tags proposals");
+            ("pathfile", po::value<std::vector<std::string>>(), "File with the paths to the images");
 
-    positional_opt.add("proposals", 1);
+    positional_opt.add("pathfile", 1);
 }
-int run(QApplication & qapp, std::string proposals_file, std::string out_file) {
-    auto proposals = ImageDesc::loads(proposals_file);
-    ManuallyTagWindow window(std::move(*proposals));
+int run(QApplication & qapp, std::string pathfile) {
+    auto proposals = ImageDesc::fromPathFile(pathfile);
+    std::vector<ImageDescPtr> proposal_ptrs;
+    for(auto & p : proposals) {
+        proposal_ptrs.emplace_back(std::make_shared<ImageDesc>(p));
+    }
+    ManuallyTagWindow window(std::move(proposal_ptrs));
     window.show();
     return qapp.exec();
 }
@@ -46,10 +49,9 @@ int main(int argc, char* argv[])
         printUsage();
         return 0;
     }
-    if(vm.count("proposals") && vm.count("out")) {
-        auto out = vm.at("out").as<std::string>();
-        auto proposals = vm.at("proposals").as<std::vector<std::string>>().at(0);
-        return run(qapp, proposals, out);
+    if(vm.count("pathfile")) {
+        auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
+        return run(qapp, pathfile);
     } else {
         std::cout << "No proposal file or output directory given." << std::endl;
         printUsage();

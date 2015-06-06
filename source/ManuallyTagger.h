@@ -45,17 +45,17 @@ signals:
     void firstImage();
 public:
     explicit ManuallyTagger();
-    explicit ManuallyTagger(std::deque<ImageDesc> & descriptions);
-    explicit ManuallyTagger(std::deque<ImageDescPtr> && descriptions);
-    explicit ManuallyTagger(const std::vector<ImageDesc> & images_with_proposals);
+    explicit ManuallyTagger(const std::vector<ImageDesc> & descriptions);
+    explicit ManuallyTagger(const std::vector<ImageDescPtr> & descriptions);
+    explicit ManuallyTagger(std::vector<ImageDescPtr> && descriptions);
 
     static std::unique_ptr<ManuallyTagger> load(const std::string & path);
-    const std::deque<ImageDescPtr> & getProposalImages() const {
+    const std::vector<ImageDescPtr> & getProposalImages() const {
         return _image_descs;
     }
 
 private:
-    std::deque<ImageDescPtr> _image_descs;
+    std::vector<ImageDescPtr> _image_descs;
     ImagePtr _image;
     ImageDescPtr _desc;
     unsigned long _image_idx = 0;

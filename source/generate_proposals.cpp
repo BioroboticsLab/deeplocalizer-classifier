@@ -59,33 +59,28 @@ int run(QCoreApplication & qapp,
 ) {
     auto images_todo = ImageDesc::fromPathFile(pathfile);
     std::vector<ImageDesc> images_done;
-    if (io::exists(output_file)) {
-        auto deque_images_done = ImageDesc::loads(output_file);
-        images_done = std::vector<ImageDesc>(deque_images_done->cbegin(),
-                                                    deque_images_done->cend());
-        for(auto & d : images_done) {
-            images_todo.erase(
-                std::remove_if(
-                    images_todo.begin(), images_todo.end(),
-                    [&d](auto & t) {
-                        return d.filename == t.filename;
-                    }),
-                images_todo.end());
-        }
-        std::cout << "Found " << images_done.size() << " image in "  << output_file << std::endl;
-        std::cout << std::endl;
-        if (images_todo.empty()) {
-            std::cout << "Nothing to do, images are allready processed" << std::endl;
-            return 0;
+    for(auto & desc : images_todo) {
+        if(io::exists(desc.save_path())) {
+            images_done.emplace_back(*ImageDesc::load(desc.save_path()));
         }
     }
+    images_todo.erase(
+        std::remove_if(
+            images_todo.begin(), images_todo.end(),
+            [&](auto & desc) {
+                return io::exists(desc.save_path());
+        }),
+        images_todo.end()
+    );
+    std::cout << "Found " << images_done.size() << " image description files." << std::endl;
+    std::cout << std::endl;
+    if (images_todo.empty()) {
+        std::cout << "Nothing to do, images are allready processed" << std::endl;
+        return 0;
+    }
     auto gen = new ProposalGenerator(images_todo, images_done);
-    std::function<void()>save_fn = std::bind(&ProposalGenerator::saveProposals,
-                                             gen, output_file);
 
     gen->connect(gen, &ProposalGenerator::progress, &printProgress);
-    gen->connect(gen, &ProposalGenerator::progress, save_fn);
-    gen->connect(gen, &ProposalGenerator::finished, save_fn);
     gen->connect(gen, &ProposalGenerator::finished,
                 &qapp, &QCoreApplication::quit, Qt::QueuedConnection);
 

@@ -21,7 +21,7 @@ std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
     std::uniform_int_distribution<int> axis(5, 25);
     std::uniform_real_distribution<double> angle(0., M_PI_2);
 
-    std::deque<ImageDescPtr> descs;
+    std::vector<ImageDescPtr> descs;
     for(int i=0; i<n_images;i++) {
         std::vector<Tag> tags;
         for(int j=0; j<n_tags(gen);j++) {

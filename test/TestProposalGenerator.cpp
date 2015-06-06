@@ -25,7 +25,7 @@ static ProposalGenerator * gen;
 void registerQuit(ProposalGenerator * gen) {
     gen->connect(gen,
                  &ProposalGenerator::finished, QCoreApplication::instance(),
-                 [=]() {
+                 [&]() {
                       QCoreApplication::instance()->exit(exit_code);
                  }, Qt::QueuedConnection);
 }
@@ -39,7 +39,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
     qapp->connect(timer, &QTimer::timeout, qapp,
             std::bind(&QCoreApplication::exit, exit_code),
             Qt::QueuedConnection);
-    timer->start(15000);
+    timer->start(20000);
     ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
@@ -68,23 +68,16 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
         bool finishedEmitted = false;
         GIVEN("an image with tags") {
             THEN(" the tags can be saved and reloaded") {
-                std::vector<QString> image_paths =
-                        {QString("testdata/with_5_tags.jpeg")};
-                gen = new ProposalGenerator(image_paths);
-                registerQuit(gen);
-
                 gen->connect(gen, &ProposalGenerator::finished, [&]() {
                     std::cout << "finished called" << std::endl;
-                    gen->saveProposals(uniquePath.string());
-                    auto load_imgs = ImageDesc::loads(
-                            uniquePath.string());
+                    auto load_imgs = ImageDesc::fromPaths(image_paths);
 
                     REQUIRE(gen->getProposalImages().size() ==
-                            load_imgs->size());
+                            load_imgs.size());
                     for (unsigned int i = 1;
                          i < gen->getProposalImages().size(); i++) {
                         auto gen_img = gen->getProposalImages().at(i);
-                        auto load_img = load_imgs->at(i);
+                        auto load_img = load_imgs.at(i);
                         REQUIRE(gen_img == load_img);
                     }
                     io::remove(uniquePath);

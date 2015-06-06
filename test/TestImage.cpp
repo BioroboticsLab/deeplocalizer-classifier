@@ -5,16 +5,17 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "Tag.h"
-
 using namespace deeplocalizer::tagger;
 using boost::optional;
+
+namespace io = boost::filesystem;
 
 TEST_CASE( "ImageDesc", "[ImageDesc]" ) {
     std::vector<Tag> tag_vec{
             Tag(cv::Rect{}, pipeline::Ellipse{}),
             Tag(cv::Rect{}, optional<pipeline::Ellipse>{})
     };
+    auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.binary");
     SECTION("creation") {
         GIVEN("a filename") {
             QString a_filename{"some_image.png"};
@@ -31,6 +32,17 @@ TEST_CASE( "ImageDesc", "[ImageDesc]" ) {
                 REQUIRE(descr.getTags() == tag_vec);
             }
         }
-
+    }
+    SECTION( "Serialization" ) {
+        GIVEN( "an image description" ) {
+            THEN("it can be saved and loaded") {
+                QString filename = QString::fromStdString(uniquePath.string());
+                ImageDesc desc{filename, tag_vec};
+                desc.save();
+                ImageDescPtr loaded_desc = ImageDesc::load(desc.save_path());
+                REQUIRE(desc.filename== loaded_desc->filename);
+            }
+        }
+        io::remove(uniquePath);
     }
 }
