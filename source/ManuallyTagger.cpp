@@ -19,16 +19,25 @@ namespace io = boost::filesystem;
 
 ManuallyTagger::ManuallyTagger() {  }
 
-ManuallyTagger::ManuallyTagger(std::deque<ImageDesc> & descriptions) :
+ManuallyTagger::ManuallyTagger(std::deque<ImageDesc> & descriptions)
+{
+    for(auto & descr : descriptions ) {
+        ASSERT(io::exists(descr.filename.toStdString()),
+               "Could not open file " << descr.filename.toStdString());
+        _image_descs.push_back(std::make_shared<ImageDesc>(descr));
+    }
+}
+
+ManuallyTagger::ManuallyTagger(std::deque<ImageDescPtr> && descriptions) :
     _image_descs(std::move(descriptions))
 { }
 
 ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & img_descr)
 {
-    for(const auto & descr : img_descr ) {
+    for(auto & descr : img_descr ) {
         ASSERT(io::exists(descr.filename.toStdString()),
                "Could not open file " << descr.filename.toStdString());
-        _image_descs.push_back(descr);
+        _image_descs.push_back(std::make_shared<ImageDesc>(descr));
     }
 }
 
@@ -60,9 +69,9 @@ void ManuallyTagger::loadImage(unsigned long idx) {
         return;
     }
     _image_idx = idx;
-    _image = Image(_image_descs.at(_image_idx));
-    _desc = &_image_descs.at(_image_idx);
-    emit loadedImage(_desc, &_image);
+    _image = std::make_shared<Image>(*_image_descs.at(_image_idx));
+    _desc = _image_descs.at(_image_idx);
+    emit loadedImage(_desc, _image);
     if (_image_idx == 0) { emit firstImage(); }
     if (_image_idx + 1 == _image_descs.size()) { emit lastImage(); }
 }

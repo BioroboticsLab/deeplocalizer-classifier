@@ -21,7 +21,7 @@ std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
     std::uniform_int_distribution<int> axis(5, 25);
     std::uniform_real_distribution<double> angle(0., M_PI_2);
 
-    std::deque<ImageDesc> descs;
+    std::deque<ImageDescPtr> descs;
     for(int i=0; i<n_images;i++) {
         std::vector<Tag> tags;
         for(int j=0; j<n_tags(gen);j++) {
@@ -33,9 +33,9 @@ std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
                                boost::make_optional(ellipse)));
         }
         QString filename = QString::fromStdString(io::unique_path("/%%/%%%/%%%%/%%%/%%%%/%%%%%.jpeg").string());
-        descs.emplace_back(ImageDesc(filename, tags));
+        descs.push_back(std::shared_ptr<ImageDesc>(new ImageDesc(filename, tags)));
     }
-    return std::make_shared<ManuallyTagger>(descs);
+    return std::make_shared<ManuallyTagger>(std::move(descs));
 }
 TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
     std::vector<ImageDesc> image_descrs{
@@ -60,11 +60,12 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
             }
         }
         GIVEN( " some paths to existend images" ) {
-            THEN(" it will construct a instance with valid default members") {
+            THEN(" it will construct an instance with valid default members") {
                 ManuallyTagger tagger(image_descrs);
                 auto pimgs = tagger.getProposalImages();
-                REQUIRE(std::equal(pimgs.cbegin(), pimgs.cend(),
-                                   image_descrs.cbegin()));
+
+                REQUIRE(pimgs.size() == image_descrs.size());
+                REQUIRE(*pimgs.at(0) == image_descrs.at(0));
             }
         }
     }
@@ -110,8 +111,8 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
             THEN("it will emit an loadedImage signal as soon the image is loaded") {
                 bool loadedImageEmitted = false;
                 auto c = tagger->connect(tagger, &ManuallyTagger::loadedImage,
-                                         [&](ImageDesc * desc, Image * img) {
-                    REQUIRE(*desc == tagger->getProposalImages().at(0));
+                                         [&](ImageDescPtr  desc, ImagePtr  img) {
+                    REQUIRE(*desc == *tagger->getProposalImages().at(0));
                     REQUIRE(*img == Image(*desc));
                     loadedImageEmitted = true;
                 });

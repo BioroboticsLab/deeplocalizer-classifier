@@ -40,7 +40,7 @@ private:
       ar & BOOST_SERIALIZATION_NVP(tags);
     }
 };
-
+using ImageDescPtr = std::shared_ptr<ImageDesc>;
 class Image {
 public:
     explicit Image();
@@ -55,6 +55,7 @@ private:
     QString _filename;
 };
 
+using ImagePtr = std::shared_ptr<Image>;
 }
 }
 

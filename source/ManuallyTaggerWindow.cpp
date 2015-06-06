@@ -17,9 +17,13 @@ ManuallyTagWindow::ManuallyTagWindow(ManuallyTagger * tagger) :
 }
 
 ManuallyTagWindow::ManuallyTagWindow(std::deque<ImageDesc> && descriptions) :
-    QMainWindow(nullptr),
-    _tagger(new ManuallyTagger(std::move(descriptions)))
+    QMainWindow(nullptr)
 {
+    std::deque<ImageDescPtr> image_desc_ptrs;
+    for(auto & desc: descriptions) {
+        image_desc_ptrs.emplace_back(std::make_shared<ImageDesc>(desc));
+    }
+    _tagger = new ManuallyTagger(std::move(image_desc_ptrs));
     init();
 }
 
@@ -192,7 +196,7 @@ void ManuallyTagWindow::scrollBack() {
         horz->setValue(last_horz);
     }
 }
-void ManuallyTagWindow::setImage(ImageDesc *desc, Image *img) {
+void ManuallyTagWindow::setImage(ImageDescPtr desc, ImagePtr img) {
     _desc = desc;
     _image = img;
     if (_next_state == State::Image) {

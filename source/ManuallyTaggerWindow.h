@@ -26,7 +26,7 @@ public slots:
     void back();
     void scroll();
     void scrollBack();
-    void setImage(ImageDesc * desc, Image * img);
+    void setImage(ImageDescPtr desc, ImagePtr img);
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent * );
@@ -41,8 +41,8 @@ private:
     std::vector<TagWidgetPtr> _tag_widgets;
     State _state = State::Tags;
     State _next_state = State::Tags;
-    ImageDesc * _desc;
-    Image * _image;
+    ImageDescPtr  _desc;
+    ImagePtr  _image;
     QAction * _nextAct;
     QAction * _backAct;
     QAction * _scrollAct;
