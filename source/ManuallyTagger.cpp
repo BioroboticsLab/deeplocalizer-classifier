@@ -6,6 +6,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "pipeline/Localizer.h"
 #include "serialization.h"
