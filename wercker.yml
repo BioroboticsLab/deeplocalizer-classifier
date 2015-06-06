@@ -3,6 +3,7 @@ build:
     id: berleon/deeplocalizer-docker
     username: $DOCKER_USER
     password: $DOCKER_PWD
+    tag: latest
   steps:
     - add-ssh-key:
         keyname: REDMINE_FU_BERLIN_KEY
