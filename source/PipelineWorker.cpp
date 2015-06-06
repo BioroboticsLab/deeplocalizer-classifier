@@ -9,7 +9,7 @@ namespace tagger {
 using boost::optional;
 namespace io = boost::filesystem;
 
-std::vector<Tag> PipelineWorker::tagsProposals(ImageDescription & img_descr) {
+std::vector<Tag> PipelineWorker::tagsProposals(ImageDesc & img_descr) {
     Image img{img_descr};
     cv::Mat preprocced = _preprocessor.process(img.getCvMat());
     std::vector<pipeline::Tag> localizer_tags =
@@ -25,7 +25,7 @@ std::vector<Tag> PipelineWorker::tagsProposals(ImageDescription & img_descr) {
     return tags;
 }
 
-void PipelineWorker::process(ImageDescription img) {
+void PipelineWorker::process(ImageDesc img) {
     std::string std_image_path = img.filename.toStdString();
     ASSERT(io::exists(std_image_path),
            "Could not open file: `" << std_image_path << "`");

@@ -14,7 +14,7 @@ namespace io = boost::filesystem;
 ProposalGenerator::ProposalGenerator() {
 }
 
-ProposalGenerator::ProposalGenerator(const std::vector<ImageDescription> & image_desc)
+ProposalGenerator::ProposalGenerator(const std::vector<ImageDesc> & image_desc)
     : _images_before_pipeline(image_desc.cbegin(), image_desc.cend()),
       _n_images(image_desc.size())
 {
@@ -22,8 +22,8 @@ ProposalGenerator::ProposalGenerator(const std::vector<ImageDescription> & image
 }
 
 ProposalGenerator::ProposalGenerator(
-        const std::vector<ImageDescription> & images_todo,
-        const std::vector<ImageDescription> & images_done
+        const std::vector<ImageDesc> & images_todo,
+        const std::vector<ImageDesc> & images_done
 )
         : _images_before_pipeline(images_todo.cbegin(), images_todo.cend()),
           _images_with_proposals(images_done.cbegin(), images_done.cend()),
@@ -38,7 +38,7 @@ ProposalGenerator::ProposalGenerator(const std::vector<QString>& image_paths)
         if (!io::exists(path.toStdString())) {
             throw std::runtime_error("Could not open file");
         }
-        _images_before_pipeline.push_back(ImageDescription(path));
+        _images_before_pipeline.push_back(ImageDesc(path));
     }
     this->init();
 }
@@ -70,14 +70,14 @@ void ProposalGenerator::processPipeline() {
         auto img = _images_before_pipeline.front();
         _images_before_pipeline.pop_front();
         auto & worker = _workers.at(worker_idx);
-        QMetaObject::invokeMethod(worker, "process", Q_ARG(ImageDescription, img));
+        QMetaObject::invokeMethod(worker, "process", Q_ARG(ImageDesc, img));
     }
     if (_images_with_proposals.size() == _n_images) {
         emit finished();
     }
 }
 
-void ProposalGenerator::imageProcessed(ImageDescription img) {
+void ProposalGenerator::imageProcessed(ImageDesc img) {
     _images_with_proposals.push_back(img);
     emit progress(_images_with_proposals.size() / static_cast<double>(_n_images));
     if (_images_with_proposals.size() == _n_images) {
@@ -86,7 +86,7 @@ void ProposalGenerator::imageProcessed(ImageDescription img) {
 }
 
 void ProposalGenerator::saveProposals(const std::string &path) const {
-    ImageDescription::saves(path, &_images_with_proposals);
+    ImageDesc::saves(path, &_images_with_proposals);
 }
 
 

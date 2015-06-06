@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <boost/format.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <chrono>
 
 #include "catch.hpp"
 #include "ManuallyTagger.h"
@@ -11,9 +12,34 @@
 using namespace deeplocalizer::tagger;
 namespace io = boost::filesystem;
 
+std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> coordinate(0, 3000);
+    std::uniform_int_distribution<int> vote(500, 4000);
+    std::uniform_int_distribution<int> n_tags(100, 150);
+    std::uniform_int_distribution<int> axis(5, 25);
+    std::uniform_real_distribution<double> angle(0., M_PI_2);
+
+    std::deque<ImageDesc> descs;
+    for(int i=0; i<n_images;i++) {
+        std::vector<Tag> tags;
+        for(int j=0; j<n_tags(gen);j++) {
+            pipeline::Ellipse ellipse(vote(gen),
+                                      cv::Point2i(coordinate(gen),  coordinate(gen)),
+                                      cv::Size(axis(gen), axis(gen)), angle(gen),
+                                      cv::Size(10*axis(gen), 10*axis(gen)));
+            tags.emplace_back(Tag(cv::Rect(coordinate(gen),coordinate(gen), TAG_WIDTH, TAG_HEIGHT),
+                               boost::make_optional(ellipse)));
+        }
+        QString filename = QString::fromStdString(io::unique_path("/%%/%%%/%%%%/%%%/%%%%/%%%%%.jpeg").string());
+        descs.emplace_back(ImageDesc(filename, tags));
+    }
+    return std::make_shared<ManuallyTagger>(descs);
+}
 TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
-    std::vector<ImageDescription> image_descrs{
-        ImageDescription{
+    std::vector<ImageDesc> image_descrs{
+        ImageDesc{
             "testdata/with_5_tags.jpeg",
             std::vector<Tag>{
                 Tag{
@@ -27,8 +53,8 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
     SECTION( " it can be constructed with a list of image descriptions" ) {
         GIVEN( "not existing images" ) {
             THEN(" it will throw an exception") {
-                std::vector<ImageDescription>wrong_paths{
-                    ImageDescription("noexistend.png")
+                std::vector<ImageDesc>wrong_paths{
+                    ImageDesc("noexistend.png")
                 };
                 REQUIRE_THROWS(new ManuallyTagger(wrong_paths));
             }
@@ -84,7 +110,7 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
             THEN("it will emit an loadedImage signal as soon the image is loaded") {
                 bool loadedImageEmitted = false;
                 auto c = tagger->connect(tagger, &ManuallyTagger::loadedImage,
-                                         [&](ImageDescription * desc, Image * img) {
+                                         [&](ImageDesc * desc, Image * img) {
                     REQUIRE(*desc == tagger->getProposalImages().at(0));
                     REQUIRE(*img == Image(*desc));
                     loadedImageEmitted = true;
@@ -92,6 +118,25 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
                 tagger->loadImage(0);
                 REQUIRE(loadedImageEmitted);
                 tagger->disconnect(c);
+            }
+        }
+    }
+    SECTION("serialization") {
+        GIVEN("many image descriptions") {
+            using namespace std::chrono;
+            unsigned int n_images = 1000;
+            auto tagger = bigRandomManuallyTagger(n_images);
+            time_point<system_clock> start_time;
+            THEN("it can be efficently be saved/loaded") {
+                int times = 3;
+                for(int i=0; i < times; i++) {
+                    auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.binary");
+                    QString path = QString::fromStdString(uniquePath.string());
+                    tagger->save(path);
+                }
+                duration<double> elapsed = system_clock::now() - start_time;
+                std::cout << "average save took: " << (duration_cast<nanoseconds>(elapsed).count() / 1e9) / times
+                    << "s" << std::endl;
             }
         }
     }

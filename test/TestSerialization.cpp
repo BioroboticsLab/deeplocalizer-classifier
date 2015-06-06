@@ -30,10 +30,10 @@ void registerQuit(ProposalGenerator * gen) {
 
 
 TEST_CASE( "Serialization", "[serialize]" ) {
-    ImageDescription img("image_path.jpeg");
+    ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
-    SECTION( "ImageDescription" ) {
+    SECTION( "ImageDesc" ) {
         INFO(uniquePath.string());
         GIVEN( "an image" ) {
             THEN("it can be serialized and deserialized") {
@@ -46,7 +46,7 @@ TEST_CASE( "Serialization", "[serialize]" ) {
                 {
                     std::ifstream is{uniquePath.string()};
                     REQUIRE(is.good());
-                    ImageDescription load_img;
+                    ImageDesc load_img;
                     boost::archive::xml_iarchive ia(is);
                     ia >> make_nvp("img", load_img);
                     REQUIRE(load_img.filename == "image_path.jpeg");
@@ -54,10 +54,10 @@ TEST_CASE( "Serialization", "[serialize]" ) {
             }
         }
         GIVEN( "an vector of image descriptions" ) {
-            std::deque<ImageDescription> images{img};
+            std::deque<ImageDesc> images{img};
             THEN("it can be saved and loaded") {
-                ImageDescription::saves(uniquePath.string(), &images);
-                auto loaded_imgs = ImageDescription::loads(uniquePath.string());
+                ImageDesc::saves(uniquePath.string(), &images);
+                auto loaded_imgs = ImageDesc::loads(uniquePath.string());
                 REQUIRE(loaded_imgs->size() == 1);
                 REQUIRE(loaded_imgs->at(0) == img);
             }

@@ -17,7 +17,7 @@ namespace deeplocalizer {
 namespace tagger {
 class Tag;
 
-class ImageDescription;
+class ImageDesc;
 
 class PipelineWorker;
 

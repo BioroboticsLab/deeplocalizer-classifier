@@ -12,22 +12,22 @@
 namespace deeplocalizer {
 namespace  tagger {
 
-class ImageDescription {
+class ImageDesc {
 public:
     QString filename;
-    ImageDescription();
-    ImageDescription(const QString filename);
-    ImageDescription(const QString filename, std::vector<Tag> _tags);
+    ImageDesc();
+    ImageDesc(const QString filename);
+    ImageDesc(const QString filename, std::vector<Tag> _tags);
     QPixmap visualise_tags();
     void addTag(Tag&& tag);
     void setTags(std::vector<Tag> && tag);
     const std::vector<Tag> & getTags() const;
     std::vector<Tag> & getTags();
-    bool operator==(const ImageDescription & other) const;
-    static void saves(const std::string &path, const std::deque<ImageDescription> * imgs);
-    static std::unique_ptr<std::deque<ImageDescription>> loads(const std::string &path);
-    static std::vector<ImageDescription> fromPathFile(const std::string &path);
-    static std::vector<ImageDescription> fromPathFile(const boost::filesystem::path&pathfile);
+    bool operator==(const ImageDesc & other) const;
+    static void saves(const std::string &path, const std::deque<ImageDesc> * imgs);
+    static std::unique_ptr<std::deque<ImageDesc>> loads(const std::string &path);
+    static std::vector<ImageDesc> fromPathFile(const std::string &path);
+    static std::vector<ImageDesc> fromPathFile(const boost::filesystem::path&pathfile);
 private:
     std::vector<Tag> tags;
     unsigned long current_tag = 0;
@@ -44,7 +44,7 @@ private:
 class Image {
 public:
     explicit Image();
-    explicit Image(const ImageDescription & descr);
+    explicit Image(const ImageDesc & descr);
     cv::Mat getCvMat() const;
     void addBorder();
     bool write(boost::filesystem::path path = {}) const;

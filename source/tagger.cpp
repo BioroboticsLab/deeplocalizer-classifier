@@ -21,7 +21,7 @@ void setupOptions() {
     positional_opt.add("proposals", 1);
 }
 int run(QApplication & qapp, std::string proposals_file, std::string out_file) {
-    auto proposals = ImageDescription::loads(proposals_file);
+    auto proposals = ImageDesc::loads(proposals_file);
     ManuallyTagWindow window(std::move(*proposals));
     window.show();
     return qapp.exec();

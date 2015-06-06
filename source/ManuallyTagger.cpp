@@ -19,11 +19,11 @@ namespace io = boost::filesystem;
 
 ManuallyTagger::ManuallyTagger() {  }
 
-ManuallyTagger::ManuallyTagger(std::deque<ImageDescription> && descriptions) :
+ManuallyTagger::ManuallyTagger(std::deque<ImageDesc> & descriptions) :
     _image_descs(std::move(descriptions))
 { }
 
-ManuallyTagger::ManuallyTagger(const std::vector<ImageDescription> & img_descr)
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & img_descr)
 {
     for(const auto & descr : img_descr ) {
         ASSERT(io::exists(descr.filename.toStdString()),

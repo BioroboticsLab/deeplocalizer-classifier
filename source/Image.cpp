@@ -18,80 +18,80 @@ namespace tagger {
 using namespace std;
 namespace io = boost::filesystem;
 
-ImageDescription::ImageDescription() {
+ImageDesc::ImageDesc() {
 
 }
 
-ImageDescription::ImageDescription(const QString _filename) : filename(_filename) {
+ImageDesc::ImageDesc(const QString _filename) : filename(_filename) {
 
 }
 
-ImageDescription::ImageDescription(const QString _filename, std::vector<Tag> _tags) :
+ImageDesc::ImageDesc(const QString _filename, std::vector<Tag> _tags) :
         filename(_filename), tags(_tags) {
 
 }
 
-const std::vector<Tag> & ImageDescription::getTags() const {
+const std::vector<Tag> &ImageDesc::getTags() const {
     return tags;
 }
-std::vector<Tag> & ImageDescription::getTags() {
+std::vector<Tag> &ImageDesc::getTags() {
     return tags;
 }
 
-QPixmap ImageDescription::visualise_tags() {
+QPixmap ImageDesc::visualise_tags() {
     return QPixmap();
 }
 
-void ImageDescription::addTag(Tag && tag) {
+void ImageDesc::addTag(Tag && tag) {
     this->tags.push_back(tag);
 }
 
-void ImageDescription::setTags(std::vector<Tag> && tags) {
+void ImageDesc::setTags(std::vector<Tag> && tags) {
     this->tags = tags;
 }
 
 
-bool ImageDescription::operator==(const ImageDescription & other) const {
+bool ImageDesc::operator==(const ImageDesc & other) const {
     return (filename == other.filename &&
             tags == other.tags);
 }
 
-std::vector<ImageDescription> ImageDescription::fromPathFile(const std::string &path) {
-    return ImageDescription::fromPathFile(io::path(path));
+std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path) {
+    return ImageDesc::fromPathFile(io::path(path));
 }
-std::vector<ImageDescription> ImageDescription::fromPathFile(
+std::vector<ImageDesc> ImageDesc::fromPathFile(
         const io::path& pathfile) {
     ASSERT(io::exists(pathfile), "File " << pathfile << " does not exists.");
     ifstream ifs{pathfile.string()};
     std::string path_to_image;
-    std::vector<ImageDescription> descs;
+    std::vector<ImageDesc> descs;
     for(int i = 0; std::getline(ifs, path_to_image); i++) {
         ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
-        descs.push_back(ImageDescription{QString::fromStdString(path_to_image)});
+        descs.push_back(ImageDesc{QString::fromStdString(path_to_image)});
     }
 
     return descs;
 }
 
 
-void ImageDescription::saves(const std::string & path, const std::deque<ImageDescription> * imgs) {
+void ImageDesc::saves(const std::string & path, const std::deque<ImageDesc> * imgs) {
     std::ofstream os(path);
     boost::archive::binary_oarchive archive(os);
     archive << boost::serialization::make_nvp("images", imgs);
 }
 
-std::unique_ptr<std::deque<ImageDescription>> ImageDescription::loads(const std::string & path) {
+std::unique_ptr<std::deque<ImageDesc>> ImageDesc::loads(const std::string & path) {
     std::ifstream is(path);
     boost::archive::binary_iarchive archive(is);
-    std::deque<ImageDescription> * imgs;
+    std::deque<ImageDesc> * imgs;
     archive >> boost::serialization::make_nvp("images", imgs);
-    return std::unique_ptr<std::deque<ImageDescription>>(imgs);
+    return std::unique_ptr<std::deque<ImageDesc>>(imgs);
 }
 
 Image::Image() {
 }
 
-Image::Image(const ImageDescription & descr) : _filename(descr.filename)  {
+Image::Image(const ImageDesc & descr) : _filename(descr.filename)  {
     _mat = cv::imread(_filename.toStdString());
 }
 

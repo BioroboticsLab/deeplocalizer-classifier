@@ -18,7 +18,7 @@ class ManuallyTagWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ManuallyTagWindow(std::deque<ImageDescription> && _image_desc);
+    explicit ManuallyTagWindow(std::deque<ImageDesc> && _image_desc);
     explicit ManuallyTagWindow(ManuallyTagger * tagger);
     ~ManuallyTagWindow();
 public slots:
@@ -26,7 +26,7 @@ public slots:
     void back();
     void scroll();
     void scrollBack();
-    void setImage(ImageDescription * desc, Image * img);
+    void setImage(ImageDesc * desc, Image * img);
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent * );
@@ -41,7 +41,7 @@ private:
     std::vector<TagWidgetPtr> _tag_widgets;
     State _state = State::Tags;
     State _next_state = State::Tags;
-    ImageDescription * _desc;
+    ImageDesc * _desc;
     Image * _image;
     QAction * _nextAct;
     QAction * _backAct;

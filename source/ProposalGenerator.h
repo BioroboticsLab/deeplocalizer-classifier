@@ -23,25 +23,25 @@ class ProposalGenerator : public QObject {
     Q_OBJECT
 
 public slots:
-    void imageProcessed(ImageDescription image);
+    void imageProcessed(ImageDesc image);
 signals:
     void progress(double progress);
     void finished();
 
 public:
     explicit ProposalGenerator(const std::vector<QString>& _image_paths);
-    explicit ProposalGenerator(const std::vector<ImageDescription>&  _image_desc);
-    explicit ProposalGenerator(const std::vector<ImageDescription> & images_todo,
-                               const std::vector<ImageDescription> & images_done);
+    explicit ProposalGenerator(const std::vector<ImageDesc>&  _image_desc);
+    explicit ProposalGenerator(const std::vector<ImageDesc> & images_todo,
+                               const std::vector<ImageDesc> & images_done);
 
     void processPipeline();
     void saveProposals(const std::string &path) const;
 
-    inline const std::deque<ImageDescription> & getBeforePipelineImages() const {
+    inline const std::deque<ImageDesc> & getBeforePipelineImages() const {
         return _images_before_pipeline;
     }
 
-    inline const std::deque<ImageDescription> & getProposalImages() const {
+    inline const std::deque<ImageDesc> & getProposalImages() const {
         return _images_with_proposals;
     }
     virtual ~ProposalGenerator();
@@ -49,8 +49,8 @@ private:
     explicit ProposalGenerator();
     void init();
 
-    std::deque<ImageDescription> _images_before_pipeline;
-    std::deque<ImageDescription> _images_with_proposals;
+    std::deque<ImageDesc> _images_before_pipeline;
+    std::deque<ImageDesc> _images_with_proposals;
     unsigned long _n_images;
 
     std::vector<QThread *> _threads;

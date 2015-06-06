@@ -39,24 +39,24 @@ public slots:
     void loadLastImage();
     void loadImage(unsigned long idx);
 signals:
-    void loadedImage(ImageDescription *desc, Image *img);
+    void loadedImage(ImageDesc *desc, Image *img);
     void outOfRange(unsigned long idx);
     void lastImage();
     void firstImage();
 public:
     explicit ManuallyTagger();
-    explicit ManuallyTagger(std::deque<ImageDescription> && descriptions);
-    explicit ManuallyTagger(const std::vector<ImageDescription> & images_with_proposals);
+    explicit ManuallyTagger(std::deque<ImageDesc> & descriptions);
+    explicit ManuallyTagger(const std::vector<ImageDesc> & images_with_proposals);
 
     static std::unique_ptr<ManuallyTagger> load(const std::string & path);
-    const std::deque<ImageDescription> & getProposalImages() const {
+    const std::deque<ImageDesc> & getProposalImages() const {
         return _image_descs;
     }
 
 private:
-    std::deque<ImageDescription> _image_descs;
+    std::deque<ImageDesc> _image_descs;
     Image _image;
-    ImageDescription * _desc;
+    ImageDesc * _desc;
     unsigned long _image_idx = 0;
 
     friend class boost::serialization::access;

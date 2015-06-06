@@ -40,7 +40,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
             std::bind(&QCoreApplication::exit, exit_code),
             Qt::QueuedConnection);
     timer->start(15000);
-    ImageDescription img("image_path.jpeg");
+    ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
     registerQuit(gen);
@@ -76,7 +76,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
                 gen->connect(gen, &ProposalGenerator::finished, [&]() {
                     std::cout << "finished called" << std::endl;
                     gen->saveProposals(uniquePath.string());
-                    auto load_imgs = ImageDescription::loads(
+                    auto load_imgs = ImageDesc::loads(
                             uniquePath.string());
 
                     REQUIRE(gen->getProposalImages().size() ==

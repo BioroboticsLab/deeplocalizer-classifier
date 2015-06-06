@@ -57,11 +57,11 @@ int run(QCoreApplication & qapp,
         std::string pathfile
 
 ) {
-    auto images_todo = ImageDescription::fromPathFile(pathfile);
-    std::vector<ImageDescription> images_done;
+    auto images_todo = ImageDesc::fromPathFile(pathfile);
+    std::vector<ImageDesc> images_done;
     if (io::exists(output_file)) {
-        auto deque_images_done = ImageDescription::loads(output_file);
-        images_done = std::vector<ImageDescription>(deque_images_done->cbegin(),
+        auto deque_images_done = ImageDesc::loads(output_file);
+        images_done = std::vector<ImageDesc>(deque_images_done->cbegin(),
                                                     deque_images_done->cend());
         for(auto & d : images_done) {
             images_todo.erase(

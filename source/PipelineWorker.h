@@ -11,7 +11,7 @@
 #include "Tag.h"
 #include "Image.h"
 
-Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDescription)
+Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDesc)
 Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
 Q_DECLARE_METATYPE(cv::Mat)
 
@@ -22,18 +22,18 @@ namespace tagger {
     Q_OBJECT
 
     public slots:
-        void process(ImageDescription img);
+        void process(ImageDesc img);
         void findEllipse(cv::Mat mat, Tag tag);
 
     signals:
-        void resultReady(ImageDescription img);
+        void resultReady(ImageDesc img);
         void tagWithEllipseReady(Tag tag);
 
     private:
         pipeline::Preprocessor _preprocessor;
         pipeline::Localizer _localizer;
         pipeline::EllipseFitter _ellipseFitter;
-        std::vector<Tag> tagsProposals(ImageDescription & img);
+        std::vector<Tag> tagsProposals(ImageDesc & img);
     };
 }
 }
