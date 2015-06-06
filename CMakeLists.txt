@@ -10,6 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ ${CMAKE_MODULE_PATH})
 # project dependecies
 find_package(OpenCV REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
@@ -113,6 +114,16 @@ include_directories(
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
     SYSTEM ${CMAKE_CURRENT_BINARY_DIR}/
     SYSTEM ${PROJECT_SOURCE_DIR}/deps
+)
+
+set(libs
+    deeplocalizer
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::OpenGL
+    ${OPENGL_LIBRARIES}
+    ${OpenCV_LIBS}
+    ${Boost_LIBRARIES}
 )
 
 enable_testing(true)

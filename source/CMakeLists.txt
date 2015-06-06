@@ -11,14 +11,6 @@ add_library(deeplocalizer
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
 
 
-set(libs
-    deeplocalizer
-    Qt5::Widgets
-    Qt5::OpenGL
-    ${OPENGL_LIBRARIES}
-    ${OpenCV_LIBS}
-    ${Boost_LIBRARIES}
-)
 
 add_executable(tagger "tagger.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
