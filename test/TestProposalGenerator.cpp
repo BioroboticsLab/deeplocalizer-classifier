@@ -32,7 +32,7 @@ void registerQuit(ProposalGenerator * gen) {
 
 TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
     QCoreApplication * qapp = new QCoreApplication(argc, argv);
-    std::vector<QString> image_paths = {QString("testdata/with_5_tags.jpeg")};
+    std::vector<std::string> image_paths = {"testdata/with_5_tags.jpeg"};
     gen = new ProposalGenerator(image_paths);
     deeplocalizer::registerQMetaTypes();
     QTimer * timer = new QTimer(qapp);

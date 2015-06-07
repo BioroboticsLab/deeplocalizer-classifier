@@ -26,7 +26,7 @@ std::vector<Tag> PipelineWorker::tagsProposals(ImageDesc & img_descr) {
 }
 
 void PipelineWorker::process(ImageDesc img) {
-    std::string std_image_path = img.filename.toStdString();
+    std::string std_image_path = img.filename;
     ASSERT(io::exists(std_image_path),
            "Could not open file: `" << std_image_path << "`");
     img.setTags(this->tagsProposals(img));

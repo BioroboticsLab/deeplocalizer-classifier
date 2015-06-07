@@ -19,8 +19,8 @@ ManuallyTagger::ManuallyTagger() {  }
 ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions)
 {
     for(auto & descr : descriptions ) {
-        ASSERT(io::exists(descr.filename.toStdString()),
-               "Could not open file " << descr.filename.toStdString());
+        ASSERT(io::exists(descr.filename),
+               "Could not open file " << descr.filename);
         _image_descs.push_back(std::make_shared<ImageDesc>(descr));
     }
 }
@@ -28,8 +28,8 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions)
 ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions)
 {
     for(auto & descr : descriptions ) {
-        ASSERT(io::exists(descr->filename.toStdString()),
-               "Could not open file " << descr->filename.toStdString());
+        ASSERT(io::exists(descr->filename),
+               "Could not open file " << descr->filename);
         _image_descs.push_back(descr);
     }
 }

@@ -23,7 +23,7 @@ signals:
     void finished();
 
 public:
-    explicit ProposalGenerator(const std::vector<QString>& _image_paths);
+    explicit ProposalGenerator(const std::vector<std::string>& image_paths);
     explicit ProposalGenerator(const std::vector<ImageDesc>&  _image_desc);
     explicit ProposalGenerator(const std::vector<ImageDesc> & images_todo,
                                const std::vector<ImageDesc> & images_done);

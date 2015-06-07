@@ -21,7 +21,6 @@ time_point<system_clock> start_time;
 void setupOptions() {
     desc_option.add_options()
             ("help,h", "Print help messages")
-            ("out,o", po::value<std::string>(), "Write proposals to this file")
             ("pathfile", po::value<std::vector<std::string>>(), "File with image paths");
 
     positional_opt.add("pathfile", 1);
@@ -53,10 +52,7 @@ void printProgress(double progress) {
 }
 
 int run(QCoreApplication & qapp,
-        std::string output_file,
-        std::string pathfile
-
-) {
+        std::string pathfile) {
     auto images_todo = ImageDesc::fromPathFile(pathfile);
     std::vector<ImageDesc> images_done;
     for(auto & desc : images_todo) {
@@ -108,10 +104,9 @@ int main(int argc, char* argv[])
         printUsage();
         return 0;
     }
-    if(vm.count("pathfile") && vm.count("out")) {
-        auto out = vm.at("out").as<std::string>();
+    if(vm.count("pathfile")) {
         auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
-        return run(qapp, out, pathfile);
+        return run(qapp, pathfile);
     } else {
         std::cout << "No pathfile or output directory given." << std::endl;
         printUsage();

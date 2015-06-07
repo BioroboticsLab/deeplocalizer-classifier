@@ -32,7 +32,7 @@ std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
             tags.emplace_back(Tag(cv::Rect(coordinate(gen),coordinate(gen), TAG_WIDTH, TAG_HEIGHT),
                                boost::make_optional(ellipse)));
         }
-        QString filename = QString::fromStdString(io::unique_path("/%%/%%%/%%%%/%%%/%%%%/%%%%%.jpeg").string());
+        std::string filename = io::unique_path("/%%/%%%/%%%%/%%%/%%%%/%%%%%.jpeg").string();
         descs.push_back(std::shared_ptr<ImageDesc>(new ImageDesc(filename, tags)));
     }
     return std::make_shared<ManuallyTagger>(std::move(descs));

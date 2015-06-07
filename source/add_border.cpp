@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         for (auto &desc : image_descs) {
             Image img(desc);
             img.addBorder();
-            auto input_path =  io::path(desc.filename.toStdString());
+            auto input_path =  io::path(desc.filename);
             auto output = addWb(output_dir / input_path.filename());
             if(not img.write(output)) {
                 std::cerr << "Fail to write image : " << output.string() << std::endl;

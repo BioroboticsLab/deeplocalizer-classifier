@@ -31,11 +31,11 @@ ProposalGenerator::ProposalGenerator(
 {
     this->init();
 }
-ProposalGenerator::ProposalGenerator(const std::vector<QString>& image_paths)
+ProposalGenerator::ProposalGenerator(const std::vector<std::string>& image_paths)
     : _n_images(image_paths.size())
 {
     for (auto path : image_paths) {
-        if (!io::exists(path.toStdString())) {
+        if (!io::exists(path)) {
             throw std::runtime_error("Could not open file");
         }
         _images_before_pipeline.push_back(ImageDesc(path));

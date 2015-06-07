@@ -18,14 +18,14 @@ TEST_CASE( "ImageDesc", "[ImageDesc]" ) {
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.binary");
     SECTION("creation") {
         GIVEN("a filename") {
-            QString a_filename{"some_image.png"};
+            std::string a_filename{"some_image.png"};
             THEN("a image description can be constructed") {
                 ImageDesc descr{a_filename};
                 REQUIRE(descr.filename == a_filename);
             }
         }
         GIVEN("a filename and a tag vector") {
-            QString a_filename{"some_image.png"};
+            std::string a_filename{"some_image.png"};
             THEN("a image description can be constructed") {
                 ImageDesc descr{a_filename, tag_vec};
                 REQUIRE(descr.filename == a_filename);
@@ -36,8 +36,7 @@ TEST_CASE( "ImageDesc", "[ImageDesc]" ) {
     SECTION( "Serialization" ) {
         GIVEN( "an image description" ) {
             THEN("it can be saved and loaded") {
-                QString filename = QString::fromStdString(uniquePath.string());
-                ImageDesc desc{filename, tag_vec};
+                ImageDesc desc{uniquePath.string(), tag_vec};
                 desc.save();
                 ImageDescPtr loaded_desc = ImageDesc::load(desc.save_path());
                 REQUIRE(desc.filename== loaded_desc->filename);

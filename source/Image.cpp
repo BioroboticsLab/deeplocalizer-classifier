@@ -23,11 +23,11 @@ ImageDesc::ImageDesc() {
 
 }
 
-ImageDesc::ImageDesc(const QString _filename) : filename(_filename) {
+ImageDesc::ImageDesc(const std::string _filename) : filename(_filename) {
 
 }
 
-ImageDesc::ImageDesc(const QString _filename, std::vector<Tag> _tags) :
+ImageDesc::ImageDesc(const std::string _filename, std::vector<Tag> _tags) :
         filename(_filename), tags(_tags) {
 
 }
@@ -66,18 +66,18 @@ std::vector<ImageDesc> ImageDesc::fromPathFile(
     ASSERT(io::exists(pathfile), "File " << pathfile << " does not exists.");
     ifstream ifs{pathfile.string()};
     std::string path_to_image;
-    std::vector<QString> paths;
+    std::vector<std::string> paths;
     for(int i = 0; std::getline(ifs, path_to_image); i++) {
         ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
-        paths.emplace_back(QString::fromStdString(path_to_image));
+        paths.emplace_back(path_to_image);
     }
     return fromPaths(paths);
 }
 
-std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<QString> paths)  {
+std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<std::string> paths)  {
     std::vector<ImageDesc> descs;
     for(auto & path: paths) {
-        ASSERT(io::exists(path.toStdString()), "File " << path.toStdString() << " does not exists.");
+        ASSERT(io::exists(path), "File " << path << " does not exists.");
         auto desc = ImageDesc(path);
         if(io::exists(desc.save_path())) {
             desc = *ImageDesc::load(desc.save_path());
@@ -87,7 +87,7 @@ std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<QString> paths)  {
     return descs;
 }
 std::string ImageDesc::save_path() const {
-    std::string str = filename.toStdString();
+    std::string str = filename;
     str.append(".desc");
     return str;
 }
@@ -112,7 +112,7 @@ Image::Image() {
 }
 
 Image::Image(const ImageDesc & descr) : _filename(descr.filename)  {
-    _mat = cv::imread(_filename.toStdString());
+    _mat = cv::imread(_filename);
 }
 
 void Image::addBorder() {
@@ -130,7 +130,7 @@ cv::Mat Image::getCvMat() const {
 
 bool Image::write(io::path path) const {
     if (path.empty()) {
-        return cv::imwrite(_filename.toStdString(), _mat);
+        return cv::imwrite(_filename, _mat);
     } else {
         return cv::imwrite(path.string(), _mat);
     }

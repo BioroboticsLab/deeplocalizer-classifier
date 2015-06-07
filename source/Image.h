@@ -14,10 +14,10 @@ namespace  tagger {
 
 class ImageDesc {
 public:
-    QString filename;
+    std::string filename;
     ImageDesc();
-    ImageDesc(const QString filename);
-    ImageDesc(const QString filename, std::vector<Tag> _tags);
+    ImageDesc(const std::string filename);
+    ImageDesc(const std::string filename, std::vector<Tag> _tags);
     QPixmap visualise_tags();
     void addTag(Tag&& tag);
     void setTags(std::vector<Tag> && tag);
@@ -30,7 +30,7 @@ public:
     static std::shared_ptr<ImageDesc> load(const std::string &path);
     static std::vector<ImageDesc> fromPathFile(const std::string &path);
     static std::vector<ImageDesc> fromPathFile(const boost::filesystem::path & pathfile);
-    static std::vector<ImageDesc> fromPaths(const std::vector<QString> paths);
+    static std::vector<ImageDesc> fromPaths(const std::vector<std::string> paths);
 private:
     std::vector<Tag> tags;
     unsigned long current_tag = 0;
@@ -55,7 +55,7 @@ public:
 
 private:
     cv::Mat _mat;
-    QString _filename;
+    std::string _filename;
 };
 
 using ImagePtr = std::shared_ptr<Image>;
