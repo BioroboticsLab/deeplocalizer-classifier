@@ -18,7 +18,9 @@ namespace io = boost::filesystem;
 const std::string ManuallyTagger::DEFAULT_SAVE_PATH = "tagger_progress.binary";
 
 
-ManuallyTagger::ManuallyTagger() {  }
+ManuallyTagger::ManuallyTagger() {
+    init();
+}
 
 ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions,
                                const std::string & save_path) :
@@ -29,6 +31,7 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions,
                "Could not open file " << descr.filename);
         _image_descs.push_back(std::make_shared<ImageDesc>(descr));
     }
+    init();
 }
 
 ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions,
@@ -40,13 +43,25 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions,
                "Could not open file " << descr->filename);
         _image_descs.push_back(descr);
     }
+    init();
 }
 
 ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
                                const std::string & save_path) :
     _image_descs(std::move(descriptions)),
     _save_path(save_path)
-{ }
+{
+    init();
+}
+
+void ManuallyTagger::init() {
+    if (_image_descs.size() != _done_tagging.size()) {
+        _done_tagging = std::vector<bool>(_image_descs.size(), true);
+        _n_done = 0;
+    } else {
+        _n_done = std::count(_done_tagging.cbegin(), _done_tagging.cend(), true);
+    }
+}
 
 void ManuallyTagger::save() const {
     save(savePath());
@@ -83,6 +98,10 @@ void ManuallyTagger::loadImage(unsigned long idx) {
     if (_image_idx == 0) { emit firstImage(); }
     if (_image_idx + 1 == _image_descs.size()) { emit lastImage(); }
 }
+void ManuallyTagger::doneTagging() {
+    doneTagging(_image_idx);
+}
+
 void ManuallyTagger::doneTagging(unsigned long idx) {
     if (_done_tagging.size() <= idx) {
         qWarning() << "[doneTagging] index " << idx << " exceeded size of images "
@@ -91,6 +110,8 @@ void ManuallyTagger::doneTagging(unsigned long idx) {
     _image_descs.at(idx)->save();
     save();
     _done_tagging.at(idx) = true;
+    _n_done++;
+    emit progress(static_cast<double>(_n_done)/_image_descs.size());
 }
 }
 }

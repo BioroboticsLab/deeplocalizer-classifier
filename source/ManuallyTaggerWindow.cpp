@@ -29,8 +29,11 @@ void ManuallyTagWindow::init() {
     ui->setupUi(this);
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
+    _progres_bar = new QProgressBar(ui->statusbar);
+
     setupActions();
     setupConnections();
+    setupUi();
     _state = State::Tags;
     _tagger->loadImage(0);
 }
@@ -115,33 +118,58 @@ void ManuallyTagWindow::setupActions() {
     _scrollBackAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
     this->addAction(_scrollBackAct);
 
-    this->connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::next);
-    this->connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::back);
-    this->connect(_scrollAct, &QAction::triggered, this, &ManuallyTagWindow::scroll);
-    this->connect(_scrollBackAct, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
+    connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::next);
+    connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::back);
+    connect(_scrollAct, &QAction::triggered, this, &ManuallyTagWindow::scroll);
+    connect(_scrollBackAct, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
 }
 
 void ManuallyTagWindow::setupConnections() {
-    this->connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
-    this->connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
-    this->connect(_tagger.get(), &ManuallyTagger::loadedImage, this,
+    connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
+    connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
+    connect(_tagger.get(), &ManuallyTagger::loadedImage, this,
                   &ManuallyTagWindow::setImage);
-    this->connect(_tagger.get(), &ManuallyTagger::outOfRange, []() {
+
+    connect(_tagger.get(), &ManuallyTagger::outOfRange, []() {
         QMessageBox box;
         box.setWindowTitle("DONE!");
         box.setText("You are done! Feel very very happy! :-)");
         box.exec();
     });
+
+    connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
+    connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
+    connect(_tagger.get(), &ManuallyTagger::progress, this, &ManuallyTagWindow::setProgress);
 }
+
+void ManuallyTagWindow::setProgress(double progress) {
+    int distance = _progres_bar->maximum() - _progres_bar->minimum();
+    int value = _progres_bar->minimum() + static_cast<int>(distance * progress);
+    _progres_bar->setValue(value);
+}
+
+void ManuallyTagWindow::updateStatusBar() {
+    auto message = tr("#") + QString::number(this->_tagger->getIdx() + 1) + "      " +
+                   QString::fromStdString(this->_desc->filename);
+    this->ui->statusbar->showMessage(message);
+}
+
+void ManuallyTagWindow::setupUi() {
+    ui->statusbar->addPermanentWidget(_progres_bar);
+    setProgress(0);
+}
+
 void ManuallyTagWindow::next() {
     if (_state == State::Image) {
         _next_state = State::Tags;
+        _tagger->doneTagging();
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {
         ManuallyTagWindow::eraseNegativeTags();
         showImage();
     }
 }
+
 void ManuallyTagWindow::back() {
     if (_state == State::Image) {
         showTags();
@@ -150,6 +178,7 @@ void ManuallyTagWindow::back() {
         _tagger->loadLastImage();
     }
 }
+
 void ManuallyTagWindow::scroll() {
     QScrollBar * vert = ui->scrollArea->verticalScrollBar();
     QScrollBar * horz = ui->scrollArea->horizontalScrollBar();
@@ -192,9 +221,11 @@ void ManuallyTagWindow::scrollBack() {
         horz->setValue(last_horz);
     }
 }
+
 void ManuallyTagWindow::setImage(ImageDescPtr desc, ImagePtr img) {
     _desc = desc;
     _image = img;
+    updateStatusBar();
     if (_next_state == State::Image) {
         showImage();
     } else {

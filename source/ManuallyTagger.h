@@ -39,12 +39,14 @@ public slots:
     void loadNextImage();
     void loadLastImage();
     void loadImage(unsigned long idx);
+    void doneTagging();
     void doneTagging(unsigned long idx);
 signals:
     void loadedImage(ImageDescPtr desc, ImagePtr img);
     void outOfRange(unsigned long idx);
     void lastImage();
     void firstImage();
+    void progress(double progress);
 public:
     static const std::string DEFAULT_SAVE_PATH;
 
@@ -55,6 +57,7 @@ public:
                             const std::string & save_path = DEFAULT_SAVE_PATH);
     explicit ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
                             const std::string & save_path = DEFAULT_SAVE_PATH);
+    void init();
 
     static std::unique_ptr<ManuallyTagger> load(const std::string & path);
 
@@ -69,9 +72,13 @@ public:
         return _image_descs;
     }
 
+    unsigned long getIdx() const {
+        return _image_idx;
+    }
 private:
     std::vector<ImageDescPtr> _image_descs;
     std::vector<bool> _done_tagging;
+    unsigned long _n_done = 0;
     std::vector<std::string> _image_paths;
 
     std::string _save_path = DEFAULT_SAVE_PATH;

@@ -2,6 +2,7 @@
 #define MANUELLTAGWINDOW_H
 
 #include <QMainWindow>
+#include <QProgressBar>
 #include <ui_ManuallyTaggerWindow.h>
 
 #include "ManuallyTagger.h"
@@ -30,23 +31,29 @@ public slots:
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent * );
-
+private slots:
+    void updateStatusBar();
+    void setProgress(double progress);
 private:
     enum class State{Tags, Image};
     Ui::ManuallyTaggerWindow *ui;
-    std::unique_ptr<ManuallyTagger> _tagger;
+
     QWidget * _tags_container;
     QGridLayout * _grid_layout;
     WholeImageWidget * _whole_image;
     std::vector<TagWidgetPtr> _tag_widgets;
-    State _state = State::Tags;
-    State _next_state = State::Tags;
-    ImageDescPtr  _desc;
-    ImagePtr  _image;
+    QProgressBar * _progres_bar;
+
     QAction * _nextAct;
     QAction * _backAct;
     QAction * _scrollAct;
     QAction * _scrollBackAct;
+
+    std::unique_ptr<ManuallyTagger> _tagger;
+    State _state = State::Tags;
+    State _next_state = State::Tags;
+    ImageDescPtr  _desc;
+    ImagePtr  _image;
     std::deque<std::shared_ptr<QPushButton>> _image_names;
 
     void init();
@@ -55,6 +62,7 @@ private:
     void arangeTagWidgets();
     void setupConnections();
     void setupActions();
+    void setupUi();
     void eraseNegativeTags();
 };
 }
