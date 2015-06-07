@@ -2,6 +2,7 @@
 enable_testing(true)
 include_directories(. ../source ${CATCH_INCLUDE_DIR})
 add_subdirectory(testdata)
+add_subdirectory(scripts)
 
 file(GLOB tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Test*.cpp)
 
