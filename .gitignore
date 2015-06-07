@@ -28,5 +28,7 @@
 *.app
 
 build
+build-clang
+build-gcc
 Release
 Debug
