@@ -7,4 +7,4 @@ DIR=$1
 if [ '$DIR' == '' ]; then
     DIR=$(pwd)
 fi;
-find $DIR -type f  | egrep ".jpeg|.jpg|.JPEG|.png"
+find $DIR -type f  | egrep ".jpeg|.jpg|.JPEG|.png|.PNG"
