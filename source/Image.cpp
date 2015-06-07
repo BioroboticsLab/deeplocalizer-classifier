@@ -95,9 +95,7 @@ void ImageDesc::save() {
     save(save_path());
 }
 void ImageDesc::save(const std::string & path) {
-    std::ofstream os(path);
-    boost::archive::binary_oarchive archive(os);
-    archive << boost::serialization::make_nvp("image_desc", *this);
+    safe_serialization(path, boost::serialization::make_nvp("image_desc", *this));
 }
 
 ImageDescPtr ImageDesc::load(const std::string & path) {
