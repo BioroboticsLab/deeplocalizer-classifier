@@ -39,15 +39,13 @@ ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions) :
 { }
 
 
-void ManuallyTagger::save(const QString & path) const {
-    std::ofstream os(path.toStdString());
-    boost::archive::xml_oarchive archive(os);
-    archive << boost::serialization::make_nvp("tagger", *this);
+void ManuallyTagger::save(const std::string & path) const {
+    safe_serialization(path, boost::serialization::make_nvp("tagger", *this));
 }
 
 std::unique_ptr<ManuallyTagger> ManuallyTagger::load(const std::string & path) {
     std::ifstream is(path);
-    boost::archive::xml_iarchive archive(is);
+    boost::archive::binary_iarchive archive(is);
     ManuallyTagger * tagger;
     archive >> boost::serialization::make_nvp("tagger", tagger);
     return std::unique_ptr<ManuallyTagger>(tagger);

@@ -2,10 +2,9 @@
 
 #include <QCoreApplication>
 #include <boost/format.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <QThread>
 #include <source/utils.h>
 
 #include "catch.hpp"
@@ -17,9 +16,6 @@ namespace io = boost::filesystem;
 using boost::optional;
 using boost::serialization::make_nvp;
 using namespace deeplocalizer::tagger;
-
-
-
 
 TEST_CASE( "Serialization", "[serialize]" ) {
     ImageDesc img("image_path.jpeg");

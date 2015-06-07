@@ -132,8 +132,7 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
                 int times = 3;
                 for(int i=0; i < times; i++) {
                     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.binary");
-                    QString path = QString::fromStdString(uniquePath.string());
-                    tagger->save(path);
+                    tagger->save(uniquePath.string());
                 }
                 duration<double> elapsed = system_clock::now() - start_time;
                 std::cout << "average save took: " << (duration_cast<nanoseconds>(elapsed).count() / 1e9) / times

@@ -34,7 +34,7 @@ class ManuallyTagger : public QObject {
     Q_OBJECT
 
 public slots:
-    void save(const QString & path) const;
+    void save(const std::string & path) const;
     void loadNextImage();
     void loadLastImage();
     void loadImage(unsigned long idx);
@@ -64,7 +64,6 @@ private:
     template <class Archive>
     void serialize( Archive & ar, const unsigned int)
     {
-        ar & BOOST_SERIALIZATION_NVP(_image_descs);
         ar & BOOST_SERIALIZATION_NVP(_image_idx);
     }
 };
