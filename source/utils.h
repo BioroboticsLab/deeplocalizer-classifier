@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include <QImage>
 #include <QPixmap>
@@ -19,6 +20,8 @@
 
 #ifndef NDEBUG
 #include <sstream>
+#include <chrono>
+
 #   define ASSERT(condition, message) \
     do { \
         if (! (condition)) { \
@@ -94,6 +97,36 @@ void safe_serialization(const std::string &path, const boost::serialization::nvp
         throw;
     }
     boost::filesystem::rename(tmp_path, save_path);
+}
+
+template<typename Clock>
+void printProgress(const std::chrono::time_point<Clock> & start_time,
+                   double progress) {
+    using namespace std::chrono;
+    using std::cout;
+    int width = 40;
+    auto elapsed = Clock::now() - start_time;
+    unsigned long progress_chars = std::lround(width * progress);
+    auto crosses = std::string(progress_chars, '#');
+    auto spaces = std::string(width - progress_chars, ' ');
+
+    cout << "\r " << static_cast<int>(progress * 100) << "% ["
+    << crosses << spaces << "] ";
+    if (progress > 0.05) {
+        auto eta = elapsed / progress - elapsed;
+        auto h = duration_cast<hours>(eta).count();
+        auto m = duration_cast<minutes>(eta).count() - 60 * h;
+        auto s = duration_cast<seconds>(eta).count() - 60 * m;
+        cout << "eta ";
+        if (h) {
+            cout << h << "h ";
+        }
+        if (h || m) {
+            cout << m << "m ";
+        }
+        cout << s << "s";
+    }
+    cout << "          " << std::flush;
 }
 
 }

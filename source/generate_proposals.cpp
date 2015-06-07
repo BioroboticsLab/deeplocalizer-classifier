@@ -2,9 +2,11 @@
 #include <QCoreApplication>
 #include <boost/program_options.hpp>
 #include <chrono>
+#include <functional>
 
 #include "ProposalGenerator.h"
 #include "deeplocalizer.h"
+#include "utils.h"
 
 using namespace deeplocalizer::tagger;
 using namespace std::chrono;
@@ -26,30 +28,6 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 
-void printProgress(double progress) {
-    using std::cout;
-    int width = 40;
-    duration<double> elapsed = system_clock::now() - start_time;
-    unsigned long progress_chars = std::lround(width*progress);
-    auto crosses = std::string(progress_chars, '#');
-    auto spaces = std::string(width-progress_chars, ' ');
-
-    cout << "\r " << static_cast<int>(progress*100) << "% ["
-        << crosses << spaces << "] ";
-    if(progress > 0.05) {
-        auto eta = elapsed / progress - elapsed;
-        auto h = duration_cast<hours>(eta).count();
-        auto m = duration_cast<minutes>(eta).count() - 60 * h;
-        auto s = duration_cast<seconds>(eta).count() - 60 * m;
-        cout << "eta ";
-        if (h)
-            cout << h << "h ";
-        if (h || m)
-            cout << m << "m ";
-        cout << s << "s";
-    }
-    cout << "          " << std::flush;
-}
 
 int run(QCoreApplication & qapp,
         std::string pathfile) {
@@ -75,13 +53,13 @@ int run(QCoreApplication & qapp,
         return 0;
     }
     auto gen = new ProposalGenerator(images_todo, images_done);
-
-    gen->connect(gen, &ProposalGenerator::progress, &printProgress);
+    auto printProgressFn = std::bind(&printProgress<system_clock>, start_time, std::placeholders::_1);
+    gen->connect(gen, &ProposalGenerator::progress, printProgressFn);
     gen->connect(gen, &ProposalGenerator::finished,
                 &qapp, &QCoreApplication::quit, Qt::QueuedConnection);
 
-    printProgress(0);
     start_time = system_clock::now();
+    printProgress(start_time, 0);
     gen->processPipeline();
     return qapp.exec();
 }
