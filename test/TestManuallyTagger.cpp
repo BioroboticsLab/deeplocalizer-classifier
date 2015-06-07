@@ -125,18 +125,19 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
     SECTION("serialization") {
         GIVEN("many image descriptions") {
             using namespace std::chrono;
-            unsigned int n_images = 1000;
+            unsigned int n_images = 10000;
             auto tagger = bigRandomManuallyTagger(n_images);
-            time_point<system_clock> start_time;
+            time_point<system_clock> start_time = system_clock::now();
             THEN("it can be efficently be saved/loaded") {
                 int times = 3;
                 for(int i=0; i < times; i++) {
                     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.binary");
                     tagger->save(uniquePath.string());
+                    io::remove(uniquePath);
                 }
-                duration<double> elapsed = system_clock::now() - start_time;
-                std::cout << "average save took: " << (duration_cast<nanoseconds>(elapsed).count() / 1e9) / times
-                    << "s" << std::endl;
+                auto elapsed = system_clock::now() - start_time;
+                std::cout << "average save took: " << duration_cast<nanoseconds>(elapsed).count() / times
+                    << "ns" << std::endl;
             }
         }
     }
