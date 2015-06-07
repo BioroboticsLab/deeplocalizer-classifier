@@ -14,9 +14,15 @@ namespace tagger {
 using boost::optional;
 namespace io = boost::filesystem;
 
+
+const std::string ManuallyTagger::DEFAULT_SAVE_PATH = "tagger_progress.binary";
+
+
 ManuallyTagger::ManuallyTagger() {  }
 
-ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions)
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions,
+                               const std::string & save_path) :
+    _save_path(save_path)
 {
     for(auto & descr : descriptions ) {
         ASSERT(io::exists(descr.filename),
@@ -25,7 +31,9 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions)
     }
 }
 
-ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions)
+ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions,
+                               const std::string & save_path) :
+    _save_path(save_path)
 {
     for(auto & descr : descriptions ) {
         ASSERT(io::exists(descr->filename),
@@ -34,11 +42,15 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions)
     }
 }
 
-ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions) :
-    _image_descs(std::move(descriptions))
+ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
+                               const std::string & save_path) :
+    _image_descs(std::move(descriptions)),
+    _save_path(save_path)
 { }
 
-
+void ManuallyTagger::save() const {
+    save(savePath());
+}
 void ManuallyTagger::save(const std::string & path) const {
     safe_serialization(path, boost::serialization::make_nvp("tagger", *this));
 }
@@ -70,6 +82,15 @@ void ManuallyTagger::loadImage(unsigned long idx) {
     emit loadedImage(_desc, _image);
     if (_image_idx == 0) { emit firstImage(); }
     if (_image_idx + 1 == _image_descs.size()) { emit lastImage(); }
+}
+void ManuallyTagger::doneTagging(unsigned long idx) {
+    if (_done_tagging.size() <= idx) {
+        qWarning() << "[doneTagging] index " << idx << " exceeded size of images "
+            << _done_tagging.size();
+    }
+    _image_descs.at(idx)->save();
+    save();
+    _done_tagging.at(idx) = true;
 }
 }
 }

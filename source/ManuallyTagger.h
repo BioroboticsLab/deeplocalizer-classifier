@@ -34,28 +34,47 @@ class ManuallyTagger : public QObject {
     Q_OBJECT
 
 public slots:
+    void save() const;
     void save(const std::string & path) const;
     void loadNextImage();
     void loadLastImage();
     void loadImage(unsigned long idx);
+    void doneTagging(unsigned long idx);
 signals:
     void loadedImage(ImageDescPtr desc, ImagePtr img);
     void outOfRange(unsigned long idx);
     void lastImage();
     void firstImage();
 public:
+    static const std::string DEFAULT_SAVE_PATH;
+
     explicit ManuallyTagger();
-    explicit ManuallyTagger(const std::vector<ImageDesc> & descriptions);
-    explicit ManuallyTagger(const std::vector<ImageDescPtr> & descriptions);
-    explicit ManuallyTagger(std::vector<ImageDescPtr> && descriptions);
+    explicit ManuallyTagger(const std::vector<ImageDesc> & descriptions,
+                            const std::string & save_path = DEFAULT_SAVE_PATH);
+    explicit ManuallyTagger(const std::vector<ImageDescPtr> & descriptions,
+                            const std::string & save_path = DEFAULT_SAVE_PATH);
+    explicit ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
+                            const std::string & save_path = DEFAULT_SAVE_PATH);
 
     static std::unique_ptr<ManuallyTagger> load(const std::string & path);
+
+    const std::string & savePath() const {
+        return _save_path;
+    }
+    void setSavePath(const std::string &save_path) {
+        ManuallyTagger::_save_path = save_path;
+    }
+
     const std::vector<ImageDescPtr> & getProposalImages() const {
         return _image_descs;
     }
 
 private:
     std::vector<ImageDescPtr> _image_descs;
+    std::vector<bool> _done_tagging;
+    std::vector<std::string> _image_paths;
+
+    std::string _save_path = DEFAULT_SAVE_PATH;
     ImagePtr _image;
     ImageDescPtr _desc;
     unsigned long _image_idx = 0;
@@ -65,6 +84,8 @@ private:
     void serialize( Archive & ar, const unsigned int)
     {
         ar & BOOST_SERIALIZATION_NVP(_image_idx);
+        ar & BOOST_SERIALIZATION_NVP(_done_tagging);
+        ar & BOOST_SERIALIZATION_NVP(_image_paths);
     }
 };
 }
