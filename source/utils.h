@@ -18,10 +18,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
+
 #ifndef NDEBUG
 #include <sstream>
-#include <chrono>
-
 #   define ASSERT(condition, message) \
     do { \
         if (! (condition)) { \
@@ -33,7 +32,13 @@
         } \
     } while (false)
 #else
-#   define ASSERT(condition, message) do { } while (false)
+#   define ASSERT(condition, message) \
+    do {  \
+        if (! (condition)) { \
+            std::cerr << message << std::endl; \
+            throw ss.str(); \
+        } \
+    } while (false)
 #endif
 
 namespace deeplocalizer {
