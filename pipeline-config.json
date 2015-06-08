@@ -1,0 +1,42 @@
+{
+    "PREPROCESSOR": {
+        "COMB_DIFF_SIZE": "15",
+        "COMB_ENABLED": "1",
+        "COMB_LINE_COLOR": "0",
+        "COMB_LINE_WIDTH": "9",
+        "COMB_MAX_SIZE": "0",
+        "COMB_MIN_SIZE": "0",
+        "COMB_THRESHOLD": "255",
+        "HONEY_AVERAGE_VALUE": "151",
+        "HONEY_ENABLED": "1",
+        "HONEY_FRAME_SIZE": "5",
+        "HONEY_STD_DEV": "167",
+        "OPT_AVERAGE_CONTRAST_VALUE": "0",
+        "OPT_FRAME_SIZE": "500",
+        "OPT_USE_CONTRAST_STRETCHING": "1",
+        "OPT_USE_EQUALIZE_HISTOGRAM": "0"
+    },
+    "LOCALIZER": {
+        "BINARY_THRESHOLD": "10",
+        "EROSION_SIZE": "27",
+        "FIRST_DILATION_NUM_ITERATIONS": "1",
+        "FIRST_DILATION_SIZE": "10",
+        "MAX_TAG_SIZE": "250",
+        "MIN_BOUNDING_BOX_SIZE": "100",
+        "SECOND_DILATION_SIZE": "3"
+    },
+    "ELLIPSEFITTER": {
+        "CANNY_INITIAL_HIGH": "25",
+        "CANNY_MEAN_MAX": "22",
+        "CANNY_MEAN_MIN": "12",
+        "CANNY_VALUES_DISTANCE": "23",
+        "MAX_MAJOR_AXIS": "53",
+        "MAX_MINOR_AXIS": "65",
+        "MIN_MAJOR_AXIS": "26",
+        "MIN_MINOR_AXIS": "25",
+        "THRESHOLD_BEST_VOTE": "1740",
+        "THRESHOLD_EDGE_PIXELS": "45",
+        "THRESHOLD_VOTE": "1400",
+        "USE_XIE_AS_FALLBACK": "1"
+    }
+}
