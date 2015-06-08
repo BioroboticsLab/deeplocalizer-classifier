@@ -5,6 +5,7 @@ This project aims to train a deep network to classify BeesBook image tags.
 
 ## Build
 
+Make sure you have OpenCV 2.4, Boost 1.58.0 and Qt5 installed.
 To build the code run:
 
 ```
@@ -13,6 +14,9 @@ $ cd build
 $ cmake ..
 $ make
 ```
+
+The binaries should be now in the `build/source` directory.
+
 ## Run the Tests
 
 Built the code and then run in you build directory:
