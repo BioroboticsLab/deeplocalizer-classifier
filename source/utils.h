@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <sstream>
 
 #include <QImage>
 #include <QPixmap>
@@ -20,7 +21,6 @@
 
 
 #ifndef NDEBUG
-#include <sstream>
 #   define ASSERT(condition, message) \
     do { \
         if (! (condition)) { \
@@ -35,7 +35,9 @@
 #   define ASSERT(condition, message) \
     do {  \
         if (! (condition)) { \
-            std::cerr << message << std::endl; \
+            std::stringstream ss; \
+            ss << message; \
+            std::cerr << ss.str() << std::endl; \
             throw ss.str(); \
         } \
     } while (false)
