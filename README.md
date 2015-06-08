@@ -1,4 +1,5 @@
 # deeplocalizer
+[![wercker status](https://app.wercker.com/status/72f60f68e9fc109d741b99d084f0a593/m "wercker status")](https://app.wercker.com/project/bykey/72f60f68e9fc109d741b99d084f0a593)
 
 This project aims to train a deep network to classify BeesBook image tags.
 
