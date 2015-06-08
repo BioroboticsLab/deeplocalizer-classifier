@@ -1,13 +1,14 @@
 #ifndef DEEP_LOCALIZER_IMAGE_H
 #define DEEP_LOCALIZER_IMAGE_H
 
-#include <QPixmap>
 #include <boost/optional.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/filesystem.hpp>
 
 #include "Tag.h"
 #include "serialization.h"
+
+class QPixmap;
 
 namespace deeplocalizer {
 namespace  tagger {
@@ -44,6 +45,7 @@ private:
     }
 };
 using ImageDescPtr = std::shared_ptr<ImageDesc>;
+
 class Image {
 public:
     explicit Image();
@@ -61,5 +63,7 @@ private:
 using ImagePtr = std::shared_ptr<Image>;
 }
 }
+
+Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDesc)
 
 #endif //DEEP_LOCALIZER_IMAGE_H

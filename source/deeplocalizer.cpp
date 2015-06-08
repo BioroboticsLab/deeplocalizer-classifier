@@ -1,3 +1,5 @@
+#include "deeplocalizer.h"
+
 #include "Tag.h"
 #include "Image.h"
 

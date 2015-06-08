@@ -3,11 +3,14 @@
 #define DEEP_LOCALIZER_TAG_H
 
 #include <atomic>
-#include <QString>
-#include <opencv2/core/core.hpp>
-#include <pipeline/datastructure/Tag.h>
-#include "pipeline/datastructure/Ellipse.h"
 
+#include <QMetaType>
+#include <QString>
+
+#include <opencv2/core/core.hpp>
+
+#include "pipeline/datastructure/Tag.h"
+#include "pipeline/datastructure/Ellipse.h"
 #include "pipeline/datastructure/serialization.hpp"
 #include "serialization.h"
 
@@ -59,5 +62,7 @@ private:
 };
 }
 }
+
+Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
 
 #endif //DEEP_LOCALIZER_TAG_H

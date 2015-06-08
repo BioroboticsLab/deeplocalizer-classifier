@@ -14,7 +14,9 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 #include <opencv2/core/core.hpp>
+
 #include <QString>
+#include <QObject>
 
 #include <pipeline/datastructure/Tag.h>
 #include <pipeline/Preprocessor.h>

@@ -8,12 +8,9 @@
 #include <pipeline/Localizer.h>
 #include <pipeline/EllipseFitter.h>
 
+#include "deeplocalizer.h"
 #include "Tag.h"
 #include "Image.h"
-
-Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDesc)
-Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
-Q_DECLARE_METATYPE(cv::Mat)
 
 namespace deeplocalizer {
 namespace tagger {
