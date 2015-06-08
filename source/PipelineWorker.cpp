@@ -9,6 +9,33 @@ namespace tagger {
 using boost::optional;
 namespace io = boost::filesystem;
 
+const std::string PipelineWorker::DEFAULT_CONFIG_FILE = "pipeline-config.json";
+
+PipelineWorker::PipelineWorker() {
+    init(DEFAULT_CONFIG_FILE);
+}
+
+PipelineWorker::PipelineWorker(const std::string & config_file) {
+    init(config_file);
+}
+
+void PipelineWorker::init(const std::string & config_file) {
+    using namespace pipeline;
+    io::path config_path{config_file};
+    ASSERT(io::exists(config_path), config_path.string() << " does not exist.");
+    settings::preprocessor_settings_t pre_settings;
+    settings::localizer_settings_t loc_settings;
+    settings::ellipsefitter_settings_t ell_settings;
+
+    pre_settings.loadFromJson(config_file);
+    loc_settings.loadFromJson(config_file);
+    ell_settings.loadFromJson(config_file);
+
+    _preprocessor.loadSettings(pre_settings);
+    _localizer.loadSettings(loc_settings);
+    _ellipseFitter.loadSettings(ell_settings);
+}
+
 std::vector<Tag> PipelineWorker::tagsProposals(ImageDesc & img_descr) {
     Image img{img_descr};
     cv::Mat preprocced = _preprocessor.process(img.getCvMat());

@@ -103,6 +103,11 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 set(EXT_PROJECTS_DIR deps)
 add_subdirectory(${EXT_PROJECTS_DIR}/catch)
 
+# copy config files to build and test directory
+file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test)
+file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/scripts)
+file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/source)
 
 # include deps dependecies as SYSTEM headers to prevent warnings from
 # deps files. unfortunatelly, this has no effect when using MSVC.

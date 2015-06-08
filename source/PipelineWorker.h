@@ -21,6 +21,12 @@ namespace tagger {
     class PipelineWorker : public QObject {
     Q_OBJECT
 
+    public:
+        PipelineWorker();
+        PipelineWorker(const std::string &  config_file);
+        void init(const std::string & config_file);
+        static const std::string DEFAULT_CONFIG_FILE;
+
     public slots:
         void process(ImageDesc img);
         void findEllipse(cv::Mat mat, Tag tag);

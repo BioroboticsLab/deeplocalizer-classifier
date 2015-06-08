@@ -39,7 +39,8 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
     qapp->connect(timer, &QTimer::timeout, qapp,
             std::bind(&QCoreApplication::exit, exit_code),
             Qt::QueuedConnection);
-    timer->start(20000);
+    // wait at maximum 2 minutes
+    timer->start(2*60*1000);
     ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
     auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
