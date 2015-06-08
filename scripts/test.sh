@@ -12,8 +12,8 @@ function build_and_test {
     BUILD_DIR=$2
     mkdir -p $BUILD_DIR
     (cd $BUILD_DIR;
-    cmake -DCMAKE_BUILD_TYPE=Debug ..
-    make -j2
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    make -j4
     ctest
     )
 }
