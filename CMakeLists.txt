@@ -13,6 +13,7 @@ find_package(OpenGL REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
+find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
@@ -129,6 +130,7 @@ set(libs
     ${OPENGL_LIBRARIES}
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 enable_testing(true)
