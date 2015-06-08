@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+if [ "$1" == "--help" ]; then
+    echo "Compile with Clang and GCC and then run the tests.";
+    echo "This script is used in wercker.yml";
+    exit 0;
+fi
 set -e
 
 function build_and_test {
