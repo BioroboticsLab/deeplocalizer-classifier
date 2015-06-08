@@ -1,3 +1,3 @@
-[submodule "source/pipeline"]
-	path = source/pipeline
+[submodule "deps/pipeline"]
+	path = deps/pipeline
 	url = git@maserati.mi.fu-berlin.de:pipeline

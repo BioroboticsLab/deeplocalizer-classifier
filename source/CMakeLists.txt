@@ -4,13 +4,16 @@ file(GLOB_RECURSE hdr RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h *.hpp)
 file(GLOB_RECURSE ui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.ui)
 file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
 
+set(src ${src} ${PIPELINE_SRC})
+set(hdr ${hdr} ${PIPELINE_HDR})
+
+message(${src})
+
 qt5_add_resources(UI_RESOURCES ${qrc})
 qt5_wrap_ui(UI_HEADERS ${ui})
 
 add_library(deeplocalizer
     ${src} ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
-
-
 
 add_executable(tagger "tagger.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
@@ -23,6 +26,7 @@ target_link_libraries(add_border ${libs})
 
 add_executable(generate_proposals "generate_proposals.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
+
 target_link_libraries(generate_proposals ${libs})
 
 # automatic copy of required dlls to install prefix for windows
