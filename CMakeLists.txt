@@ -107,16 +107,17 @@ file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test)
 file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/scripts)
 file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/source)
 
+add_subdirectory(deps)
+
 # include deps dependecies as SYSTEM headers to prevent warnings from
 # deps files. unfortunatelly, this has no effect when using MSVC.
 include_directories(
-    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/include/deeplocalizer
+    SYSTEM ${PIPELINE_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
     SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
-    SYSTEM ${CMAKE_CURRENT_BINARY_DIR}/
-    SYSTEM ${PROJECT_SOURCE_DIR}/deps
 )
 
 set(libs
@@ -131,6 +132,5 @@ set(libs
 )
 
 enable_testing(true)
-add_subdirectory(deps)
 add_subdirectory(source)
 add_subdirectory(test)

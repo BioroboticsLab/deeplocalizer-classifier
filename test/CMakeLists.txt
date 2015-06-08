@@ -1,6 +1,5 @@
 
 enable_testing(true)
-include_directories(. ../source ${CATCH_INCLUDE_DIR})
 add_subdirectory(testdata)
 add_subdirectory(scripts)
 
@@ -12,5 +11,4 @@ foreach(test ${tests})
     target_link_libraries(${name} ${libs})
     set(test_bin ${CMAKE_CURRENT_BINARY_DIR}/${name})
     add_test(${name} ${test_bin})
-    set(test_bins ${test_bins} ${test_bin})
 endforeach()

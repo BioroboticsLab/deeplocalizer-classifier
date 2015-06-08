@@ -5,12 +5,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <source/utils.h>
+#include <utils.h>
 
 #include "catch.hpp"
 #include "Image.h"
 #include "ProposalGenerator.h"
-#include "deeplocalizer.h"
 
 namespace io = boost::filesystem;
 using boost::optional;
