@@ -3,6 +3,7 @@
 #include "deeplocalizer.h"
 #include <QApplication>
 #include <boost/program_options.hpp>
+#include <ProposalGenerator.h>
 
 using namespace deeplocalizer::tagger;
 
@@ -20,7 +21,8 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 int run(QApplication & qapp, std::string pathfile) {
-    auto proposals = ImageDesc::fromPathFile(pathfile);
+    auto proposals = ImageDesc::fromPathFile(pathfile,
+                                             ProposalGenerator::IMAGE_DESC_EXT);
     std::vector<ImageDescPtr> proposal_ptrs;
     for(auto & p : proposals) {
         proposal_ptrs.emplace_back(std::make_shared<ImageDesc>(p));

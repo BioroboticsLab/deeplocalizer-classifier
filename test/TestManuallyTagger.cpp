@@ -12,31 +12,43 @@
 using namespace deeplocalizer::tagger;
 namespace io = boost::filesystem;
 
-std::shared_ptr<ManuallyTagger> bigRandomManuallyTagger(int n_images) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> coordinate(0, 3000);
-    std::uniform_int_distribution<int> vote(500, 4000);
-    std::uniform_int_distribution<int> n_tags(100, 150);
-    std::uniform_int_distribution<int> axis(5, 25);
-    std::uniform_real_distribution<double> angle(0., M_PI_2);
+class BigRandomManuallyTagger {
+public:
+    std::shared_ptr<ManuallyTagger> generate(int n_images) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<int> coordinate(0, 3000);
+        std::uniform_int_distribution<int> vote(500, 4000);
+        std::uniform_int_distribution<int> n_tags(100, 150);
+        std::uniform_int_distribution<int> axis(5, 25);
+        std::uniform_real_distribution<double> angle(0., M_PI_2);
 
-    std::vector<ImageDescPtr> descs;
-    for(int i=0; i<n_images;i++) {
-        std::vector<Tag> tags;
-        for(int j=0; j<n_tags(gen);j++) {
-            pipeline::Ellipse ellipse(vote(gen),
-                                      cv::Point2i(coordinate(gen),  coordinate(gen)),
-                                      cv::Size(axis(gen), axis(gen)), angle(gen),
-                                      cv::Size(10*axis(gen), 10*axis(gen)));
-            tags.emplace_back(Tag(cv::Rect(coordinate(gen),coordinate(gen), TAG_WIDTH, TAG_HEIGHT),
-                               boost::make_optional(ellipse)));
+        std::vector<ImageDescPtr> descs;
+        for(int i=0; i<n_images;i++) {
+            std::vector<Tag> tags;
+            for(int j=0; j<n_tags(gen);j++) {
+                pipeline::Ellipse ellipse(vote(gen),
+                                          cv::Point2i(coordinate(gen),  coordinate(gen)),
+                                          cv::Size(axis(gen), axis(gen)), angle(gen),
+                                          cv::Size(10*axis(gen), 10*axis(gen)));
+                tags.emplace_back(Tag(cv::Rect(coordinate(gen),coordinate(gen), TAG_WIDTH, TAG_HEIGHT),
+                                      boost::make_optional(ellipse)));
+            }
+            io::path unique_path = io::unique_path("/tmp/test_tagger/%%%%%.jpeg");
+            std::string filename = unique_path.string();
+            io::create_directories(unique_path);
+            {
+                std::ofstream o(unique_path.string());
+                o << "" << std::endl;
+            }
+            descs.push_back(std::shared_ptr<ImageDesc>(new ImageDesc(filename, tags)));
         }
-        std::string filename = io::unique_path("/%%/%%%/%%%%/%%%/%%%%/%%%%%.jpeg").string();
-        descs.push_back(std::shared_ptr<ImageDesc>(new ImageDesc(filename, tags)));
+        return std::make_shared<ManuallyTagger>(std::move(descs));
     }
-    return std::make_shared<ManuallyTagger>(std::move(descs));
-}
+    ~BigRandomManuallyTagger() {
+        io::remove_all("/tmp/test_tagger/");
+    }
+};
 TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
     std::vector<ImageDesc> image_descrs{
         ImageDesc{
@@ -62,7 +74,7 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
         GIVEN( " some paths to existend images" ) {
             THEN(" it will construct an instance with valid default members") {
                 ManuallyTagger tagger(image_descrs);
-                auto pimgs = tagger.getProposalImages();
+                auto pimgs = tagger.getImageDescs();
 
                 REQUIRE(pimgs.size() == image_descrs.size());
                 REQUIRE(*pimgs.at(0) == image_descrs.at(0));
@@ -112,7 +124,7 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
                 bool loadedImageEmitted = false;
                 auto c = tagger->connect(tagger, &ManuallyTagger::loadedImage,
                                          [&](ImageDescPtr  desc, ImagePtr  img) {
-                    REQUIRE(*desc == *tagger->getProposalImages().at(0));
+                    REQUIRE(*desc == *tagger->getImageDescs().at(0));
                     REQUIRE(*img == Image(*desc));
                     loadedImageEmitted = true;
                 });
@@ -126,7 +138,8 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
         GIVEN("many image descriptions") {
             using namespace std::chrono;
             unsigned int n_images = 10000;
-            auto tagger = bigRandomManuallyTagger(n_images);
+            BigRandomManuallyTagger generator;
+            auto tagger = generator.generate(n_images);
             time_point<system_clock> start_time = system_clock::now();
             THEN("it can be efficently be saved/loaded") {
                 int times = 3;

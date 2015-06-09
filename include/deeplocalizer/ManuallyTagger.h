@@ -50,6 +50,7 @@ signals:
     void firstImage();
     void progress(double progress);
 public:
+    static const std::string IMAGE_DESC_EXT;
     static const std::string DEFAULT_SAVE_PATH;
 
     explicit ManuallyTagger();
@@ -70,7 +71,7 @@ public:
         ManuallyTagger::_save_path = save_path;
     }
 
-    const std::vector<ImageDescPtr> & getProposalImages() const {
+    const std::vector<ImageDescPtr> &getImageDescs() const {
         return _image_descs;
     }
 

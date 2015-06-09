@@ -15,6 +15,7 @@ using boost::optional;
 namespace io = boost::filesystem;
 
 
+const std::string ManuallyTagger::IMAGE_DESC_EXT = "tagger.desc";
 const std::string ManuallyTagger::DEFAULT_SAVE_PATH = "tagger_progress.binary";
 
 
@@ -27,8 +28,6 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDesc> & descriptions,
     _save_path(save_path)
 {
     for(auto & descr : descriptions ) {
-        ASSERT(io::exists(descr.filename),
-               "Could not open file " << descr.filename);
         _image_descs.push_back(std::make_shared<ImageDesc>(descr));
     }
     init();
@@ -39,8 +38,6 @@ ManuallyTagger::ManuallyTagger(const std::vector<ImageDescPtr> & descriptions,
     _save_path(save_path)
 {
     for(auto & descr : descriptions ) {
-        ASSERT(io::exists(descr->filename),
-               "Could not open file " << descr->filename);
         _image_descs.push_back(descr);
     }
     init();
@@ -55,6 +52,15 @@ ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
 }
 
 void ManuallyTagger::init() {
+    for(auto & descr : _image_descs) {
+        ASSERT(io::exists(descr->filename),
+               "Could not open file " << descr->filename);
+        descr->setSavePathExtension(IMAGE_DESC_EXT);
+        if (io::exists(descr->savePath())) {
+            descr = ImageDesc::load(descr->savePath());
+        }
+    }
+
     if (_image_descs.size() != _done_tagging.size()) {
         _done_tagging = std::vector<bool>(_image_descs.size(), true);
         _n_done = 0;
