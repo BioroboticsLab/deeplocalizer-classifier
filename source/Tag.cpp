@@ -64,7 +64,11 @@ Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
 }
 
 void Tag::guessIsTag(int threshold) {
-    _is_tag = _ellipse.is_initialized() && _ellipse.get().getVote() > threshold;
+    if(_ellipse.is_initialized() && _ellipse.get().getVote() > threshold) {
+        _is_tag = IsTag::Yes;
+    } else {
+        _is_tag = IsTag::No;
+    }
 }
 const optional<pipeline::Ellipse> & Tag::getEllipse () const {
     return _ellipse;
@@ -77,12 +81,20 @@ void Tag::setBoundingBox(cv::Rect rect) {
     _boundingBox = rect;
 }
 
-bool Tag::isTag() const {
-    return this->_is_tag;
+IsTag Tag::isTag() const {
+    return _is_tag;
+}
+
+void Tag::setIsTag(IsTag isTag) {
+        this->_is_tag = isTag;
 }
 
 void Tag::toggleIsTag() {
-    _is_tag = !_is_tag;
+    if (_is_tag == IsTag::Yes) {
+        _is_tag = IsTag::No;
+    } else if (_is_tag == IsTag::No) {
+        _is_tag = IsTag::Yes;
+    }
 }
 
 bool Tag::operator==(const Tag &other) const {
@@ -99,9 +111,6 @@ bool Tag::operator==(const Tag &other) const {
     return _ellipse.is_initialized() == other._ellipse.is_initialized();
 }
 
-void Tag::setIsTag(bool isTag) {
-    this->_is_tag = isTag;
-}
 
 cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     cv::Rect box = _boundingBox;
@@ -115,10 +124,12 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
 void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) {
     static const QPoint zero(0, 0);
     auto bb = _boundingBox;
-    if (_is_tag) {
+    if (_is_tag == IsTag::Yes) {
         p.setPen(QPen(Qt::green, lineWidth));
-    } else {
+    } else if (_is_tag == IsTag::No) {
         p.setPen(QPen(Qt::red, lineWidth));
+    } else if (_is_tag == IsTag::Exclude) {
+        p.setPen(QPen(Qt::magenta, lineWidth));
     }
     p.drawRect(QRect(bb.x, bb.y, bb.height, bb.width));
     if (_ellipse) {

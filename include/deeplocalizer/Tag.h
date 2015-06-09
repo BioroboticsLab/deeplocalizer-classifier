@@ -22,6 +22,12 @@ namespace  tagger {
 const int TAG_WIDTH = 96;
 const int TAG_HEIGHT = 96;
 
+enum IsTag{
+    Yes,
+    No,
+    Exclude
+};
+
 class Tag {
 public:
     Tag();
@@ -35,8 +41,8 @@ public:
 
     const boost::optional<pipeline::Ellipse> & getEllipse () const;
 
-    bool isTag() const;
-    void setIsTag(bool is_tag);
+    IsTag isTag() const;
+    void setIsTag(IsTag is_tag);
     void toggleIsTag();
 
     cv::Mat getSubimage(const cv::Mat &orginal, unsigned int border=0) const;
@@ -48,7 +54,7 @@ private:
     unsigned long _id;
     cv::Rect _boundingBox;
     boost::optional<pipeline::Ellipse> _ellipse;
-    bool _is_tag = true;
+    IsTag _is_tag = IsTag::Yes;
 
     static unsigned long generateId();
     static std::atomic_long id_counter;

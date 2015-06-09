@@ -52,8 +52,7 @@ void WholeImageWidget::findEllipse(const Tag &tag) {
                               Q_ARG(cv::Mat, tag.getSubimage(_mat)), Q_ARG(Tag, tag));
 }
 void WholeImageWidget::tagProcessed(Tag tag) {
-    qDebug() << "tag processed" << tag.getBoundingBox().x;
-    tag.setIsTag(true);
+    tag.setIsTag(IsTag::Yes);
     _newly_added_tags.erase(
             std::remove_if(_newly_added_tags.begin(),
                            _newly_added_tags.end(),
