@@ -23,6 +23,8 @@ signals:
     void finished();
 
 public:
+    static const std::string IMAGE_DESC_EXT;
+
     explicit ProposalGenerator(const std::vector<std::string>& image_paths);
     explicit ProposalGenerator(const std::vector<ImageDesc>&  _image_desc);
     explicit ProposalGenerator(const std::vector<ImageDesc> & images_todo,

@@ -11,6 +11,8 @@ namespace tagger {
 
 namespace io = boost::filesystem;
 
+const std::string ProposalGenerator::IMAGE_DESC_EXT = "proposal.desc";
+
 ProposalGenerator::ProposalGenerator() {
 }
 
@@ -79,6 +81,7 @@ void ProposalGenerator::processPipeline() {
 
 void ProposalGenerator::imageProcessed(ImageDesc img) {
     _images_with_proposals.push_back(img);
+    img.setSavePathExtension(IMAGE_DESC_EXT);
     img.save();
     emit progress(_images_with_proposals.size() / static_cast<double>(_n_images));
     if (_images_with_proposals.size() == _n_images) {

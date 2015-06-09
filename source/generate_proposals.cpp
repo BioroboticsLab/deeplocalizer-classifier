@@ -34,15 +34,15 @@ int run(QCoreApplication & qapp,
     auto images_todo = ImageDesc::fromPathFile(pathfile);
     std::vector<ImageDesc> images_done;
     for(auto & desc : images_todo) {
-        if(io::exists(desc.save_path())) {
-            images_done.emplace_back(*ImageDesc::load(desc.save_path()));
+        if(io::exists(desc.savePath())) {
+            images_done.emplace_back(*ImageDesc::load(desc.savePath()));
         }
     }
     images_todo.erase(
         std::remove_if(
             images_todo.begin(), images_todo.end(),
             [&](auto & desc) {
-                return io::exists(desc.save_path());
+                return io::exists(desc.savePath());
         }),
         images_todo.end()
     );
