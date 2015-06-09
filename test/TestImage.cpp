@@ -38,7 +38,7 @@ TEST_CASE( "ImageDesc", "[ImageDesc]" ) {
             THEN("it can be saved and loaded") {
                 ImageDesc desc{uniquePath.string(), tag_vec};
                 desc.save();
-                ImageDescPtr loaded_desc = ImageDesc::load(desc.save_path());
+                ImageDescPtr loaded_desc = ImageDesc::load(desc.savePath());
                 REQUIRE(desc.filename== loaded_desc->filename);
             }
         }

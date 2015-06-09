@@ -27,12 +27,19 @@ public:
     bool operator==(const ImageDesc & other) const;
     void save();
     void save(const std::string &path);
-    std::string save_path() const;
+    void setSavePathExtension(std::string ext);
+    std::string savePath() const;
     static std::shared_ptr<ImageDesc> load(const std::string &path);
-    static std::vector<ImageDesc> fromPathFile(const std::string &path);
-    static std::vector<ImageDesc> fromPathFile(const boost::filesystem::path & pathfile);
-    static std::vector<ImageDesc> fromPaths(const std::vector<std::string> paths);
+    static std::vector<ImageDesc> fromPathFile(const std::string &path,
+                                               const std::string & image_desc_extension = "desc");
+    static std::vector<ImageDesc> fromPaths(const std::vector<std::string> paths,
+                                            const std::string & image_desc_extension = "desc");
+
+    static std::vector<std::shared_ptr<ImageDesc>> fromPathFilePtr(
+            const std::string &path, const std::string & image_desc_extension = "desc");
+
 private:
+    std::string _save_extension = ".desc";
     std::vector<Tag> tags;
     unsigned long current_tag = 0;
 

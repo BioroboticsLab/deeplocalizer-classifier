@@ -57,12 +57,19 @@ bool ImageDesc::operator==(const ImageDesc & other) const {
             tags == other.tags);
 }
 
-std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path) {
-    return ImageDesc::fromPathFile(io::path(path));
+std::vector<ImageDescPtr> ImageDesc::fromPathFilePtr(const std::string &path,
+                                               const std::string & image_desc_extension) {
+    auto image_descs = fromPathFile(path, image_desc_extension);
+    std::vector<ImageDescPtr> image_desc_ptrs;
+    for(auto & desc : image_descs) {
+        image_desc_ptrs.emplace_back(std::make_shared<ImageDesc>(std::move(desc)));
+    }
+    return image_desc_ptrs;
 }
 
-std::vector<ImageDesc> ImageDesc::fromPathFile(
-        const io::path& pathfile) {
+std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path,
+                                               const std::string & image_desc_extension) {
+    const io::path pathfile(path);
     ASSERT(io::exists(pathfile), "File " << pathfile << " does not exists.");
     ifstream ifs{pathfile.string()};
     std::string path_to_image;
@@ -71,28 +78,35 @@ std::vector<ImageDesc> ImageDesc::fromPathFile(
         ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
         paths.emplace_back(path_to_image);
     }
-    return fromPaths(paths);
+    return fromPaths(paths, image_desc_extension);
 }
 
-std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<std::string> paths)  {
+std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<std::string> paths,
+                                            const std::string & image_desc_extension) {
     std::vector<ImageDesc> descs;
     for(auto & path: paths) {
         ASSERT(io::exists(path), "File " << path << " does not exists.");
         auto desc = ImageDesc(path);
-        if(io::exists(desc.save_path())) {
-            desc = *ImageDesc::load(desc.save_path());
+        desc.setSavePathExtension(image_desc_extension);
+        if(io::exists(desc.savePath())) {
+            desc = *ImageDesc::load(desc.savePath());
         }
         descs.push_back(desc);
     }
     return descs;
 }
-std::string ImageDesc::save_path() const {
+
+void ImageDesc::setSavePathExtension(std::string ext) {
+    _save_extension = ext;
+}
+
+std::string ImageDesc::savePath() const {
     std::string str = filename;
-    str.append(".desc");
+    str.append("." + _save_extension);
     return str;
 }
 void ImageDesc::save() {
-    save(save_path());
+    save(savePath());
 }
 void ImageDesc::save(const std::string & path) {
     safe_serialization(path, boost::serialization::make_nvp("image_desc", *this));
