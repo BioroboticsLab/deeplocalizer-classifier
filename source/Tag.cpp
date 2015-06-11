@@ -22,6 +22,14 @@ cv::Rect centerBoxAtEllipse(const cv::Rect & bb,
     return box;
 }
 
+cv::Rect centerBox(const cv::Rect & bb) {
+    cv::Point center(bb.x + bb.width / 2, bb.y + bb.height / 2);
+    cv::Rect box(center.x - TAG_WIDTH / 2,
+                 center.y - TAG_HEIGHT / 2,
+                 TAG_WIDTH, TAG_HEIGHT);
+    return box;
+}
+
 std::atomic_long Tag::id_counter(0);
 
 unsigned long Tag::generateId() {
@@ -53,7 +61,8 @@ Tag::Tag(const pipeline::Tag & pipetag) :  _id(Tag::generateId()) {
         _ellipse = ellipse;
         _ellipse.get().setCen(cv::Point2i(TAG_WIDTH/2, TAG_HEIGHT/2));
     } else {
-        _boundingBox = pipetag.getBox();
+        _boundingBox = centerBox(pipetag.getBox());
+        _is_tag = IsTag::No;
     }
 }
 
