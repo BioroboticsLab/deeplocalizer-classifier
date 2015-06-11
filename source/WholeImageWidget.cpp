@@ -6,7 +6,9 @@
 #include <QScrollArea>
 #include <QGuiApplication>
 #include <QScrollBar>
+#include <QThread>
 #include <QMouseEvent>
+#include <QtCore/qline.h>
 #include "PipelineWorker.h"
 
 namespace deeplocalizer {
@@ -15,7 +17,7 @@ using boost::optional;
 
 WholeImageWidget::WholeImageWidget(QScrollArea *parent) : QWidget(parent) {
     this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    this->setMinimumSize(this->sizeHint());
+    this->resize(this->sizeHint());
     _parent = parent;
     init();
 }
@@ -23,7 +25,6 @@ WholeImageWidget::WholeImageWidget(QScrollArea *parent) : QWidget(parent) {
 WholeImageWidget::WholeImageWidget(QScrollArea * parent, cv::Mat mat, std::vector<Tag> * tags) :
         QWidget(parent)
 {
-
     _parent = parent;
     this->setTags(mat, tags);
     init();
@@ -46,10 +47,10 @@ Tag WholeImageWidget::createTag(int x, int y) {
                optional<pipeline::Ellipse>());
 }
 
-void WholeImageWidget::findEllipse(const Tag &tag) {
-    _newly_added_tags.push_back(tag);
+void WholeImageWidget::findEllipse(Tag &&tag) {
     QMetaObject::invokeMethod(_worker, "findEllipse", Qt::QueuedConnection,
                               Q_ARG(cv::Mat, tag.getSubimage(_mat)), Q_ARG(Tag, tag));
+    _newly_added_tags.emplace_back(std::move(tag));
 }
 void WholeImageWidget::tagProcessed(Tag tag) {
     if(tag.isTag() == IsTag::No) {
@@ -64,7 +65,6 @@ void WholeImageWidget::tagProcessed(Tag tag) {
 }
 
 void WholeImageWidget::paintEvent(QPaintEvent *) {
-    qDebug() << "paint: " << _newly_added_tags.size();
     _pixmap = cvMatToQPixmap(_mat);
     _painter.begin(this);
 
@@ -190,8 +190,8 @@ void WholeImageWidget::setTags(cv::Mat mat, std::vector<Tag> * tags) {
 }
 
 QSize WholeImageWidget::sizeHint() const {
-    int width = static_cast<int>(_mat.cols*_scale);
-    int height = static_cast<int>(_mat.rows*_scale);
+    int width = int(_mat.cols*_scale);
+    int height = int(_mat.rows*_scale);
     return QSize(width, height);
 }
 }
