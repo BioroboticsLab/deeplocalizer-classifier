@@ -128,6 +128,11 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     box.y -= border;
     box.width += 2*border;
     box.height+= 2*border;
+    if(box.x < 0) box.x = 0;
+    if(box.y < 0) box.y = 0;
+    if(box.width + box.x >= orginal.cols) box.x = orginal.cols - box.width;
+    if(box.height + box.y >= orginal.rows) box.y = orginal.rows - box.height;
+
     return orginal(box).clone();
 }
 
