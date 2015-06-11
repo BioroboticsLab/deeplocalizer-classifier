@@ -167,12 +167,20 @@ void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
 }
 
 boost::optional<Tag &> WholeImageWidget::getTag(int x, int y) {
-    for(auto & tag : *_tags) {
-        if(tag.getBoundingBox().contains(cv::Point(x, y))) {
-            return tag;
+    auto getTagIfContainsPoint = [x, y](auto & tags) {
+        cv::Point point(x, y);
+        for(auto & tag : tags) {
+            if(tag.getBoundingBox().contains(point)) {
+                return optional<Tag &>(tag);
+            }
         }
+        return optional<Tag &>();
+    };
+    boost::optional<Tag &> tag = getTagIfContainsPoint(*_tags);
+    if (tag) {
+        return tag;
     }
-    return boost::optional<Tag &>();
+    return getTagIfContainsPoint(_newly_added_tags);
 }
 void WholeImageWidget::setTags(cv::Mat mat, std::vector<Tag> * tags) {
     _mat = mat;
