@@ -21,13 +21,9 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 int run(QApplication & qapp, std::string pathfile) {
-    auto proposals = ImageDesc::fromPathFile(pathfile,
-                                             ProposalGenerator::IMAGE_DESC_EXT);
-    std::vector<ImageDescPtr> proposal_ptrs;
-    for(auto & p : proposals) {
-        proposal_ptrs.emplace_back(std::make_shared<ImageDesc>(p));
-    }
-    ManuallyTagWindow window(std::move(proposal_ptrs));
+    auto proposals = ImageDesc::fromPathFilePtr(pathfile,
+                                                   ProposalGenerator::IMAGE_DESC_EXT);
+    ManuallyTagWindow window(std::move(proposals));
     window.show();
     return qapp.exec();
 }
