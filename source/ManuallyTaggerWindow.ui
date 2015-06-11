@@ -136,17 +136,23 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionScrollTop">
+  <action name="actionScrollUp">
    <property name="text">
-    <string>scrollTop</string>
+    <string>scrollUp</string>
+   </property>
+   <property name="toolTip">
+    <string>scroll up</string>
    </property>
    <property name="shortcut">
     <string>K</string>
    </property>
   </action>
-  <action name="actionScrollBottom">
+  <action name="actionScrollDown">
    <property name="text">
-    <string>scrollBottom</string>
+    <string>scrollDown</string>
+   </property>
+   <property name="toolTip">
+    <string>scroll down</string>
    </property>
    <property name="shortcut">
     <string>J</string>

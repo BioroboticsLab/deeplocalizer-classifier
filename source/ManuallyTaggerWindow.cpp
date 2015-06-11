@@ -102,6 +102,10 @@ void ManuallyTagWindow::resizeEvent(QResizeEvent * ) {
 void ManuallyTagWindow::setupActions() {
     ui->actionZoomIn->setShortcuts({QKeySequence::ZoomIn, Qt::SHIFT + Qt::Key_J});
     ui->actionZoomOut->setShortcuts({QKeySequence::ZoomOut, Qt::SHIFT + Qt::Key_K});
+    ui->actionScrollLeft->setShortcuts({Qt::Key_A, Qt::Key_H});
+    ui->actionScrollUp->setShortcuts({Qt::Key_W, Qt::Key_K});
+    ui->actionScrollRight->setShortcuts({Qt::Key_D, Qt::Key_L});
+    ui->actionScrollDown->setShortcuts({Qt::Key_S, Qt::Key_J});
 
     addAction(ui->actionNext);
     addAction(ui->actionBack);
@@ -112,8 +116,8 @@ void ManuallyTagWindow::setupActions() {
     addAction(ui->actionSave);
     addAction(ui->actionScrollLeft);
     addAction(ui->actionScrollRight);
-    addAction(ui->actionScrollTop);
-    addAction(ui->actionScrollBottom);
+    addAction(ui->actionScrollUp);
+    addAction(ui->actionScrollDown);
 
     connect(ui->actionNext, &QAction::triggered, this, &ManuallyTagWindow::next);
     connect(ui->actionBack, &QAction::triggered, this, &ManuallyTagWindow::back);
@@ -124,15 +128,11 @@ void ManuallyTagWindow::setupActions() {
     connect(ui->actionScroolBack, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
     connect(ui->actionScrollLeft, &QAction::triggered, this, &ManuallyTagWindow::scrollLeft);
     connect(ui->actionScrollRight, &QAction::triggered, this, &ManuallyTagWindow::scrollRight);
-    connect(ui->actionScrollTop, &QAction::triggered, this, &ManuallyTagWindow::scrollTop);
-    connect(ui->actionScrollBottom, &QAction::triggered, this, &ManuallyTagWindow::scrollBottom);
+    connect(ui->actionScrollUp, &QAction::triggered, this, &ManuallyTagWindow::scrollTop);
 
     connect(ui->actionZoomIn, &QAction::triggered, _whole_image, &WholeImageWidget::zoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, _whole_image, &WholeImageWidget::zoomOut);
     connect(ui->actionSave, SIGNAL(triggered()), _tagger.get(), SLOT(save()));
-
-    //ui->actionZoomIn->setShortcutContext(Qt::ApplicationShortcut);
-    //ui->actionZoomOut->setShortcutContext(Qt::ApplicationShortcut);
 }
 
 void ManuallyTagWindow::setupConnections() {
