@@ -30,7 +30,8 @@ void ManuallyTagWindow::init() {
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
     _progres_bar = new QProgressBar(ui->statusbar);
-
+    ui->scrollArea->setAlignment(Qt::AlignCenter);
+    ui->scrollArea->setWidgetResizable(true);
     setupActions();
     setupConnections();
     setupUi();
@@ -42,10 +43,6 @@ ManuallyTagWindow::~ManuallyTagWindow()
 {
     delete ui;
 }
-
-void ManuallyTagWindow::keyPressEvent(QKeyEvent *) {
-}
-
 
 void ManuallyTagWindow::showImage() {
     _state = State::Image;
@@ -103,42 +100,51 @@ void ManuallyTagWindow::resizeEvent(QResizeEvent * ) {
 }
 
 void ManuallyTagWindow::setupActions() {
+    ui->actionZoomIn->setShortcuts({QKeySequence::ZoomIn, Qt::SHIFT + Qt::Key_J});
+    ui->actionZoomOut->setShortcuts({QKeySequence::ZoomOut, Qt::SHIFT + Qt::Key_K});
 
-    _backAct = new QAction(this);
-    _nextAct = new QAction(this);
-    _scrollAct = new QAction(this);
-    _scrollBackAct = new QAction(this);
+    addAction(ui->actionNext);
+    addAction(ui->actionBack);
+    addAction(ui->actionScroll);
+    addAction(ui->actionScroolBack);
+    addAction(ui->actionZoomIn);
+    addAction(ui->actionZoomOut);
+    addAction(ui->actionSave);
+    addAction(ui->actionScrollLeft);
+    addAction(ui->actionScrollRight);
+    addAction(ui->actionScrollTop);
+    addAction(ui->actionScrollBottom);
 
-    _backAct->setShortcut(QKeySequence(Qt::Key_Shift + Qt::Key_Enter));
-    this->addAction(_backAct);
-    _nextAct->setShortcuts({QKeySequence(Qt::Key_Enter)});
-    this->addAction(_nextAct);
-     _scrollAct->setShortcut(QKeySequence(Qt::Key_Space));
-    this->addAction(_scrollAct);
-    _scrollBackAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
-    this->addAction(_scrollBackAct);
+    connect(ui->actionNext, &QAction::triggered, this, &ManuallyTagWindow::next);
+    connect(ui->actionBack, &QAction::triggered, this, &ManuallyTagWindow::back);
+    connect(ui->actionNext, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
+    connect(ui->actionBack, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
 
-    connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::next);
-    connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::back);
-    connect(_scrollAct, &QAction::triggered, this, &ManuallyTagWindow::scroll);
-    connect(_scrollBackAct, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
+    connect(ui->actionScroll, &QAction::triggered, this, &ManuallyTagWindow::scroll);
+    connect(ui->actionScroolBack, &QAction::triggered, this, &ManuallyTagWindow::scrollBack);
+    connect(ui->actionScrollLeft, &QAction::triggered, this, &ManuallyTagWindow::scrollLeft);
+    connect(ui->actionScrollRight, &QAction::triggered, this, &ManuallyTagWindow::scrollRight);
+    connect(ui->actionScrollTop, &QAction::triggered, this, &ManuallyTagWindow::scrollTop);
+    connect(ui->actionScrollBottom, &QAction::triggered, this, &ManuallyTagWindow::scrollBottom);
+
+    connect(ui->actionZoomIn, &QAction::triggered, _whole_image, &WholeImageWidget::zoomIn);
+    connect(ui->actionZoomOut, &QAction::triggered, _whole_image, &WholeImageWidget::zoomOut);
+    connect(ui->actionSave, SIGNAL(triggered()), _tagger.get(), SLOT(save()));
+
+    //ui->actionZoomIn->setShortcutContext(Qt::ApplicationShortcut);
+    //ui->actionZoomOut->setShortcutContext(Qt::ApplicationShortcut);
 }
 
 void ManuallyTagWindow::setupConnections() {
-    connect(ui->push_next, &QPushButton::clicked, _nextAct, &QAction::trigger);
-    connect(ui->push_back, &QPushButton::clicked, _backAct, &QAction::trigger);
-    connect(_tagger.get(), &ManuallyTagger::loadedImage, this,
-                  &ManuallyTagWindow::setImage);
-
+    connect(ui->push_next, &QPushButton::clicked, ui->actionNext, &QAction::trigger);
+    connect(ui->push_back, &QPushButton::clicked, ui->actionBack, &QAction::trigger);
+    connect(_tagger.get(), &ManuallyTagger::loadedImage, this, &ManuallyTagWindow::setImage);
     connect(_tagger.get(), &ManuallyTagger::outOfRange, []() {
         QMessageBox box;
         box.setWindowTitle("DONE!");
         box.setText("You are done! Feel very very happy! :-)");
         box.exec();
     });
-
-    connect(_nextAct, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
-    connect(_backAct, &QAction::triggered, this, &ManuallyTagWindow::updateStatusBar);
     connect(_tagger.get(), &ManuallyTagger::progress, this, &ManuallyTagWindow::setProgress);
 }
 
@@ -222,6 +228,26 @@ void ManuallyTagWindow::scrollBack() {
     }
 }
 
+void ManuallyTagWindow::scrollLeft() {
+    auto horz = ui->scrollArea->horizontalScrollBar();
+    horz->setValue(int(horz->value() - horz->pageStep()/8));
+}
+
+void ManuallyTagWindow::scrollRight() {
+    auto horz = ui->scrollArea->horizontalScrollBar();
+    horz->setValue(int(horz->value() + horz->pageStep()/8));
+}
+
+void ManuallyTagWindow::scrollTop() {
+    auto vert = ui->scrollArea->verticalScrollBar();
+    vert->setValue(int(vert->value() - vert->pageStep()/8));
+}
+
+void ManuallyTagWindow::scrollBottom() {
+    auto vert = ui->scrollArea->verticalScrollBar();
+    vert->setValue(int(vert->value() + vert->pageStep()/8));
+}
+
 void ManuallyTagWindow::setImage(ImageDescPtr desc, ImagePtr img) {
     _desc = desc;
     _image = img;
@@ -237,7 +263,7 @@ void ManuallyTagWindow::setImage(ImageDescPtr desc, ImagePtr img) {
 void ManuallyTagWindow::eraseNegativeTags() {
     auto & tags = _desc->getTags();
     tags.erase(std::remove_if(tags.begin(), tags.end(), [](const auto & tag) {
-        return not tag.isTag();
+        return tag.isTag() == IsTag::No;
     }), tags.end());
 }
 

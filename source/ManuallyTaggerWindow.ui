@@ -31,9 +31,6 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="filepath_box"/>
-    </item>
-    <item>
      <widget class="QWidget" name="widget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -63,7 +60,7 @@
             <x>0</x>
             <y>0</y>
             <width>653</width>
-            <height>408</height>
+            <height>437</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -88,17 +85,89 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>871</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionScroll">
+   <property name="text">
+    <string>Scroll</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionScroolBack">
+   <property name="text">
+    <string>ScroolBack</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Space</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>zoomIn</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>zoomOut</string>
+   </property>
+  </action>
+  <action name="actionNext">
+   <property name="text">
+    <string>next</string>
+   </property>
+   <property name="shortcut">
+    <string>Return</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Return</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionScrollTop">
+   <property name="text">
+    <string>scrollTop</string>
+   </property>
+   <property name="shortcut">
+    <string>K</string>
+   </property>
+  </action>
+  <action name="actionScrollBottom">
+   <property name="text">
+    <string>scrollBottom</string>
+   </property>
+   <property name="shortcut">
+    <string>J</string>
+   </property>
+  </action>
+  <action name="actionScrollLeft">
+   <property name="text">
+    <string>scrollLeft</string>
+   </property>
+   <property name="shortcut">
+    <string>H</string>
+   </property>
+  </action>
+  <action name="actionScrollRight">
+   <property name="text">
+    <string>scrollRight</string>
+   </property>
+   <property name="shortcut">
+    <string>L</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

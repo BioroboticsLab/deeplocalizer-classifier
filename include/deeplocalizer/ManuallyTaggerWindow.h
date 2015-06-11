@@ -25,11 +25,14 @@ public:
 public slots:
     void next();
     void back();
+    void scrollLeft();
+    void scrollRight();
+    void scrollTop();
+    void scrollBottom();
     void scroll();
     void scrollBack();
     void setImage(ImageDescPtr desc, ImagePtr img);
 protected:
-    void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent * );
 private slots:
     void updateStatusBar();
@@ -43,11 +46,6 @@ private:
     WholeImageWidget * _whole_image;
     std::vector<TagWidgetPtr> _tag_widgets;
     QProgressBar * _progres_bar;
-
-    QAction * _nextAct;
-    QAction * _backAct;
-    QAction * _scrollAct;
-    QAction * _scrollBackAct;
 
     std::unique_ptr<ManuallyTagger> _tagger;
     State _state = State::Tags;
