@@ -35,6 +35,8 @@ public:
     static std::vector<ImageDesc> fromPaths(const std::vector<std::string> paths,
                                             const std::string & image_desc_extension = "desc");
 
+    static std::vector<std::shared_ptr<ImageDesc>> fromPathsPtr(const std::vector<std::string> paths,
+                                                             const std::string & image_desc_extension);
     static std::vector<std::shared_ptr<ImageDesc>> fromPathFilePtr(
             const std::string &path, const std::string & image_desc_extension = "desc");
 

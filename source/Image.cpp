@@ -81,6 +81,16 @@ std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path,
     return fromPaths(paths, image_desc_extension);
 }
 
+std::vector<ImageDescPtr> ImageDesc::fromPathsPtr(const std::vector<std::string> paths,
+                                                  const std::string & image_desc_extension) {
+    auto image_descs = fromPaths(paths, image_desc_extension);
+    std::vector<ImageDescPtr> image_desc_ptrs;
+    for(auto & desc : image_descs) {
+        image_desc_ptrs.emplace_back(std::make_shared<ImageDesc>(std::move(desc)));
+    }
+    return image_desc_ptrs;
+}
+
 std::vector<ImageDesc> ImageDesc::fromPaths(const std::vector<std::string> paths,
                                             const std::string & image_desc_extension) {
     std::vector<ImageDesc> descs;
