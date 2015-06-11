@@ -41,6 +41,7 @@ public slots:
     void loadNextImage();
     void loadLastImage();
     void loadImage(unsigned long idx);
+    void loadCurrentImage();
     void doneTagging();
     void doneTagging(unsigned long idx);
 signals:
@@ -82,6 +83,7 @@ private:
     std::vector<ImageDescPtr> _image_descs;
     std::vector<bool> _done_tagging;
     unsigned long _n_done = 0;
+    bool _loaded_from_boost_serialization = false;
     std::vector<std::string> _image_paths;
 
     std::string _save_path = DEFAULT_SAVE_PATH;

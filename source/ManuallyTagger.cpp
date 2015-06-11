@@ -52,13 +52,18 @@ ManuallyTagger::ManuallyTagger(std::vector<ImageDescPtr> && descriptions,
 }
 
 void ManuallyTagger::init() {
+    if(_loaded_from_boost_serialization) {
+        _image_descs = ImageDesc::fromPathsPtr(_image_paths, IMAGE_DESC_EXT);
+    }
+    _image_paths.clear();
     for(auto & descr : _image_descs) {
         ASSERT(io::exists(descr->filename),
-               "Could not open file " << descr->filename);
+              "Could not open file " << descr->filename);
         descr->setSavePathExtension(IMAGE_DESC_EXT);
         if (io::exists(descr->savePath())) {
             descr = ImageDesc::load(descr->savePath());
         }
+        _image_paths.push_back(descr->filename);
     }
 
     if (_image_descs.size() != _done_tagging.size()) {
@@ -79,8 +84,10 @@ void ManuallyTagger::save(const std::string & path) const {
 std::unique_ptr<ManuallyTagger> ManuallyTagger::load(const std::string & path) {
     std::ifstream is(path);
     boost::archive::binary_iarchive archive(is);
-    ManuallyTagger * tagger;
-    archive >> boost::serialization::make_nvp("tagger", tagger);
+    ManuallyTagger * tagger = new ManuallyTagger();
+    archive >> boost::serialization::make_nvp("tagger", *tagger);
+    tagger->_loaded_from_boost_serialization = true;
+    tagger->init();
     return std::unique_ptr<ManuallyTagger>(tagger);
 }
 void ManuallyTagger::loadNextImage() {
@@ -104,6 +111,11 @@ void ManuallyTagger::loadImage(unsigned long idx) {
     if (_image_idx == 0) { emit firstImage(); }
     if (_image_idx + 1 == _image_descs.size()) { emit lastImage(); }
 }
+
+void ManuallyTagger::loadCurrentImage() {
+    loadImage(_image_idx);
+}
+
 void ManuallyTagger::doneTagging() {
     doneTagging(_image_idx);
 }
