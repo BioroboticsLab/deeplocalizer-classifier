@@ -32,7 +32,10 @@ void registerQuit(ProposalGenerator * gen) {
 
 TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
     QCoreApplication * qapp = new QCoreApplication(argc, argv);
-    std::vector<std::string> image_paths = {"testdata/with_5_tags.jpeg"};
+    std::string img_path{"testdata/with_5_tags.jpeg"};
+    io::path unique_img = io::temp_directory_path() / io::unique_path("%%%%%%%%%.img");
+    io::copy(img_path, unique_img);
+    std::vector<std::string> image_paths = {unique_img.string()};
     gen = new ProposalGenerator(image_paths);
     deeplocalizer::registerQMetaTypes();
     QTimer * timer = new QTimer(qapp);
@@ -43,7 +46,6 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
     timer->start(2*60*1000);
     ImageDesc img("image_path.jpeg");
     Tag tag(cv::Rect(0, 0, 10, 20), optional<pipeline::Ellipse>());
-    auto uniquePath = io::unique_path("/tmp/%%%%%%%%%%%.xml");
     registerQuit(gen);
     SECTION( "runs images through the pipeline" ) {
         bool finishedEmitted = false;
@@ -70,9 +72,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
         GIVEN("an image with tags") {
             THEN(" the tags can be saved and reloaded") {
                 gen->connect(gen, &ProposalGenerator::finished, [&]() {
-                    std::cout << "finished called" << std::endl;
                     auto load_imgs = ImageDesc::fromPaths(image_paths);
-
                     REQUIRE(gen->getProposalImages().size() ==
                             load_imgs.size());
                     for (unsigned int i = 1;
@@ -81,7 +81,6 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
                         auto load_img = load_imgs.at(i);
                         REQUIRE(gen_img == load_img);
                     }
-                    io::remove(uniquePath);
                     finishedEmitted = true;
                 });
                 gen->processPipeline();
@@ -91,6 +90,7 @@ TEST_CASE( "ProposalGenerator", "[ProposalGenerator]" ) {
         qapp->exec();
         REQUIRE(finishedEmitted);
     }
+    io::remove(unique_img);
 }
 
 int main( int _argc, char** const _argv )
