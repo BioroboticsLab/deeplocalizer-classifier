@@ -41,9 +41,15 @@ void WholeImageWidget::init() {
     _thread->start();
 }
 
-Tag WholeImageWidget::createTag(int x, int y) {
-    return Tag(cv::Rect(x - TAG_WIDTH / 2, y - TAG_HEIGHT / 2, TAG_WIDTH,
-                        TAG_HEIGHT),
+optional<Tag> WholeImageWidget::createTag(int x, int y) {
+    if(x < TAG_WIDTH / 2 || y < TAG_HEIGHT / 2 ||
+        x > _pixmap.size().width() - TAG_WIDTH / 2 ||
+        y > _pixmap.size().height() - TAG_HEIGHT / 2
+            ) {
+        return optional<Tag>();
+    }
+
+    return Tag(cv::Rect(x - TAG_WIDTH / 2, y - TAG_HEIGHT / 2, TAG_WIDTH, TAG_HEIGHT),
                optional<pipeline::Ellipse>());
 }
 
@@ -153,7 +159,9 @@ void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
         eraseTag(opt_tag.get().id(), _newly_added_tags);
     } else {
         auto modifier = QGuiApplication::queryKeyboardModifiers();
-        Tag tag = createTag(pos.x(), pos.y());
+        opt_tag = createTag(pos.x(), pos.y());
+        if(!opt_tag) return;
+        auto tag = opt_tag.get();
         if (modifier.testFlag(Qt::ControlModifier)) {
             tag.setIsTag(IsTag::Exclude);
         }
