@@ -46,12 +46,26 @@ private:
     double _scale = 0.8;
     std::vector<Tag> * _tags;
     std::list<Tag> _newly_added_tags;
+    std::set<unsigned long> _deleted_Ids;
     PipelineWorker *_worker;
     QThread *_thread;
 
     void init();
     boost::optional<Tag &> getTag(int x, int y);
-    void findEllipse(const Tag & tag);
+    void findEllipse(Tag &&tag);
+
+    template<typename T>
+    void eraseTag(const unsigned long id, T& tags) {
+        std::cout << "eraseTag: " << id << ", " << QThread::currentThreadId() << std::endl;
+        _deleted_Ids.insert(id);
+        tags.erase(std::remove_if(tags.begin(), tags.end(),
+                                  [id](auto & t){
+                                      return t.id() == id;
+                                  }),
+                   tags.end()
+        );
+    }
+
     virtual ~WholeImageWidget() {
         _thread->quit();
         _thread->wait();

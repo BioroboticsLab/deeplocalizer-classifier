@@ -52,14 +52,13 @@ void WholeImageWidget::findEllipse(const Tag &tag) {
                               Q_ARG(cv::Mat, tag.getSubimage(_mat)), Q_ARG(Tag, tag));
 }
 void WholeImageWidget::tagProcessed(Tag tag) {
-    tag.setIsTag(IsTag::Yes);
-    _newly_added_tags.erase(
-            std::remove_if(_newly_added_tags.begin(),
-                           _newly_added_tags.end(),
-                           [&tag](auto & t){
-                               return t.getId() != tag.getId();
-                           })
-    );
+    if(tag.isTag() == IsTag::No) {
+        tag.setIsTag(IsTag::Yes);
+    }
+    if(_deleted_Ids.find(tag.id()) != _deleted_Ids.end()) {
+        return;
+    }
+    eraseTag(tag.id(), _newly_added_tags);
     _tags->push_back(tag);
     repaint();
 }
@@ -100,21 +99,21 @@ void WholeImageWidget::wheelEvent(QWheelEvent * event) {
 }
 
 void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
-    qDebug() << "mouse pressed";
     auto pos = event->pos() / _scale;
     auto opt_tag = getTag(pos.x(), pos.y());
     if (opt_tag) {
-        _tags->erase(std::remove_if(_tags->begin(), _tags->end(),
-                    [&opt_tag](auto & t){
-                        return t.getId() == opt_tag.get().getId();
-                    }));
+        eraseTag(opt_tag.get().id(), *_tags);
+        eraseTag(opt_tag.get().id(), _newly_added_tags);
     } else {
         auto modifier = QGuiApplication::queryKeyboardModifiers();
         Tag tag = createTag(pos.x(), pos.y());
+        if (modifier.testFlag(Qt::ControlModifier)) {
+            tag.setIsTag(IsTag::Exclude);
+        }
         if (modifier.testFlag(Qt::ShiftModifier)) {
             _tags->push_back(tag);
         } else {
-            findEllipse(tag);
+            findEllipse(std::move(tag));
         }
     }
     repaint();
