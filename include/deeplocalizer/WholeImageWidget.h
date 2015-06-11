@@ -32,6 +32,10 @@ public:
 public slots:
     Tag createTag(int x, int y);
     void tagProcessed(Tag tag);
+    void zoom(double factor);
+    void zoomIn();
+    void zoomOut();
+    void zoomInRelToMouse(QPoint mouse_pos);
 signals:
     void imageFinished();
 protected:
