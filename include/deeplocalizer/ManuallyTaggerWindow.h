@@ -31,6 +31,8 @@ public slots:
     void scrollBottom();
     void scroll();
     void scrollBack();
+    void changed();
+    void save();
     void setImage(ImageDescPtr desc, ImagePtr img);
 protected:
     void resizeEvent(QResizeEvent * );
@@ -52,7 +54,9 @@ private:
     State _next_state = State::Tags;
     ImageDescPtr  _desc;
     ImagePtr  _image;
-    std::deque<std::shared_ptr<QPushButton>> _image_names;
+    QTimer * _save_timer;
+    bool _changed = false;
+
 
     void init();
     void showImage();

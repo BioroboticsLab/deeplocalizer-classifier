@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QScrollBar>
+#include <QTimer>
 #include "ManuallyTaggerWindow.h"
 #include "utils.h"
 
@@ -25,22 +26,25 @@ ManuallyTagWindow::ManuallyTagWindow(std::vector<ImageDescPtr> && descriptions) 
 
 void ManuallyTagWindow::init() {
     ui = new Ui::ManuallyTaggerWindow;
-    _grid_layout = new QGridLayout;
     ui->setupUi(this);
+    _grid_layout = new QGridLayout(ui->scrollArea);
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
     _progres_bar = new QProgressBar(ui->statusbar);
+    _save_timer = new QTimer(this);
+    _save_timer->start(10000);
     ui->scrollArea->setAlignment(Qt::AlignCenter);
     ui->scrollArea->setWidgetResizable(true);
     setupActions();
     setupConnections();
     setupUi();
     _state = State::Tags;
-    _tagger->loadImage(0);
+    _tagger->loadCurrentImage();
 }
 
 ManuallyTagWindow::~ManuallyTagWindow()
 {
+    save();
     delete ui;
 }
 
@@ -62,8 +66,8 @@ void ManuallyTagWindow::showTags() {
     _tag_widgets.clear();
     for (auto & tag : tags) {
         TagWidgetPtr widget = std::make_shared<TagWidget>();
-        widget->connect(widget.get(), &TagWidget::clicked,
-                        widget.get(), &TagWidget::toggleTag);
+        connect(widget.get(), &TagWidget::clicked, widget.get(), &TagWidget::toggleTag);
+        connect(widget.get(), &TagWidget::clicked, this, &ManuallyTagWindow::changed);
         auto mat = tag.getSubimage(_image->getCvMat(), widget->border());
         widget->setTag(&tag, mat);
         _tag_widgets.push_back(widget);
@@ -129,15 +133,17 @@ void ManuallyTagWindow::setupActions() {
     connect(ui->actionScrollLeft, &QAction::triggered, this, &ManuallyTagWindow::scrollLeft);
     connect(ui->actionScrollRight, &QAction::triggered, this, &ManuallyTagWindow::scrollRight);
     connect(ui->actionScrollUp, &QAction::triggered, this, &ManuallyTagWindow::scrollTop);
+    connect(ui->actionScrollDown, &QAction::triggered, this, &ManuallyTagWindow::scrollBottom);
 
     connect(ui->actionZoomIn, &QAction::triggered, _whole_image, &WholeImageWidget::zoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, _whole_image, &WholeImageWidget::zoomOut);
-    connect(ui->actionSave, SIGNAL(triggered()), _tagger.get(), SLOT(save()));
+    connect(ui->actionSave, &QAction::triggered, this, &ManuallyTagWindow::save);
 }
 
 void ManuallyTagWindow::setupConnections() {
     connect(ui->push_next, &QPushButton::clicked, ui->actionNext, &QAction::trigger);
     connect(ui->push_back, &QPushButton::clicked, ui->actionBack, &QAction::trigger);
+    connect(_whole_image, &WholeImageWidget::changed, this, &ManuallyTagWindow::changed);
     connect(_tagger.get(), &ManuallyTagger::loadedImage, this, &ManuallyTagWindow::setImage);
     connect(_tagger.get(), &ManuallyTagger::outOfRange, []() {
         QMessageBox box;
@@ -146,6 +152,7 @@ void ManuallyTagWindow::setupConnections() {
         box.exec();
     });
     connect(_tagger.get(), &ManuallyTagger::progress, this, &ManuallyTagWindow::setProgress);
+    connect(_save_timer, &QTimer::timeout, this, &ManuallyTagWindow::save);
 }
 
 void ManuallyTagWindow::setProgress(double progress) {
@@ -157,6 +164,9 @@ void ManuallyTagWindow::setProgress(double progress) {
 void ManuallyTagWindow::updateStatusBar() {
     auto message = tr("#") + QString::number(this->_tagger->getIdx() + 1) + "      " +
                    QString::fromStdString(this->_desc->filename);
+    if (_changed) {
+        message += " * ";
+    }
     this->ui->statusbar->showMessage(message);
 }
 
@@ -230,7 +240,7 @@ void ManuallyTagWindow::scrollBack() {
 
 void ManuallyTagWindow::scrollLeft() {
     auto horz = ui->scrollArea->horizontalScrollBar();
-    horz->setValue(int(horz->value() - horz->pageStep()/8));
+    horz->setValue(horz->value() - horz->pageStep()/8);
 }
 
 void ManuallyTagWindow::scrollRight() {
@@ -267,5 +277,16 @@ void ManuallyTagWindow::eraseNegativeTags() {
     }), tags.end());
 }
 
+void ManuallyTagWindow::changed() {
+    _changed = true;
+    updateStatusBar();
+}
+void ManuallyTagWindow::save() {
+    if(_changed) {
+        _tagger->save();
+        _changed = false;
+        updateStatusBar();
+    }
+}
 }
 }

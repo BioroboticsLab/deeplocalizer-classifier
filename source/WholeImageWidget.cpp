@@ -171,6 +171,7 @@ void WholeImageWidget::mousePressEvent(QMouseEvent * event) {
             findEllipse(std::move(tag));
         }
     }
+    emit changed();
     repaint();
 }
 

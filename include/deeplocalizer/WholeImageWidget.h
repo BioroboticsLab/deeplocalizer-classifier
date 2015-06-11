@@ -30,7 +30,7 @@ public:
     void setTags(cv::Mat mat, std::vector<Tag> * tags);
     virtual QSize sizeHint() const;
 public slots:
-    Tag createTag(int x, int y);
+    boost::optional<Tag> createTag(int x, int y);
     void tagProcessed(Tag tag);
     void zoom(double factor);
     void zoomIn();
@@ -38,6 +38,7 @@ public slots:
     void zoomInRelToMouse(QPoint mouse_pos);
 signals:
     void imageFinished();
+    void changed();
 protected:
     void mousePressEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent * event);
@@ -60,7 +61,6 @@ private:
 
     template<typename T>
     void eraseTag(const unsigned long id, T& tags) {
-        std::cout << "eraseTag: " << id << ", " << QThread::currentThreadId() << std::endl;
         _deleted_Ids.insert(id);
         tags.erase(std::remove_if(tags.begin(), tags.end(),
                                   [id](auto & t){
