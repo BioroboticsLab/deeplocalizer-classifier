@@ -59,12 +59,12 @@ void PipelineWorker::process(ImageDesc img) {
     emit resultReady(img);
 }
 void PipelineWorker::findEllipse(cv::Mat mat, Tag tag) {
-    qDebug() << "findEllipse" << tag.getId();
     pipeline::Tag pipeTag(tag.getBoundingBox(), 0 /* id */);
     pipeTag.setOrigSubImage(mat);
-    auto tagWithEllipses = _ellipseFitter.process(
-            std::vector<pipeline::Tag>{pipeTag});
-    Tag tagWithEll(tagWithEllipses.at(0));
+    auto pipelineTags= _ellipseFitter.process({pipeTag});
+    Tag tagWithEll(pipelineTags.at(0));
+    tagWithEll.setId(tag.id());
+    tagWithEll.setIsTag(tag.isTag());
     emit tagWithEllipseReady(tagWithEll);
 }
 }
