@@ -45,9 +45,7 @@ std::vector<Tag> PipelineWorker::tagsProposals(ImageDesc & img_descr) {
             _ellipseFitter.process(std::move(localizer_tags));
     std::vector<Tag> tags;
     for(auto ptag : pipeline_tags) {
-        if (ptag.getCandidatesConst().size() > 0) {
-            tags.emplace_back(Tag(ptag));
-        }
+        tags.emplace_back(Tag(ptag));
     }
     return tags;
 }
