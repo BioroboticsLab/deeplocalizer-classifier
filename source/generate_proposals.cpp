@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 #include <chrono>
 #include <functional>
+#include <ManuallyTagger.h>
 
 #include "ProposalGenerator.h"
 #include "deeplocalizer.h"
@@ -28,26 +29,33 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 
-
-int run(QCoreApplication & qapp,
-        std::string pathfile) {
-    auto images_todo = ImageDesc::fromPathFile(pathfile);
+std::vector<ImageDesc> getImagesDone(std::vector<ImageDesc> & images_todo) {
     std::vector<ImageDesc> images_done;
     for(auto & desc : images_todo) {
+        desc.setSavePathExtension(ProposalGenerator::IMAGE_DESC_EXT);
         if(io::exists(desc.savePath())) {
             images_done.emplace_back(*ImageDesc::load(desc.savePath()));
         }
     }
     images_todo.erase(
-        std::remove_if(
-            images_todo.begin(), images_todo.end(),
-            [&](auto & desc) {
-                return io::exists(desc.savePath());
-        }),
-        images_todo.end()
+            std::remove_if(
+                    images_todo.begin(), images_todo.end(),
+                    [&](auto & desc) {
+                        return io::exists(desc.savePath());
+                    }),
+            images_todo.end()
     );
-    std::cout << "Found " << images_done.size() << " image description files." << std::endl;
-    std::cout << std::endl;
+    if (images_done.size() > 0) {
+        std::cout << "Found " << images_done.size() << " image description files." << std::endl;
+        std::cout << std::endl;
+    }
+    return images_done;
+}
+
+int run(QCoreApplication & qapp,
+        std::string pathfile) {
+    auto images_todo = ImageDesc::fromPathFile(pathfile);
+    auto images_done = getImagesDone(images_todo);
     if (images_todo.empty()) {
         std::cout << "Nothing to do, images are allready processed" << std::endl;
         return 0;
