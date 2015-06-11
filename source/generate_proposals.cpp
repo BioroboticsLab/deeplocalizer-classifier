@@ -61,12 +61,12 @@ int run(QCoreApplication & qapp,
         return 0;
     }
     auto gen = new ProposalGenerator(images_todo, images_done);
-    auto printProgressFn = std::bind(&printProgress<system_clock>, start_time, std::placeholders::_1);
+    start_time = system_clock::now();
+    auto printProgressFn = std::bind(&printProgress<system_clock>, std::cref(start_time), std::placeholders::_1);
     gen->connect(gen, &ProposalGenerator::progress, printProgressFn);
     gen->connect(gen, &ProposalGenerator::finished,
                 &qapp, &QCoreApplication::quit, Qt::QueuedConnection);
 
-    start_time = system_clock::now();
     printProgress(start_time, 0);
     gen->processPipeline();
     return qapp.exec();
