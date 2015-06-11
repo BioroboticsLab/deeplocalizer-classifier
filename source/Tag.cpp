@@ -35,12 +35,11 @@ unsigned long Tag::generateId() {
     return id;
 }
 
-Tag::Tag() {
-    _id = Tag::generateId();
+Tag::Tag() :  _id(Tag::generateId())
+{
 }
 
-Tag::Tag(const pipeline::Tag & pipetag) {
-    _id = Tag::generateId();
+Tag::Tag(const pipeline::Tag & pipetag) :  _id(Tag::generateId()) {
     boost::optional<pipeline::Ellipse> ellipse;
     for(auto candidate : pipetag.getCandidatesConst()) {
         if (!ellipse.is_initialized()) {
@@ -59,7 +58,9 @@ Tag::Tag(const pipeline::Tag & pipetag) {
 }
 
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
-        _boundingBox(boundingBox), _ellipse(ellipse)
+        _id(Tag::generateId()),
+        _boundingBox(boundingBox),
+        _ellipse(ellipse)
 {
 }
 
@@ -155,8 +156,11 @@ void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) {
         }
     }
 }
-long Tag::getId() const {
+unsigned long Tag::id() const {
     return _id;
+}
+void Tag::setId(unsigned long id) {
+    _id = id;
 }
 }
 }

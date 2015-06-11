@@ -35,7 +35,8 @@ public:
     Tag(cv::Rect boundingBox, boost::optional<pipeline::Ellipse> ellipse);
     static const int IS_TAG_THRESHOLD = 1200;
 
-    long getId() const;
+    unsigned long id() const;
+    void setId(unsigned long id);
     const cv::Rect & getBoundingBox() const;
     void setBoundingBox(cv::Rect boundingBox);
 
