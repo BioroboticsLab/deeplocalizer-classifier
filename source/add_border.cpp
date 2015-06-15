@@ -55,7 +55,7 @@ int run(const std::vector<ImageDesc> image_descs, io::path & output_dir,
     for (unsigned int i = 0; i < image_descs.size(); i++) {
         const ImageDesc & desc = image_descs.at(i);
         Image img(desc);
-        img.addBorder();
+        img.beesBookPreprocess();
         auto input_path =  io::path(desc.filename);
         auto output = addWb(output_dir / input_path.filename());
         if(not img.write(output)) {
