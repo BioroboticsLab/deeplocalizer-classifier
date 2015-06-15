@@ -39,6 +39,7 @@ void ManuallyTagWindow::init() {
     setupConnections();
     setupUi();
     _state = State::Tags;
+    qDebug() << "loaded image #" << _tagger->getIdx();
     _tagger->loadCurrentImage();
 }
 
@@ -87,6 +88,8 @@ void ManuallyTagWindow::arangeTagWidgets() {
     int col = 0;
     int row = 0;
     int width = ui->scrollArea->geometry().width();
+    ASSERT(not _tag_widgets.empty(),
+           "_tag_widgets is empty. Got " << _desc->getTags().size() << " Tags.");
     int col_width = (_tag_widgets.front()->width() + _grid_layout->horizontalSpacing());
     int cols = width / col_width;
 

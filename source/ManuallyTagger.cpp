@@ -7,6 +7,7 @@
 #include "pipeline/Localizer.h"
 #include "serialization.h"
 #include "utils.h"
+#include <ProposalGenerator.h>
 
 namespace deeplocalizer {
 namespace tagger {
@@ -62,7 +63,13 @@ void ManuallyTagger::init() {
         descr->setSavePathExtension(IMAGE_DESC_EXT);
         if (io::exists(descr->savePath())) {
             descr = ImageDesc::load(descr->savePath());
+        } else {
+            descr->setSavePathExtension(ProposalGenerator::IMAGE_DESC_EXT);
+            if (io::exists(descr->savePath())) {
+                descr = ImageDesc::load(descr->savePath());
+            }
         }
+        descr->setSavePathExtension(IMAGE_DESC_EXT);
         _image_paths.push_back(descr->filename);
     }
 
