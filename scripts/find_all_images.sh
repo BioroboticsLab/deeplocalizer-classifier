@@ -4,7 +4,7 @@ set -e
 
 DIR=$1
 
-if [ '$DIR' == '' ]; then
+if [ "$DIR" == "" ]; then
     DIR=$(pwd)
 fi;
 
