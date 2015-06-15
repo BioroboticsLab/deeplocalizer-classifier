@@ -154,6 +154,7 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
             }
         }
     }
+    io::remove("testdata/with_5_tags.jpeg.proposal.desc");
 }
 
 int main( int argc, char** const argv )
