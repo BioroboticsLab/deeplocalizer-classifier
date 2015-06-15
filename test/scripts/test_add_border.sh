@@ -3,8 +3,8 @@
 set -e
 
 TEST_PATHFILE="test_add_border_pathfile.txt"
-TEST_IMG=$(realpath ../testdata/with_one_tag.jpeg)
-WITH_BORDER="/tmp/add_border/with_one_tag_wb.jpeg"
+TEST_IMG=$(realpath ../testdata/Cam_0_20140804152006_3.jpeg)
+WITH_BORDER="/tmp/add_border/Cam_0_20140804152006_3_wb.jpeg"
 OUTPUT_PATHFILE="add_border_pathfile.txt"
 rm -f $WITH_BORDER
 echo "Does $TEST_IMG exists?"
