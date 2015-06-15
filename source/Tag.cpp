@@ -66,6 +66,13 @@ Tag::Tag(const pipeline::Tag & pipetag) :  _id(Tag::generateId()) {
     }
 }
 
+Tag::Tag(cv::Rect boundingBox) :
+    _id(Tag::generateId()),
+    _boundingBox(std::move(boundingBox)),
+    _ellipse(optional<pipeline::Ellipse>())
+{
+}
+
 Tag::Tag(cv::Rect boundingBox, optional<pipeline::Ellipse> ellipse) :
         _id(Tag::generateId()),
         _boundingBox(boundingBox),
@@ -130,13 +137,13 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     box.height+= 2*border;
     if(box.x < 0) box.x = 0;
     if(box.y < 0) box.y = 0;
-    if(box.width + box.x >= orginal.cols) box.x = orginal.cols - box.width;
-    if(box.height + box.y >= orginal.rows) box.y = orginal.rows - box.height;
+    if(box.width + box.x >= orginal.cols) box.width = orginal.cols - box.x - 1;
+    if(box.height + box.y >= orginal.rows) box.height = orginal.rows - box.y - 1;
 
     return orginal(box).clone();
 }
 
-void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) {
+void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) const {
     static const QPoint zero(0, 0);
     auto bb = _boundingBox;
     if (_is_tag == IsTag::Yes) {

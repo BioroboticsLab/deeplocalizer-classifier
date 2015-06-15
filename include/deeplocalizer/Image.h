@@ -60,10 +60,12 @@ public:
     explicit Image();
     explicit Image(const ImageDesc & descr);
     cv::Mat getCvMat() const;
-    void addBorder();
+    void beesBookPreprocess();
     bool write(boost::filesystem::path path = {}) const;
     bool operator==(const Image & other) const;
-
+    const std::string & filename() const {
+        return _filename;
+    }
 private:
     cv::Mat _mat;
     std::string _filename;

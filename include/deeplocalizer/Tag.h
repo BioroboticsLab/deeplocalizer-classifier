@@ -32,6 +32,7 @@ class Tag {
 public:
     Tag();
     Tag(const pipeline::Tag & pipetag);
+    Tag(cv::Rect boundingBox);
     Tag(cv::Rect boundingBox, boost::optional<pipeline::Ellipse> ellipse);
     static const int IS_TAG_THRESHOLD = 1200;
 
@@ -46,10 +47,27 @@ public:
     void setIsTag(IsTag is_tag);
     void toggleIsTag();
 
+    bool isExclude() const {
+        return _is_tag == Exclude;
+    }
+    bool isYes() const {
+        return _is_tag == Yes;
+    }
+    bool isNo() const {
+        return _is_tag == No;
+    }
+
+    cv::Point2i center() const {
+        return cv::Point2i{
+                _boundingBox.x + _boundingBox.width  / 2,
+                _boundingBox.y + _boundingBox.height / 2
+        };
+    }
+
     cv::Mat getSubimage(const cv::Mat &orginal, unsigned int border=0) const;
     bool operator==(const Tag &other) const;
     void guessIsTag(int threshold = IS_TAG_THRESHOLD);
-    void draw(QPainter & p, int lineWidth = 3, bool drawVote = true, bool drawEllipse = true);
+    void draw(QPainter & p, int lineWidth = 3, bool drawVote = true, bool drawEllipse = true) const;
 
 private:
     unsigned long _id;
