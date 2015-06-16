@@ -83,7 +83,9 @@ void TrainsetGenerator::trueSamples(const ImageDesc &desc,
     }
 }
 
-void TrainsetGenerator::process(const std::string & output_dir, const std::vector<ImageDesc> & descs) {
+void TrainsetGenerator::process(const std::string & output_dir,
+                                SaveFormat format,
+                                const std::vector<ImageDesc> & descs) {
     Dataset dataset;
     std::vector<unsigned long> indecies;
     indecies.reserve(descs.size());
@@ -108,21 +110,21 @@ void TrainsetGenerator::process(const std::string & output_dir, const std::vecto
     for(unsigned long i = 0; i < train_end; i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.train, dataset.train_name_labels);
-        dataset.writeImages(output_dir);
+        save(dataset, output_dir, format);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
     for(unsigned long i = test_begin; i < test_end; i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.test, dataset.test_name_labels);
-        dataset.writeImages(output_dir);
+        save(dataset, output_dir, format);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
     for(unsigned long i = valid_begin; i < descs.size(); i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.validation, dataset.validation_name_labels);
-        dataset.writeImages(output_dir);
+        save(dataset, output_dir, format);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
@@ -264,6 +266,17 @@ int TrainsetGenerator::wrongAroundCoordinate() {
         return x;
     } else {
         return -x;
+    }
+}
+void TrainsetGenerator::save(const Dataset &dataset,
+                             const std::string &output_dir,
+                             const TrainsetGenerator::SaveFormat format) {
+    if(format == LMDB || format == All) {
+        dataset.saveLMDB(output_dir);
+    }
+    if(format == AsRawImages || format == All) {
+        dataset.writeImages(output_dir);
+        dataset.writePaths(output_dir);
     }
 }
 }

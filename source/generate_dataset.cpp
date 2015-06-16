@@ -26,6 +26,7 @@ void setupOptions() {
     desc_option.add_options()
             ("help,h", "Print help messages")
             ("pathfile", po::value<std::vector<std::string>>(), "File with image paths")
+            ("save-format,s", po::value<std::string>(), "Save Format either LMDB or Images. Default is LMDB")
             ("output-dir,o", po::value<std::string>(), "Output images to this directory");
     positional_opt.add("pathfile", 1);
 }
@@ -33,6 +34,7 @@ void setupOptions() {
 
 int run(QCoreApplication & qapp,
         std::string pathfile,
+        TrainsetGenerator::SaveFormat save_format,
         std::string output_dir
 ) {
     auto img_descs = ImageDesc::fromPathFile(pathfile, ManuallyTagger::IMAGE_DESC_EXT);
@@ -42,7 +44,7 @@ int run(QCoreApplication & qapp,
                                      std::placeholders::_1);
     gen.connect(&gen, &TrainsetGenerator::progress, printProgressFn);
     printProgress(start_time, 0);
-    gen.process(output_dir, img_descs);
+    gen.process(output_dir, save_format, img_descs);
     return 0;
 }
 
@@ -67,9 +69,15 @@ int main(int argc, char* argv[])
         return 0;
     }
     if(vm.count("pathfile") && vm.count("output-dir")) {
+        auto save_format = TrainsetGenerator::SaveFormat::LMDB;
+        if(vm.count("save-format")) {
+            if(vm.at("save-format").as<std::string>() == "Images") {
+                save_format = TrainsetGenerator::SaveFormat::AsRawImages;
+            }
+        }
         auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
         auto output_dir = vm.at("output-dir").as<std::string>();
-        return run(qapp, pathfile, output_dir);
+        return run(qapp, pathfile, save_format, output_dir);
     } else {
         std::cout << "No pathfile or output directory given." << std::endl;
         printUsage();

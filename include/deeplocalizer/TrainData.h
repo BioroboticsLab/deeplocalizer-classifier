@@ -2,6 +2,7 @@
 #ifndef DEEP_LOCALIZER_TRAINDATA_H
 #define DEEP_LOCALIZER_TRAINDATA_H
 
+#include <caffe/proto/caffe.pb.h>
 #include "Tag.h"
 #include "Image.h"
 
@@ -30,6 +31,8 @@ public:
     const cv::Mat & mat() const {
         return _mat;
     };
+    caffe::Datum toCaffe() const;
+
 private:
     const std::string _original_image_filename;
     const Tag _tag;

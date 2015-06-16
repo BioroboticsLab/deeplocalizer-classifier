@@ -14,13 +14,7 @@ namespace tagger {
 class ImageDesc;
 
 class Dataset  {
-    enum OutputType {
-        IMAGES,
-        LLDB
-    };
-
 public:
-    OutputType output_type = LLDB;
     const double test_partition = 0.15;
     const double validation_partition = 0.15;
     const double train_partition = 1 - test_partition - validation_partition;
@@ -33,18 +27,20 @@ public:
     std::vector<std::pair<std::string, int>> validation_name_labels;
 
     void clearImages();
-    void writeImages(const std::string &output_dir);
-    void writePaths(const std::string &output_dir);
-
+    void writeImages(const std::string &output_dir) const;
+    void writePaths(const std::string &output_dir) const;
+    void saveLMDB(const std::string &output_dir) const;
 signals:
     void progress(double p);
 
 private:
     void writeImages(const boost::filesystem::path &output_dir,
-                     const std::vector<TrainData> &data);
+                     const std::vector<TrainData> &data) const ;
 
     void writePaths(const boost::filesystem::path &pathfile,
-                    const std::vector<std::pair<std::string, int>> &  paths_label);
+                    const std::vector<std::pair<std::string, int>> &  paths_label) const;
+    void saveLMDB(const boost::filesystem::path &lmdb_file,
+                  const std::vector<TrainData> &data) const;
 };
 }
 }

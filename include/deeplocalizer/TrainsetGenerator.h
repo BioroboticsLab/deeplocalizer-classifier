@@ -11,9 +11,16 @@
 namespace deeplocalizer {
 namespace tagger {
 
+class Dataset;
+
 class TrainsetGenerator : public QObject  {
 Q_OBJECT
 public:
+    enum SaveFormat {
+        AsRawImages,
+        LMDB,
+        All
+    };
     TrainsetGenerator();
     const int uniform_wrong_tags = 10;
     const unsigned int samples_per_tag = 32;
@@ -33,7 +40,9 @@ public:
     void trueSamples(const ImageDesc & desc, const Tag &tag, const cv::Mat & subimage,
                      std::vector<TrainData> & train_data);
     cv::Mat rotate(const cv::Mat & src, double degrees);
-    void process(const std::string & output_dir, const std::vector<ImageDesc> & descs);
+    void process(const std::string & output_dir,
+                 SaveFormat format,
+                 const std::vector<ImageDesc> & descs);
 
     void process(const ImageDesc & desc,
             std::vector<TrainData> & train_data);
@@ -60,6 +69,9 @@ private:
                           const cv::Rect &wrong_box,
                           std::vector<TrainData> &train_data);
     int wrongAroundCoordinate();
+    void save(const Dataset &dataset,
+                                 const std::string &output_dir,
+                                 const TrainsetGenerator::SaveFormat format);
 };
 }
 }

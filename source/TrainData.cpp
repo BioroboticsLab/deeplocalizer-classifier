@@ -54,5 +54,14 @@ void TrainData::draw(QPainter &painter) const {
     _tag.draw(painter, line_width);
     painter.restore();
 }
+caffe::Datum TrainData::toCaffe() const {
+    caffe::Datum datum;
+    datum.set_label(_tag.isYes());
+    datum.set_width(_mat.cols);
+    datum.set_height(_mat.rows);
+    datum.set_channels(1);
+    datum.set_data(_mat.data, _mat.rows * _mat.cols);
+    return datum;
+}
 }
 }
