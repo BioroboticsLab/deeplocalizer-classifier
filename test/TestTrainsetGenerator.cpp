@@ -55,7 +55,10 @@ TEST_CASE( "TrainsetGenerator", "" ) {
         QPainter painter(&qimage);
 
         for(auto & d: data) {
-            d.tag().draw(painter, 1, false, false);
+            // pick only one 1/8th of the tags. It would be otherwise to dense.
+            if(rand() % 8 == 0) {
+                d.draw(painter);
+            }
         }
         qimage.save("test_trainset_generator.jpeg");
     }

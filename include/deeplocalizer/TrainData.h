@@ -16,8 +16,8 @@ public:
     TrainData(const std::string & image_filename, const Tag &tag,
               cv::Mat mat);
 
-    const std::string filename() const ;
-
+    const std::string filename() const;
+    void draw(QPainter & painter) const;
     const Tag & tag() const {
         return _tag;
     };

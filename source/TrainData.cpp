@@ -1,3 +1,4 @@
+#include <QPainter>
 #include <boost/filesystem.hpp>
 #include "TrainData.h"
 
@@ -39,5 +40,12 @@ const std::string TrainData::filename() const {
     return path.string() + ss.str() + extension.string();
 }
 
+void TrainData::draw(QPainter &painter) const {
+    static const int line_width = 1;
+    painter.save();
+    painter.translate(_translation.x, _translation.y);
+    _tag.draw(painter, line_width);
+    painter.restore();
+}
 }
 }
