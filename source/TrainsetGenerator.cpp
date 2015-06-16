@@ -8,7 +8,7 @@
 namespace deeplocalizer {
 namespace tagger {
 
-const int TrainsetGenerator::MAX_TRANSLATION = 20;
+const int TrainsetGenerator::MAX_TRANSLATION = TAG_WIDTH / 2;
 const int TrainsetGenerator::MIN_TRANSLATION = -TrainsetGenerator::MAX_TRANSLATION;
 const int TrainsetGenerator::MIN_AROUND_WRONG = TAG_WIDTH / 2;
 const int TrainsetGenerator::MAX_AROUND_WRONG = TAG_WIDTH / 2 + 200;
@@ -16,7 +16,7 @@ const int TrainsetGenerator::MAX_AROUND_WRONG = TAG_WIDTH / 2 + 200;
 TrainsetGenerator::TrainsetGenerator() :
     _gen(_rd()),
     _angle_dis(0, 360),
-    _translation_dis(-MAX_TRANSLATION, MAX_TRANSLATION),
+    _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
     _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG)
 {
 
@@ -47,8 +47,11 @@ TrainData TrainsetGenerator::trainData(const ImageDesc & desc, const Tag &tag,
                                        const cv::Mat & subimage) {
     double angle = _angle_dis(_gen);
     cv::Mat rot_img = rotate(subimage, angle);
-    int trans_x = _translation_dis(_gen);
-    int trans_y = _translation_dis(_gen);
+    int trans_x, trans_y;
+    do {
+        trans_x = _translation_dis(_gen);
+        trans_y = _translation_dis(_gen);
+    } while(abs(trans_x * trans_y) > pow(TAG_WIDTH/3, 2));
     cv::Point2f rot_center(rot_img.cols / 2 + trans_x,
                            rot_img.rows / 2 + trans_y);
     cv::Rect box(int(rot_center.x - TAG_WIDTH / 2),
