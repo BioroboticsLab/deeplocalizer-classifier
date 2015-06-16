@@ -15,6 +15,8 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
+find_package(Caffe REQUIRED)
+find_package(LMDB REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
@@ -118,6 +120,8 @@ include_directories(
     SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
+    SYSTEM ${Caffe_INCLUDE_DIRS}
+    SYSTEM ${LMDB_INCLUDE_DIRS}
 )
 
 set(libs
@@ -129,6 +133,8 @@ set(libs
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
+    ${Caffe_LIBRARIES}
+    ${LMDB_LIBRARIES}
 )
 
 enable_testing(true)
