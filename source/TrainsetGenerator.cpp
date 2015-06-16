@@ -53,8 +53,8 @@ TrainData TrainsetGenerator::trainData(const ImageDesc & desc, const Tag &tag,
     cv::Rect box(int(rot_center.x - TAG_WIDTH / 2),
                  int(rot_center.y - TAG_HEIGHT / 2),
                  TAG_WIDTH, TAG_HEIGHT);
-    return TrainData(desc.filename, tag, cv::Point2i(trans_x, trans_y),
-                     angle, rot_img(box).clone());
+    return TrainData(desc.filename, tag, rot_img(box).clone(),
+                     cv::Point2i(trans_x, trans_y), angle);
 }
 
 void TrainsetGenerator::trueSamples(

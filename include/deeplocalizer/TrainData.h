@@ -10,9 +10,8 @@ namespace tagger {
 
 class TrainData {
 public:
-    TrainData(const std::string & image_filename, const Tag &tag,
-              cv::Point2i translation, double rotation_angle,
-              cv::Mat mat);
+    TrainData(const std::string &image_filename, const Tag &tag, cv::Mat mat,
+                  cv::Point2i translation, double rotation_angle);
 
     TrainData(const std::string & image_filename, const Tag &tag,
               cv::Mat mat);
@@ -34,10 +33,9 @@ public:
 private:
     const std::string _original_image_filename;
     const Tag _tag;
-    const cv::Point2i _translation;
-
-    const double _rotation_angle;
     const cv::Mat _mat;
+    const cv::Point2i _translation;
+    const double _rotation_angle;
 };
 }
 }

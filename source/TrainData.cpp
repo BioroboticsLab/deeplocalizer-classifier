@@ -6,29 +6,26 @@ namespace tagger {
 
 namespace io = boost::filesystem;
 
-TrainData::TrainData(
-        const std::string & image_filename, const Tag &tag,
-        cv::Point2i translation, double rotation_angle,
-        cv::Mat mat) :
+TrainData::TrainData(const std::string &image_filename, const Tag &tag, cv::Mat mat,
+              cv::Point2i translation, double rotation_angle) :
         _original_image_filename(image_filename),
         _tag(tag),
+        _mat(mat),
         _translation(translation),
-        _rotation_angle(rotation_angle),
-        _mat(mat)
+        _rotation_angle(rotation_angle)
 {
-
 }
 
 TrainData::TrainData(const std::string &image_filename, const Tag &tag,
                      cv::Mat mat) :
         _original_image_filename(image_filename),
         _tag(tag),
+        _mat(mat),
         _translation(cv::Point2i(0, 0)),
-        _rotation_angle(0),
-        _mat(mat)
+        _rotation_angle(0)
 {
-
 }
+
 const std::string TrainData::filename() const {
     io::path path(_original_image_filename);
     io::path extension = path.extension();
