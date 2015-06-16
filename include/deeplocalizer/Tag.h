@@ -19,8 +19,9 @@ class QPainter;
 namespace deeplocalizer {
 namespace  tagger {
 
-const int TAG_WIDTH = 96;
-const int TAG_HEIGHT = 96;
+const int TAG_WIDTH = 100;
+const int TAG_HEIGHT = 100;
+
 
 enum IsTag{
     Yes,
@@ -67,7 +68,9 @@ public:
     cv::Mat getSubimage(const cv::Mat &orginal, unsigned int border=0) const;
     bool operator==(const Tag &other) const;
     void guessIsTag(int threshold = IS_TAG_THRESHOLD);
-    void draw(QPainter & p, int lineWidth = 3, bool drawVote = true, bool drawEllipse = true) const;
+    void draw(QPainter & p, int lineWidth = 3) const;
+    void drawEllipse(QPainter & p, int lineWidth = 3,
+                          bool drawVote = true) const;
 
 private:
     unsigned long _id;
@@ -77,13 +80,27 @@ private:
 
     static unsigned long generateId();
     static std::atomic_long id_counter;
+
     friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive & ar, const unsigned int) {
+    template<class Archive>
+    void save(Archive & ar, const unsigned int) const
+    {
         ar & BOOST_SERIALIZATION_NVP(_boundingBox);
         ar & BOOST_SERIALIZATION_NVP(_ellipse);
         ar & BOOST_SERIALIZATION_NVP(_is_tag);
+
     }
+    template<class Archive>
+    void load(Archive & ar, const unsigned int)
+    {
+        ar & BOOST_SERIALIZATION_NVP(_boundingBox);
+        ar & BOOST_SERIALIZATION_NVP(_ellipse);
+        ar & BOOST_SERIALIZATION_NVP(_is_tag);
+        auto center = this->center();
+        _boundingBox = cv::Rect(center.x - TAG_WIDTH/2, center.y - TAG_WIDTH/2,
+                                TAG_WIDTH, TAG_HEIGHT);
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 }
 }
