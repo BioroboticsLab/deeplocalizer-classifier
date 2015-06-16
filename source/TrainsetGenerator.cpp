@@ -4,11 +4,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QDebug>
 #include <utils.h>
+#include <Dataset.h>
 
 namespace deeplocalizer {
 namespace tagger {
 
-const int TrainsetGenerator::MAX_TRANSLATION = TAG_WIDTH / 2;
+const int TrainsetGenerator::MAX_TRANSLATION = TAG_WIDTH / 3;
 const int TrainsetGenerator::MIN_TRANSLATION = -TrainsetGenerator::MAX_TRANSLATION;
 const int TrainsetGenerator::MIN_AROUND_WRONG = TAG_WIDTH / 2;
 const int TrainsetGenerator::MAX_AROUND_WRONG = TAG_WIDTH / 2 + 200;
@@ -81,15 +82,71 @@ void TrainsetGenerator::trueSamples(const ImageDesc &desc,
         }
     }
 }
-std::vector<TrainData> TrainsetGenerator::process(
-        const std::vector<ImageDesc> &descs) {
-    std::vector<TrainData> train_data;
-    for(auto & desc: descs) {
-        trueSamples(desc, train_data);
+
+void TrainsetGenerator::process(const std::string & output_dir, const std::vector<ImageDesc> & descs) {
+    Dataset dataset;
+    std::vector<unsigned long> indecies;
+    indecies.reserve(descs.size());
+
+    for(unsigned long i = 0; i < descs.size(); i++) {
+        indecies.push_back(i);
     }
-    return train_data;
+
+    std::shuffle(indecies.begin(), indecies.end(), std::default_random_engine());
+
+    unsigned long n_test =  std::lround(descs.size() * dataset.test_partition);
+    unsigned long n_validation = std::lround(descs.size() * dataset.validation_partition);
+
+    unsigned long n_train = descs.size() - n_test - n_validation;
+
+    unsigned long train_end = n_train;
+    unsigned long test_begin = train_end;
+    unsigned long test_end =  train_end + n_test;
+    unsigned long valid_begin = test_end;
+
+
+    for(unsigned long i = 0; i < train_end; i++) {
+        const auto & desc = descs.at(indecies.at(i));
+        processDesc(desc, dataset.train, dataset.train_name_labels);
+        dataset.writeImages(output_dir);
+        dataset.clearImages();
+        progress((i+1) / double(descs.size()));
+    }
+    for(unsigned long i = test_begin; i < test_end; i++) {
+        const auto & desc = descs.at(indecies.at(i));
+        processDesc(desc, dataset.test, dataset.test_name_labels);
+        dataset.writeImages(output_dir);
+        dataset.clearImages();
+        progress((i+1) / double(descs.size()));
+    }
+    for(unsigned long i = valid_begin; i < descs.size(); i++) {
+        const auto & desc = descs.at(indecies.at(i));
+        processDesc(desc, dataset.validation, dataset.validation_name_labels);
+        dataset.writeImages(output_dir);
+        dataset.clearImages();
+        progress((i+1) / double(descs.size()));
+    }
+    std::cout << dataset.train_name_labels.size() << std::endl;
+    dataset.writePaths(output_dir);
 }
 
+void TrainsetGenerator::processDesc(const ImageDesc &desc,
+                          std::vector<TrainData> &data,
+                          std::vector<std::pair<std::string, int>> &names) {
+    TrainsetGenerator gen;
+    unsigned long old_size = data.size();
+    gen.process(desc, data);
+    for(unsigned long i = old_size; i<data.size(); i++) {
+        names.emplace_back(std::make_pair(data.at(i).filename(),
+                                          data.at(i).tag().isYes()));
+    }
+}
+
+void TrainsetGenerator::process(const ImageDesc &desc,
+                                    std::vector<TrainData> &train_data) {
+    trueSamples(desc, train_data);
+    wrongSamples(desc, train_data);
+}
 void TrainsetGenerator::wrongSamplesAround(const Tag &tag,
                                            const ImageDesc &desc,
                                            const Image &img,

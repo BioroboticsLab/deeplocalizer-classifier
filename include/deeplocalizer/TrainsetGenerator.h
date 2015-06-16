@@ -3,14 +3,16 @@
 #define DEEP_LOCALIZER_TRAINSETGENERATOR_H
 
 #include <boost/filesystem.hpp>
+#include <QObject>
+
 #include "Image.h"
 #include "TrainData.h"
 
 namespace deeplocalizer {
 namespace tagger {
 
-class TrainsetGenerator {
-
+class TrainsetGenerator : public QObject  {
+Q_OBJECT
 public:
     TrainsetGenerator();
     const int uniform_wrong_tags = 10;
@@ -31,7 +33,15 @@ public:
     void trueSamples(const ImageDesc & desc, const Tag &tag, const cv::Mat & subimage,
                      std::vector<TrainData> & train_data);
     cv::Mat rotate(const cv::Mat & src, double degrees);
-    std::vector<TrainData> process(const std::vector<ImageDesc> & desc);
+    void process(const std::string & output_dir, const std::vector<ImageDesc> & descs);
+
+    void process(const ImageDesc & desc,
+            std::vector<TrainData> & train_data);
+    void processDesc(const ImageDesc &desc, std::vector<TrainData> &data,
+                     std::vector<std::pair<std::string, int>> &names);
+signals:
+    void progress(double p);
+
 private:
     static const int MIN_TRANSLATION;
     static const int MAX_TRANSLATION;

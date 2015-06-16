@@ -77,7 +77,6 @@ std::vector<ImageDesc> ImageDesc::fromPathFile(const std::string &path,
     for(int i = 0; std::getline(ifs, path_to_image); i++) {
         ASSERT(io::exists(path_to_image), "File " << path_to_image << " does not exists.");
         paths.emplace_back(path_to_image);
-        std::cout << path_to_image << std::endl;
     }
     return fromPaths(paths, image_desc_extension);
 }

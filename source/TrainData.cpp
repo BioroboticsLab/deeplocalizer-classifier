@@ -34,9 +34,16 @@ const std::string TrainData::filename() const {
     std::stringstream ss;
     cv::Rect bb = _tag.getBoundingBox();
     long angle = std::lround(_rotation_angle);
+
+    std::string right_or_wrong;
+    if(_tag.isYes()) {
+        right_or_wrong = "_right";
+    } else {
+        right_or_wrong = "_wrong";
+    }
     ss << "_bx" << bb.x << "_by" << bb.y <<
             "_tx" << _translation.x << "_ty" << _translation.y <<
-            "_a" << angle;
+            "_a" << angle << right_or_wrong;
     return path.string() + ss.str() + extension.string();
 }
 
