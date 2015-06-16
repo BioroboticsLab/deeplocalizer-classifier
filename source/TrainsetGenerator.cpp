@@ -3,6 +3,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QDebug>
+#include <utils.h>
 
 namespace deeplocalizer {
 namespace tagger {
@@ -96,12 +97,14 @@ void TrainsetGenerator::wrongSamplesAround(const Tag &tag,
 
     cv::Rect img_rect = cv::Rect(cv::Point(0, 0), img.getCvMat().size());
 
+    ASSERT(samples_per_tag % 4 == 0, "samples_per_tag must be a multiple of four");
+
     while(samples < samples_per_tag) {
         cv::Rect box = proposeWrongBox(tag);
         bool contains = (img_rect & box).area() == box.area();
         if (contains && intersectsNone(nearbyBoxes, box)) {
-            train_data.emplace_back(wrongSample(img, box));
-            samples++;
+            wrongSampleRot90(img, box, train_data);
+            samples += 4;
         }
     }
 }
@@ -127,7 +130,6 @@ std::vector<cv::Rect> TrainsetGenerator::getNearbyTagBoxes(const Tag &tag,
         if((other_tag.getBoundingBox() & nearbyArea).area()) {
             auto center = other_tag.center();
             auto bb = other_tag.getBoundingBox();
-            static int shrinking = 20;
             cv::Rect shrinked_bb{
                     center.x - TAG_WIDTH  / 2 + shrinking,
                     center.y - TAG_HEIGHT / 2 + shrinking,
@@ -159,12 +161,41 @@ bool TrainsetGenerator::intersectsNone(std::vector<cv::Rect> &tag_boxes,
     });
 }
 
-TrainData TrainsetGenerator::wrongSample(const Image &img,
-                                         const cv::Rect &wrong_box) {
+void TrainsetGenerator::wrongSampleRot90(const Image &img,
+                                         const cv::Rect &wrong_box,
+                                         std::vector<TrainData> &train_data) {
     Tag wrong_tag{wrong_box};
     wrong_tag.setIsTag(IsTag::No);
     cv::Mat subimage = wrong_tag.getSubimage(img.getCvMat());
-    return TrainData(img.filename(), wrong_tag, subimage);
+    train_data.emplace_back(TrainData(img.filename(), wrong_tag, subimage));
+    {
+        // clockwise 90°
+        double angle = 270;
+        cv::Mat rot(subimage.size(), subimage.type());
+        cv::transpose(subimage, rot);
+        cv::flip(rot, rot, 1);
+        train_data.emplace_back(
+                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                          angle));
+    }
+    {
+        double angle = 90;
+        cv::Mat rot(subimage.size(), subimage.type());
+        transpose(subimage, rot);
+        flip(rot, rot,0); //transpose+flip(0)=CCW
+        train_data.emplace_back(
+                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                          angle));
+    }
+    {
+
+        double angle = 180;
+        cv::Mat rot(subimage.size(), subimage.type());
+        flip(subimage, rot,-1);
+        train_data.emplace_back(
+                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                          angle));
+    }
 }
 
 int TrainsetGenerator::wrongAroundCoordinate() {

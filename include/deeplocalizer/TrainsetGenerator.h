@@ -16,6 +16,7 @@ public:
     const int uniform_wrong_tags = 10;
     const unsigned int samples_per_tag = 32;
     const unsigned int wrong_samples_per_tag = 32;
+    const int shrinking = 32;
     unsigned long current_idx;
     boost::filesystem::path output_dir;
 
@@ -45,8 +46,9 @@ private:
                                             const ImageDesc &desc);
     cv::Rect proposeWrongBox(const Tag &tag);
     bool intersectsNone(std::vector<cv::Rect> &tag_boxes, cv::Rect wrong_box);
-    TrainData wrongSample(const Image &img,
-                                             const cv::Rect &wrong_box);
+    void wrongSampleRot90(const Image &img,
+                          const cv::Rect &wrong_box,
+                          std::vector<TrainData> &train_data);
     int wrongAroundCoordinate();
 };
 }
