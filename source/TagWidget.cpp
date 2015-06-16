@@ -44,8 +44,6 @@ QSize TagWidget::sizeHint() const {
 
 void TagWidget::paintEvent(QPaintEvent *) {
     static const int lineWidth = 1;
-    static const bool drawVote = false;
-    static const bool drawEllipse = false;
 
     _painter.begin(this);
     _painter.drawPixmap(0, 0, _pixmap);
@@ -53,7 +51,7 @@ void TagWidget::paintEvent(QPaintEvent *) {
         auto box = _tag->getBoundingBox();
         _painter.save();
         _painter.translate(QPoint(-box.x + _border, -box.y + _border));
-        _tag->draw(_painter, lineWidth, drawVote, drawEllipse);
+        _tag->draw(_painter, lineWidth);
         _painter.restore();
     }
     _painter.end();

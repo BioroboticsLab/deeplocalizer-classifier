@@ -78,9 +78,11 @@ void WholeImageWidget::paintEvent(QPaintEvent *) {
     _painter.drawPixmap(0, 0, _pixmap);
     for(auto & t: *_tags) {
         t.draw(_painter);
+        t.drawEllipse(_painter);
     }
     for(auto & t: _newly_added_tags) {
         t.draw(_painter);
+        t.drawEllipse(_painter);
     }
     _painter.end();
 }

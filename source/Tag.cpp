@@ -143,7 +143,7 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     return orginal(box).clone();
 }
 
-void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) const {
+void Tag::draw(QPainter & p, int lineWidth) const {
     static const QPoint zero(0, 0);
     auto bb = _boundingBox;
     if (_is_tag == IsTag::Yes) {
@@ -154,29 +154,30 @@ void Tag::draw(QPainter & p, int lineWidth, bool drawVote, bool drawEllipse) con
         p.setPen(QPen(Qt::magenta, lineWidth));
     }
     p.drawRect(QRect(bb.x, bb.y, bb.height, bb.width));
-    if (_ellipse) {
-        auto e = _ellipse.get();
-        p.setPen(Qt::blue);
-        QPoint center(bb.x+e.getCen().x, bb.y+e.getCen().y);
-        QFont font = p.font();
-        font.setPointSizeF(18);
-        p.setPen(Qt::blue);
-        if(drawVote) {
-            p.setFont(font);
-            p.drawText(bb.x - 10 , bb.y - 10, QString::number(e.getVote()));
-        }
-        if(drawEllipse) {
-            p.setPen(QPen(Qt::blue, lineWidth));
-            p.save();
-            p.translate(center);
-            p.rotate(e.getAngle());
-            p.drawLine(-4, 0, 4, 0);
-            p.drawLine(0, 4, 0, -4);
-            p.drawEllipse(zero, e.getAxis().width, e.getAxis().height);
-            p.restore();
-        }
-    }
 }
+void Tag::drawEllipse(QPainter & p, int lineWidth, bool drawVote) const {
+    static const QPoint zero(0, 0);
+    auto e = _ellipse.get();
+    auto bb = _boundingBox;
+    p.setPen(Qt::blue);
+    QPoint center(bb.x+e.getCen().x, bb.y+e.getCen().y);
+    QFont font = p.font();
+    font.setPointSizeF(18);
+    p.setPen(Qt::blue);
+    if(drawVote) {
+        p.setFont(font);
+        p.drawText(bb.x - 10 , bb.y - 10, QString::number(e.getVote()));
+    }
+    p.setPen(QPen(Qt::blue, lineWidth));
+    p.save();
+    p.translate(center);
+    p.rotate(e.getAngle());
+    p.drawLine(-4, 0, 4, 0);
+    p.drawLine(0, 4, 0, -4);
+    p.drawEllipse(zero, e.getAxis().width, e.getAxis().height);
+    p.restore();
+}
+
 unsigned long Tag::id() const {
     return _id;
 }
