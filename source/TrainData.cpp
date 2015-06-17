@@ -1,5 +1,6 @@
 #include <QPainter>
 #include <boost/filesystem.hpp>
+#include <utils.h>
 #include "TrainData.h"
 
 namespace  deeplocalizer {
@@ -57,7 +58,9 @@ void TrainData::draw(QPainter &painter) const {
 caffe::Datum TrainData::toCaffe() const {
     caffe::Datum datum;
     datum.set_label(_tag.isYes());
+    ASSERT(_mat.cols == TAG_WIDTH, "Expected _mat.cols to be equal " << TAG_WIDTH);
     datum.set_width(_mat.cols);
+    ASSERT(_mat.rows == TAG_HEIGHT, "Expected _mat.rows to be equal " << TAG_HEIGHT);
     datum.set_height(_mat.rows);
     datum.set_channels(1);
     datum.set_data(_mat.data, _mat.rows * _mat.cols);

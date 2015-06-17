@@ -137,8 +137,8 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
     box.height+= 2*border;
     if(box.x < 0) box.x = 0;
     if(box.y < 0) box.y = 0;
-    if(box.width + box.x >= orginal.cols) box.width = orginal.cols - box.x - 1;
-    if(box.height + box.y >= orginal.rows) box.height = orginal.rows - box.y - 1;
+    if(box.width + box.x >= orginal.cols) box.x = orginal.cols - box.width - 1;
+    if(box.height + box.y >= orginal.rows) box.y = orginal.rows - box.height - 1;
 
     return orginal(box).clone();
 }
@@ -157,6 +157,9 @@ void Tag::draw(QPainter & p, int lineWidth) const {
 }
 void Tag::drawEllipse(QPainter & p, int lineWidth, bool drawVote) const {
     static const QPoint zero(0, 0);
+    if(not _ellipse) {
+        return;
+    }
     auto e = _ellipse.get();
     auto bb = _boundingBox;
     p.setPen(Qt::blue);
