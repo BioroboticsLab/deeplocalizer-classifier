@@ -96,12 +96,12 @@ void Dataset::saveLMDB(const boost::filesystem::path &lmdb_file,
     for(unsigned int i = 0; i < data.size(); i++) {
         const auto & d = data.at(i);
         auto caffe_datum = d.toCaffe();
-        auto filename = d.filename();
+        auto random_str = io::unique_path("%%%%%%%%%%%%%%").string();
         caffe_datum.SerializeToString(&data_string);
         mdb_data.mv_size = data_string.size();
         mdb_data.mv_data = reinterpret_cast<void *>(&data_string[0]);
-        mdb_key.mv_size = filename.size();
-        mdb_key.mv_data = reinterpret_cast<void *>(&filename[0]);
+        mdb_key.mv_size = random_str.size();
+        mdb_key.mv_data = reinterpret_cast<void *>(&random_str[0]);
 
         ASSERT(mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, 0) == MDB_SUCCESS,
                "mdb_put failed");
