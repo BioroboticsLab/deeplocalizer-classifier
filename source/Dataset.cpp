@@ -1,5 +1,5 @@
 #include <lmdb.h>
-#include <utils.h>
+#include "utils.h"
 #include "Dataset.h"
 
 #include "TrainsetGenerator.h"
@@ -49,9 +49,11 @@ void Dataset::writeImages(const boost::filesystem::path &output_dir,
 
 void Dataset::writePaths(const boost::filesystem::path &pathfile,
                          const std::vector<std::pair<std::string, int>> &  paths_label) const {
+    io::path output_dir = pathfile.parent_path();
     std::ofstream o(pathfile.string());
     for(const auto & pair : paths_label) {
-        o << pair.first << " " << pair.second << "\n";
+        io::path image_path = output_dir / pair.first;
+        o << image_path.string() << " " << pair.second << "\n";
     }
 }
 void Dataset::clearImages() {
