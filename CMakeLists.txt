@@ -17,6 +17,7 @@ find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
 find_package(Caffe REQUIRED)
 find_package(LMDB REQUIRED)
+find_package(CUDA REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
@@ -122,6 +123,7 @@ include_directories(
     SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
     SYSTEM ${Caffe_INCLUDE_DIRS}
     SYSTEM ${LMDB_INCLUDE_DIRS}
+    SYSTEM ${CUDA_INCLUDE_DIRS}
 )
 
 set(libs
@@ -135,6 +137,7 @@ set(libs
     ${CMAKE_THREAD_LIBS_INIT}
     ${Caffe_LIBRARIES}
     ${LMDB_LIBRARIES}
+    ${CUDA_LIBRARIES}
 )
 
 enable_testing(true)
