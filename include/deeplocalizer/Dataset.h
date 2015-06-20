@@ -23,15 +23,12 @@ public:
         All
     };
     const double test_partition = 0.15;
-    const double validation_partition = 0.15;
-    const double train_partition = 1 - test_partition - validation_partition;
+    const double train_partition = 1 - test_partition;
     std::vector <TrainDatum> train;
-    std::vector <TrainDatum> validation;
     std::vector <TrainDatum> test;
 
     std::vector<std::pair<std::string, int>> train_name_labels;
     std::vector<std::pair<std::string, int>> test_name_labels;
-    std::vector<std::pair<std::string, int>> validation_name_labels;
 
     void clearImages();
 };
@@ -55,7 +52,6 @@ private:
 
     boost::filesystem::path _train_dir;
     boost::filesystem::path _test_dir;
-    boost::filesystem::path _validation_dir;
 
 
     std::ofstream _test_label_stream;
@@ -63,9 +59,6 @@ private:
 
     std::ofstream _train_label_stream;
     std::mutex _train_label_stream_mutex;
-
-    std::ofstream _validation_label_stream;
-    std::mutex _validation_label_stream_mutex;
 
     void writeImages(const boost::filesystem::path &output_dir,
                      const std::vector<TrainDatum> &imgaes) const;

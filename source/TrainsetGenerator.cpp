@@ -105,14 +105,11 @@ void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
     std::shuffle(indecies.begin(), indecies.end(), std::default_random_engine());
 
     unsigned long n_test =  std::lround(descs.size() * dataset.test_partition);
-    unsigned long n_validation = std::lround(descs.size() * dataset.validation_partition);
-
-    unsigned long n_train = descs.size() - n_test - n_validation;
+    unsigned long n_train = descs.size() - n_test;
 
     unsigned long train_end = n_train;
     unsigned long test_begin = train_end;
     unsigned long test_end =  train_end + n_test;
-    unsigned long valid_begin = test_end;
 
 
     for(unsigned long i = 0; i < train_end; i++) {
@@ -125,13 +122,6 @@ void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
     for(unsigned long i = test_begin; i < test_end; i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.test, dataset.test_name_labels);
-        _writer->write(dataset);
-        dataset.clearImages();
-        progress((i+1) / double(descs.size()));
-    }
-    for(unsigned long i = valid_begin; i < descs.size(); i++) {
-        const auto & desc = descs.at(indecies.at(i));
-        processDesc(desc, dataset.validation, dataset.validation_name_labels);
         _writer->write(dataset);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));

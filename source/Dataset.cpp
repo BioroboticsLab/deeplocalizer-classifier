@@ -12,25 +12,21 @@ namespace io = boost::filesystem;
 void Dataset::clearImages() {
     train.clear();
     test.clear();
-    validation.clear();
 }
 
 
 ImageDatasetWriter::ImageDatasetWriter(const std::string &output_dir)
     : _output_dir(output_dir),
     _train_dir{_output_dir / "train"},
-    _test_dir{_output_dir / "test"},
-    _validation_dir{_output_dir / "validation"}
+    _test_dir{_output_dir / "test"}
 {
 
     io::create_directories(_output_dir);
     io::create_directories(_train_dir);
     io::create_directories(_test_dir);
-    io::create_directories(_validation_dir);
 
     _test_label_stream.open((_test_dir / "test.txt").string());
     _train_label_stream.open((_train_dir / "train.txt").string());
-    _validation_label_stream.open((_validation_dir / "validation.txt").string());
 }
 
 void ImageDatasetWriter::write(const Dataset &dataset) {
@@ -41,7 +37,6 @@ void ImageDatasetWriter::writeImages(const Dataset &dataset) const {
 
     writeImages(_train_dir, dataset.train);
     writeImages(_test_dir, dataset.test);
-    writeImages(_validation_dir, dataset.validation);
 }
 
 void ImageDatasetWriter::writeImages(const boost::filesystem::path &output_dir,
@@ -59,9 +54,6 @@ void ImageDatasetWriter::writeLabelFiles(const Dataset &dataset) {
                    _train_label_stream_mutex);
     writeLabelFile(_test_dir, dataset.test_name_labels, _test_label_stream,
                    _test_label_stream_mutex);
-    writeLabelFile(_validation_dir, dataset.validation_name_labels,
-                   _validation_label_stream,
-                   _validation_label_stream_mutex);
 }
 
 void ImageDatasetWriter::writeLabelFile(
@@ -96,7 +88,6 @@ LMDBDatasetWriter::LMDBDatasetWriter(const std::string &output_dir) :
 void LMDBDatasetWriter::openDatabase(const boost::filesystem::path &lmdb_dir,
                                      MDB_env **mdb_env
 ) {
-    std::cout << "opening: " << lmdb_dir.string() << std::endl;
     ASSERT(mdb_env_create(mdb_env) == MDB_SUCCESS,
            "mdb_env_create failed");
     ASSERT(mdb_env_set_mapsize(*mdb_env, 1099511627776) == MDB_SUCCESS, "");  // 1TB
