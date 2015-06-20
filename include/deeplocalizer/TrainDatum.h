@@ -9,12 +9,12 @@
 namespace deeplocalizer {
 namespace tagger {
 
-class TrainData {
+class TrainDatum {
 public:
-    TrainData(const std::string &image_filename, const Tag &tag, cv::Mat mat,
+    TrainDatum(const std::string &image_filename, const Tag &tag, cv::Mat mat,
                   cv::Point2i translation, double rotation_angle);
 
-    TrainData(const std::string & image_filename, const Tag &tag,
+    TrainDatum(const std::string & image_filename, const Tag &tag,
               cv::Mat mat);
 
     const std::string filename() const;

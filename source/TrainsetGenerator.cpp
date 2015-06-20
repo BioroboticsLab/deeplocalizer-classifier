@@ -54,7 +54,7 @@ cv::Mat TrainsetGenerator::rotate(const cv::Mat & src, double degrees) {
     return frameRotated;
 }
 
-TrainData TrainsetGenerator::trainData(const ImageDesc & desc, const Tag &tag,
+TrainDatum TrainsetGenerator::trainData(const ImageDesc & desc, const Tag &tag,
                                        const cv::Mat & subimage) {
     double angle = _angle_dis(_gen);
     cv::Mat rot_img = rotate(subimage, angle);
@@ -68,13 +68,13 @@ TrainData TrainsetGenerator::trainData(const ImageDesc & desc, const Tag &tag,
     cv::Rect box(int(rot_center.x - TAG_WIDTH / 2),
                  int(rot_center.y - TAG_HEIGHT / 2),
                  TAG_WIDTH, TAG_HEIGHT);
-    return TrainData(desc.filename, tag, rot_img(box).clone(),
+    return TrainDatum(desc.filename, tag, rot_img(box).clone(),
                      cv::Point2i(trans_x, trans_y), angle);
 }
 
 void TrainsetGenerator::trueSamples(
         const ImageDesc & desc, const Tag &tag, const cv::Mat & subimage,
-        std::vector<TrainData> & train_data) {
+        std::vector<TrainDatum> & train_data) {
     if(tag.isTag() != IsTag::Yes) return;
 
     for(unsigned int i = 0; i < samples_per_tag; i++) {
@@ -83,7 +83,7 @@ void TrainsetGenerator::trueSamples(
 }
 
 void TrainsetGenerator::trueSamples(const ImageDesc &desc,
-                                    std::vector<TrainData> &train_data) {
+                                    std::vector<TrainDatum> &train_data) {
     Image img = Image(desc);
     for(const auto & tag : desc.getTags()) {
         if(tag.isTag() == IsTag::Yes) {
@@ -140,7 +140,7 @@ void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
 }
 
 void TrainsetGenerator::processDesc(const ImageDesc &desc,
-                          std::vector<TrainData> &data,
+                          std::vector<TrainDatum> &data,
                           std::vector<std::pair<std::string, int>> &names) {
     unsigned long old_size = data.size();
     process(desc, data);
@@ -151,14 +151,14 @@ void TrainsetGenerator::processDesc(const ImageDesc &desc,
 }
 
 void TrainsetGenerator::process(const ImageDesc &desc,
-                                    std::vector<TrainData> &train_data) {
+                                    std::vector<TrainDatum> &train_data) {
     trueSamples(desc, train_data);
     wrongSamples(desc, train_data);
 }
 void TrainsetGenerator::wrongSamplesAround(const Tag &tag,
                                            const ImageDesc &desc,
                                            const Image &img,
-                                           std::vector<TrainData> &train_data) {
+                                           std::vector<TrainDatum> &train_data) {
     if(not tag.isYes()) return;
     unsigned int samples = 0;
     std::vector<cv::Rect> nearbyBoxes = getNearbyTagBoxes(tag, desc);
@@ -177,7 +177,7 @@ void TrainsetGenerator::wrongSamplesAround(const Tag &tag,
     }
 }
 void TrainsetGenerator::wrongSamples(const ImageDesc &desc,
-                                     std::vector<TrainData> &train_data) {
+                                     std::vector<TrainDatum> &train_data) {
     Image img{desc};
     for(const auto & tag: desc.getTags()) {
         if(tag.isExclude()) continue;
@@ -231,11 +231,11 @@ bool TrainsetGenerator::intersectsNone(std::vector<cv::Rect> &tag_boxes,
 
 void TrainsetGenerator::wrongSampleRot90(const Image &img,
                                          const cv::Rect &wrong_box,
-                                         std::vector<TrainData> &train_data) {
+                                         std::vector<TrainDatum> &train_data) {
     Tag wrong_tag{wrong_box};
     wrong_tag.setIsTag(IsTag::No);
     cv::Mat subimage = wrong_tag.getSubimage(img.getCvMat());
-    train_data.emplace_back(TrainData(img.filename(), wrong_tag, subimage));
+    train_data.emplace_back(TrainDatum(img.filename(), wrong_tag, subimage));
     {
         // clockwise 90°
         double angle = 270;
@@ -243,7 +243,7 @@ void TrainsetGenerator::wrongSampleRot90(const Image &img,
         cv::transpose(subimage, rot);
         cv::flip(rot, rot, 1);
         train_data.emplace_back(
-                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                TrainDatum(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
                           angle));
     }
     {
@@ -252,7 +252,7 @@ void TrainsetGenerator::wrongSampleRot90(const Image &img,
         transpose(subimage, rot);
         flip(rot, rot,0); //transpose+flip(0)=CCW
         train_data.emplace_back(
-                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                TrainDatum(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
                           angle));
     }
     {
@@ -261,7 +261,7 @@ void TrainsetGenerator::wrongSampleRot90(const Image &img,
         cv::Mat rot(subimage.size(), subimage.type());
         flip(subimage, rot,-1);
         train_data.emplace_back(
-                TrainData(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
+                TrainDatum(img.filename(), wrong_tag, rot, cv::Point2i(0, 0),
                           angle));
     }
 }

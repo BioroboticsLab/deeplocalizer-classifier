@@ -45,7 +45,7 @@ void ImageDatasetWriter::writeImages(const Dataset &dataset) const {
 }
 
 void ImageDatasetWriter::writeImages(const boost::filesystem::path &output_dir,
-                                     const std::vector<TrainData> &data) const {
+                                     const std::vector<TrainDatum> &data) const {
     io::create_directories(output_dir);
     for(const auto & d: data) {
         io::path output_file(output_dir);
@@ -109,7 +109,7 @@ void LMDBDatasetWriter::write(const Dataset &dataset) {
     write(dataset.test, _test_mdb_env);
 }
 
-void LMDBDatasetWriter::write(const std::vector<TrainData> &data,
+void LMDBDatasetWriter::write(const std::vector<TrainDatum> &data,
                               MDB_env *mdb_env) {
     MDB_txn * mdb_txn = nullptr;
     MDB_val mdb_key, mdb_data;

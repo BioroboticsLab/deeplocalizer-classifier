@@ -28,7 +28,7 @@ TEST_CASE( "TrainsetGenerator", "" ) {
     Image img{img_desc};
     SECTION("trueSamples") {
         TrainsetGenerator gen;
-        std::vector<TrainData> data;
+        std::vector<TrainDatum> data;
         auto tags = cam2_desc.getTags();
         long n_yes = std::count_if(tags.cbegin(), tags.cend(),
                                    std::mem_fn(&Tag::isYes));

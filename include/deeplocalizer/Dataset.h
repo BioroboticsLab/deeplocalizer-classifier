@@ -8,7 +8,7 @@
 #include <mutex>
 #include <lmdb.h>
 
-#include "TrainData.h"
+#include "TrainDatum.h"
 
 namespace deeplocalizer {
 namespace tagger {
@@ -25,9 +25,9 @@ public:
     const double test_partition = 0.15;
     const double validation_partition = 0.15;
     const double train_partition = 1 - test_partition - validation_partition;
-    std::vector <TrainData> train;
-    std::vector <TrainData> validation;
-    std::vector <TrainData> test;
+    std::vector <TrainDatum> train;
+    std::vector <TrainDatum> validation;
+    std::vector <TrainDatum> test;
 
     std::vector<std::pair<std::string, int>> train_name_labels;
     std::vector<std::pair<std::string, int>> test_name_labels;
@@ -68,7 +68,7 @@ private:
     std::mutex _validation_label_stream_mutex;
 
     void writeImages(const boost::filesystem::path &output_dir,
-                     const std::vector<TrainData> &imgaes) const;
+                     const std::vector<TrainDatum> &imgaes) const;
     void writeLabelFile(
             const boost::filesystem::path &output_dir,
             const std::vector<std::pair<std::string, int>> &paths_label,
@@ -89,7 +89,7 @@ private:
     MDB_env *_train_mdb_env;
     MDB_env *_test_mdb_env;
 
-    void write(const std::vector<TrainData> &data, MDB_env *mdb_env);
+    void write(const std::vector<TrainDatum> &data, MDB_env *mdb_env);
     void openDatabase(const boost::filesystem::path &lmdb_dir,
                       MDB_env **mdb_env);
 

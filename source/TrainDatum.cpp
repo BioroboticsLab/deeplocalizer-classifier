@@ -3,14 +3,14 @@
 #include <caffe/util/io.hpp>
 
 #include "utils.h"
-#include "TrainData.h"
+#include "TrainDatum.h"
 
 namespace  deeplocalizer {
 namespace tagger {
 
 namespace io = boost::filesystem;
 
-TrainData::TrainData(const std::string &image_filename, const Tag &tag, cv::Mat mat,
+TrainDatum::TrainDatum(const std::string &image_filename, const Tag &tag, cv::Mat mat,
               cv::Point2i translation, double rotation_angle) :
         _original_image_filename(image_filename),
         _tag(tag),
@@ -20,7 +20,7 @@ TrainData::TrainData(const std::string &image_filename, const Tag &tag, cv::Mat 
 {
 }
 
-TrainData::TrainData(const std::string &image_filename, const Tag &tag,
+TrainDatum::TrainDatum(const std::string &image_filename, const Tag &tag,
                      cv::Mat mat) :
         _original_image_filename(image_filename),
         _tag(tag),
@@ -30,7 +30,7 @@ TrainData::TrainData(const std::string &image_filename, const Tag &tag,
 {
 }
 
-const std::string TrainData::filename() const {
+const std::string TrainDatum::filename() const {
     io::path path(_original_image_filename);
     io::path extension = path.extension();
     path.replace_extension("");
@@ -50,14 +50,14 @@ const std::string TrainData::filename() const {
     return path.string() + ss.str() + extension.string();
 }
 
-void TrainData::draw(QPainter &painter) const {
+void TrainDatum::draw(QPainter &painter) const {
     static const int line_width = 1;
     painter.save();
     painter.translate(_translation.x, _translation.y);
     _tag.draw(painter, line_width);
     painter.restore();
 }
-caffe::Datum TrainData::toCaffe() const {
+caffe::Datum TrainDatum::toCaffe() const {
     caffe::Datum datum;
     ASSERT(_mat.cols == TAG_WIDTH, "Expected _mat.cols to be equal " << TAG_WIDTH);
     ASSERT(_mat.rows == TAG_HEIGHT, "Expected _mat.rows to be equal " << TAG_HEIGHT);
