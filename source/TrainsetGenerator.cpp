@@ -18,7 +18,17 @@ TrainsetGenerator::TrainsetGenerator() :
     _gen(_rd()),
     _angle_dis(0, 360),
     _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
-    _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG)
+    _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
+    _writer(std::make_shared<DevNullWriter>())
+{
+
+}
+TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer) :
+    _gen(_rd()),
+    _angle_dis(0, 360),
+    _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
+    _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
+    _writer(writer)
 {
 
 }
@@ -83,9 +93,7 @@ void TrainsetGenerator::trueSamples(const ImageDesc &desc,
     }
 }
 
-void TrainsetGenerator::process(const std::string & output_dir,
-                                SaveFormat format,
-                                const std::vector<ImageDesc> & descs) {
+void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
     Dataset dataset;
     std::vector<unsigned long> indecies;
     indecies.reserve(descs.size());
@@ -110,34 +118,32 @@ void TrainsetGenerator::process(const std::string & output_dir,
     for(unsigned long i = 0; i < train_end; i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.train, dataset.train_name_labels);
-        save(dataset, output_dir, format);
+        _writer->write(dataset);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
     for(unsigned long i = test_begin; i < test_end; i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.test, dataset.test_name_labels);
-        save(dataset, output_dir, format);
+        _writer->write(dataset);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
     for(unsigned long i = valid_begin; i < descs.size(); i++) {
         const auto & desc = descs.at(indecies.at(i));
         processDesc(desc, dataset.validation, dataset.validation_name_labels);
-        save(dataset, output_dir, format);
+        _writer->write(dataset);
         dataset.clearImages();
         progress((i+1) / double(descs.size()));
     }
     std::cout << dataset.train_name_labels.size() << std::endl;
-    dataset.writePaths(output_dir);
 }
 
 void TrainsetGenerator::processDesc(const ImageDesc &desc,
                           std::vector<TrainData> &data,
                           std::vector<std::pair<std::string, int>> &names) {
-    TrainsetGenerator gen;
     unsigned long old_size = data.size();
-    gen.process(desc, data);
+    process(desc, data);
     for(unsigned long i = old_size; i<data.size(); i++) {
         names.emplace_back(std::make_pair(data.at(i).filename(),
                                           data.at(i).tag().isYes()));
@@ -266,17 +272,6 @@ int TrainsetGenerator::wrongAroundCoordinate() {
         return x;
     } else {
         return -x;
-    }
-}
-void TrainsetGenerator::save(const Dataset &dataset,
-                             const std::string &output_dir,
-                             const TrainsetGenerator::SaveFormat format) {
-    if(format == LMDB || format == All) {
-        dataset.saveLMDB(output_dir);
-    }
-    if(format == AsRawImages || format == All) {
-        dataset.writeImages(output_dir);
-        dataset.writePaths(output_dir);
     }
 }
 }

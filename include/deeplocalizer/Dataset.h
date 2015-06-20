@@ -5,6 +5,8 @@
 
 #include <memory>
 #include <boost/filesystem.hpp>
+#include <mutex>
+#include <lmdb.h>
 
 #include "TrainData.h"
 
@@ -15,6 +17,11 @@ class ImageDesc;
 
 class Dataset  {
 public:
+    enum SaveFormat {
+        Images,
+        LMDB,
+        All
+    };
     const double test_partition = 0.15;
     const double validation_partition = 0.15;
     const double train_partition = 1 - test_partition - validation_partition;
@@ -27,21 +34,80 @@ public:
     std::vector<std::pair<std::string, int>> validation_name_labels;
 
     void clearImages();
-    void writeImages(const std::string &output_dir) const;
-    void writePaths(const std::string &output_dir) const;
-    void saveLMDB(const std::string &output_dir) const;
-signals:
-    void progress(double p);
+};
+
+
+class DatasetWriter {
+public:
+    virtual void write(const Dataset& dataset) = 0;
+    virtual ~DatasetWriter() {};
+};
+
+class ImageDatasetWriter : public DatasetWriter {
+public:
+    ImageDatasetWriter(const std::string & output_dir);
+    virtual void write(const Dataset& dataset);
+    void writeImages(const Dataset& dataset) const;
+    void writeLabelFiles(const Dataset& dataset);
+    virtual ~ImageDatasetWriter();
+private:
+    boost::filesystem::path _output_dir;
+
+    boost::filesystem::path _train_dir;
+    boost::filesystem::path _test_dir;
+    boost::filesystem::path _validation_dir;
+
+
+    std::ofstream _test_label_stream;
+    std::mutex _test_label_stream_mutex;
+
+    std::ofstream _train_label_stream;
+    std::mutex _train_label_stream_mutex;
+
+    std::ofstream _validation_label_stream;
+    std::mutex _validation_label_stream_mutex;
+
+    void writeImages(const boost::filesystem::path &output_dir,
+                     const std::vector<TrainData> &imgaes) const;
+    void writeLabelFile(
+            const boost::filesystem::path &output_dir,
+            const std::vector<std::pair<std::string, int>> &paths_label,
+            std::ofstream &label_stream, std::mutex &mutex);
+};
+
+class LMDBDatasetWriter : public DatasetWriter {
+public:
+    LMDBDatasetWriter(const std::string & output_dir);
+    virtual void write(const Dataset& dataset);
+    virtual ~LMDBDatasetWriter();
 
 private:
-    void writeImages(const boost::filesystem::path &output_dir,
-                     const std::vector<TrainData> &data) const ;
+    boost::filesystem::path _output_dir;
+    boost::filesystem::path _train_dir;
+    boost::filesystem::path _test_dir;
 
-    void writePaths(const boost::filesystem::path &pathfile,
-                    const std::vector<std::pair<std::string, int>> &  paths_label) const;
-    void saveLMDB(const boost::filesystem::path &lmdb_file,
-                  const std::vector<TrainData> &data) const;
+    MDB_env *_train_mdb_env;
+    MDB_env *_test_mdb_env;
+
+    void write(const std::vector<TrainData> &data, MDB_env *mdb_env);
+    void openDatabase(const boost::filesystem::path &lmdb_dir,
+                      MDB_env **mdb_env);
+
 };
+class AllFormatWriter : public DatasetWriter {
+public:
+    AllFormatWriter(const std::string &output_dir);
+    virtual void write(const Dataset& dataset);
+
+private:
+    std::unique_ptr<LMDBDatasetWriter> _lmdb_writer;
+    std::unique_ptr<ImageDatasetWriter> _image_writer;
+};
+
+class DevNullWriter : public DatasetWriter {
+    virtual void write(const Dataset&) {}
+};
+
 }
 }
 #endif //DEEP_LOCALIZER_DATASET_H
