@@ -14,6 +14,19 @@ void Dataset::clearImages() {
     test.clear();
 }
 
+std::shared_ptr<DatasetWriter> DatasetWriter::fromSaveFormat(
+        const std::string &output_dir, Dataset::SaveFormat save_format) {
+    switch (save_format) {
+        case Dataset::SaveFormat::All:
+            return std::make_shared<AllFormatWriter>(output_dir);
+        case Dataset::SaveFormat::Images:
+            return std::make_shared<ImageDatasetWriter>(output_dir);
+        case Dataset::SaveFormat::LMDB:
+            return std::make_shared<LMDBDatasetWriter>(output_dir);
+        default:
+            return std::make_shared<DevNullWriter>();
+    }
+}
 
 ImageDatasetWriter::ImageDatasetWriter(const std::string &output_dir)
     : _output_dir(output_dir),
@@ -126,7 +139,7 @@ void LMDBDatasetWriter::write(const std::vector<TrainDatum> &data,
 
         ASSERT(mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, 0) == MDB_SUCCESS,
                "mdb_put failed");
-        if(i % 256) {
+        if(i % 1024) {
             ASSERT(mdb_txn_commit(mdb_txn) == MDB_SUCCESS,
                    "mdb_txn_commit failed");
             ASSERT(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn) == MDB_SUCCESS,

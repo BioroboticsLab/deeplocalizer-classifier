@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <utils.h>
 #include <Dataset.h>
+#include <thread>
 
 namespace deeplocalizer {
 namespace tagger {
@@ -32,6 +33,24 @@ TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer) :
 {
 
 }
+
+TrainsetGenerator::TrainsetGenerator(const TrainsetGenerator &gen) :
+    QObject(nullptr),
+    _gen(_rd()),
+    _angle_dis(gen._angle_dis.min(), gen._angle_dis.max()),
+    _translation_dis(gen._translation_dis.min(), gen._translation_dis.max()),
+    _around_wrong_dis(gen._around_wrong_dis.min(), gen._around_wrong_dis.max()),
+    _writer(gen._writer)
+{
+}
+
+TrainsetGenerator::TrainsetGenerator(TrainsetGenerator &&gen) :
+    QObject(nullptr),
+    _gen(_rd()),
+    _angle_dis(std::move(gen._angle_dis)),
+    _translation_dis(std::move(gen._translation_dis)),
+    _around_wrong_dis(std::move(gen._around_wrong_dis)),
+    _writer(std::move(gen._writer)) { }
 
 cv::Mat TrainsetGenerator::randomAffineTransformation(const cv::Point2f & center) {
     static const double scale = 1;
@@ -93,41 +112,6 @@ void TrainsetGenerator::trueSamples(const ImageDesc &desc,
     }
 }
 
-void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
-    Dataset dataset;
-    std::vector<unsigned long> indecies;
-    indecies.reserve(descs.size());
-
-    for(unsigned long i = 0; i < descs.size(); i++) {
-        indecies.push_back(i);
-    }
-
-    std::shuffle(indecies.begin(), indecies.end(), std::default_random_engine());
-
-    unsigned long n_test =  std::lround(descs.size() * dataset.test_partition);
-    unsigned long n_train = descs.size() - n_test;
-
-    unsigned long train_end = n_train;
-    unsigned long test_begin = train_end;
-    unsigned long test_end =  train_end + n_test;
-
-
-    for(unsigned long i = 0; i < train_end; i++) {
-        const auto & desc = descs.at(indecies.at(i));
-        processDesc(desc, dataset.train, dataset.train_name_labels);
-        _writer->write(dataset);
-        dataset.clearImages();
-        progress((i+1) / double(descs.size()));
-    }
-    for(unsigned long i = test_begin; i < test_end; i++) {
-        const auto & desc = descs.at(indecies.at(i));
-        processDesc(desc, dataset.test, dataset.test_name_labels);
-        _writer->write(dataset);
-        dataset.clearImages();
-        progress((i+1) / double(descs.size()));
-    }
-    std::cout << dataset.train_name_labels.size() << std::endl;
-}
 
 void TrainsetGenerator::processDesc(const ImageDesc &desc,
                           std::vector<TrainDatum> &data,
@@ -263,6 +247,52 @@ int TrainsetGenerator::wrongAroundCoordinate() {
     } else {
         return -x;
     }
+}
+TrainsetGenerator TrainsetGenerator::operator=(const TrainsetGenerator &other) {
+    return tagger::TrainsetGenerator(other);
+}
+TrainsetGenerator TrainsetGenerator::operator=(TrainsetGenerator &&other) {
+    return tagger::TrainsetGenerator(other);
+}
+void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
+    return process(descs.cbegin(), descs.cend());
+}
+
+void TrainsetGenerator::processParallel(
+        const std::vector<ImageDesc> & img_descs) {
+
+    std::vector<std::thread> threads;
+    auto fn = std::mem_fn<void(const std::vector<ImageDesc>::const_iterator,
+                               const std::vector<ImageDesc>::const_iterator
+    )>(
+            &TrainsetGenerator::process<std::vector<ImageDesc>::const_iterator>);
+
+    _start_time = std::chrono::system_clock::now();
+    _n_todo = img_descs.size();
+    _n_done.store(0);
+    printProgress(_start_time, 0);
+
+    unsigned int n_cpus = std::thread::hardware_concurrency();
+    if (n_cpus == 0) n_cpus = 1;
+    unsigned int per_cpu = img_descs.size() / n_cpus;
+    for(unsigned int i; i < n_cpus; i++) {
+        auto end = img_descs.cbegin() + per_cpu*(i+1);
+        bool last_element = i + 1 == n_cpus;
+        if (last_element) {
+            end = img_descs.cend();
+        }
+        threads.emplace_back(
+                std::thread(fn, this, img_descs.cbegin() + per_cpu*i, end)
+        );
+    }
+    for(auto &t: threads) {
+        t.join();
+    }
+
+}
+void TrainsetGenerator::incrementDone() {
+    double done = _n_done.fetch_add(1);
+    printProgress(_start_time, (done+1)/_n_todo);
 }
 }
 }

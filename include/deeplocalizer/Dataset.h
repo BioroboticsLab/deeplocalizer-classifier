@@ -20,7 +20,8 @@ public:
     enum SaveFormat {
         Images,
         LMDB,
-        All
+        All,
+        DevNull
     };
     const double test_partition = 0.15;
     const double train_partition = 1 - test_partition;
@@ -38,6 +39,9 @@ class DatasetWriter {
 public:
     virtual void write(const Dataset& dataset) = 0;
     virtual ~DatasetWriter() {};
+    static std::shared_ptr <DatasetWriter> fromSaveFormat(
+            const std::string &output_dir,
+            Dataset::SaveFormat format);
 };
 
 class ImageDatasetWriter : public DatasetWriter {

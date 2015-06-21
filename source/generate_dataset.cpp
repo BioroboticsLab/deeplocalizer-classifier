@@ -3,6 +3,8 @@
 #include <boost/program_options.hpp>
 #include <chrono>
 #include <functional>
+#include <thread>
+
 #include <ManuallyTagger.h>
 #include <TrainsetGenerator.h>
 
@@ -39,23 +41,11 @@ int run(QCoreApplication & qapp,
         Dataset::SaveFormat save_format,
         std::string output_dir
 ) {
-    auto img_descs = ImageDesc::fromPathFile(pathfile, ManuallyTagger::IMAGE_DESC_EXT);
-    std::shared_ptr<DatasetWriter> writer;
-    switch (save_format) {
-        case Dataset::SaveFormat::All:
-           writer = std::make_shared<AllFormatWriter>(output_dir); break;
-        case Dataset::SaveFormat::Images:
-            writer = std::make_shared<ImageDatasetWriter>(output_dir); break;
-        case Dataset::SaveFormat::LMDB:
-            writer = std::make_shared<LMDBDatasetWriter>(output_dir); break;
-    }
-    TrainsetGenerator gen{writer};
-    start_time = system_clock::now();
-    auto printProgressFn = std::bind(&printProgress<system_clock>, std::cref(start_time),
-                                     std::placeholders::_1);
-    gen.connect(&gen, &TrainsetGenerator::progress, printProgressFn);
-    printProgress(start_time, 0);
-    gen.process(img_descs);
+    const auto img_descs = ImageDesc::fromPathFile(pathfile, ManuallyTagger::IMAGE_DESC_EXT);
+    TrainsetGenerator gen{
+            DatasetWriter::fromSaveFormat(output_dir, save_format)
+    };
+    gen.processParallel(img_descs);
     return 0;
 }
 
@@ -74,15 +64,14 @@ int main(int argc, char* argv[])
     po::store(po::command_line_parser(argc, argv).options(desc_option)
                       .positional(positional_opt).run(), vm);
     po::notify(vm);
-
     if (vm.count("help")) {
         printUsage();
         return 0;
     }
     if(vm.count("pathfile") && vm.count("output-dir")) {
-        auto save_format = Dataset::SaveFormat::LMDB;
-        if(vm.count("save-format")) {
-            std::string save_format_str = vm.at("save-format").as<std::string>();
+        Dataset::SaveFormat save_format;
+        if(vm.count("format")) {
+            std::string save_format_str = vm.at("format").as<std::string>();
             if(save_format_str == "images") {
                 save_format = Dataset::SaveFormat::Images;
             } else if (save_format_str == "all") {
@@ -91,6 +80,8 @@ int main(int argc, char* argv[])
                 save_format = Dataset::SaveFormat::LMDB;
             } else {
                 std::cout << "No a valid Save format: " << save_format_str << std::endl;
+                std::cout << "Save format must be either `lmdb`, `images` or `all`" << std::endl;
+                return 1;
             }
         }
         auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
