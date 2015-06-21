@@ -21,14 +21,14 @@ void setupOptions() {
     positional_opt.add("pathfile", 1);
 }
 int run(QApplication & qapp, std::string pathfile) {
-    std::unique_ptr<ManuallyTagWindow> window;
+    std::unique_ptr<ManuallyTaggerWindow> window;
     if (io::exists(ManuallyTagger::DEFAULT_SAVE_PATH)) {
         auto tagger = ManuallyTagger::load(ManuallyTagger::DEFAULT_SAVE_PATH);
-        window = std::make_unique<ManuallyTagWindow>(std::move(tagger));
+        window = std::make_unique<ManuallyTaggerWindow>(std::move(tagger));
     } else {
         auto proposals = ImageDesc::fromPathFilePtr(pathfile,
                                                     ProposalGenerator::IMAGE_DESC_EXT);
-        window = std::make_unique<ManuallyTagWindow>(std::move(proposals));
+        window = std::make_unique<ManuallyTaggerWindow>(std::move(proposals));
     }
     window->show();
     return qapp.exec();

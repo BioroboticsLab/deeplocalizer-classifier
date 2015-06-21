@@ -14,14 +14,14 @@ namespace deeplocalizer {
 namespace tagger {
 
 
-class ManuallyTagWindow : public QMainWindow
+class ManuallyTaggerWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit ManuallyTagWindow(std::vector<ImageDescPtr> && _image_desc);
-    explicit ManuallyTagWindow(std::unique_ptr<ManuallyTagger> tagger);
-    ~ManuallyTagWindow();
+    explicit ManuallyTaggerWindow(std::vector<ImageDescPtr> && _image_desc);
+    explicit ManuallyTaggerWindow(std::unique_ptr<ManuallyTagger> tagger);
+    ~ManuallyTaggerWindow();
 public slots:
     void next();
     void back();
