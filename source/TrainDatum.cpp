@@ -61,8 +61,18 @@ caffe::Datum TrainDatum::toCaffe() const {
     caffe::Datum datum;
     ASSERT(_mat.cols == TAG_WIDTH, "Expected _mat.cols to be equal " << TAG_WIDTH);
     ASSERT(_mat.rows == TAG_HEIGHT, "Expected _mat.rows to be equal " << TAG_HEIGHT);
-    caffe::CVMatToDatum(_mat, &datum);
+    ASSERT(_mat.channels() == 1, "Expected one channel");
+    ASSERT(_mat.type() == CV_8U, "Expected one channel");
+
+    std::vector<uchar> buf;
+    cv::imencode(".jpeg", _mat, buf);
+    datum.set_channels(1);
+    datum.set_width(TAG_WIDTH);
+    datum.set_height(TAG_HEIGHT);
+    datum.set_data(std::string(reinterpret_cast<char*>(&buf[0]),
+                      buf.size()));
     datum.set_label(_tag.isYes());
+    datum.set_encoded(true);
     return datum;
 }
 }
