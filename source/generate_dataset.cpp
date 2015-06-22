@@ -36,7 +36,7 @@ void setupOptions() {
 }
 
 
-int run(QCoreApplication & qapp,
+int run(QCoreApplication &,
         std::string pathfile,
         Dataset::SaveFormat save_format,
         std::string output_dir
@@ -68,27 +68,25 @@ int main(int argc, char* argv[])
         printUsage();
         return 0;
     }
-    if(vm.count("pathfile") && vm.count("output-dir")) {
+    if(vm.count("pathfile") && vm.count("output-dir") && vm.count("format")) {
         Dataset::SaveFormat save_format;
-        if(vm.count("format")) {
-            std::string save_format_str = vm.at("format").as<std::string>();
-            if(save_format_str == "images") {
-                save_format = Dataset::SaveFormat::Images;
-            } else if (save_format_str == "all") {
-                save_format = Dataset::SaveFormat::All;
-            } else if (save_format_str == "lmdb") {
-                save_format = Dataset::SaveFormat::LMDB;
-            } else {
-                std::cout << "No a valid Save format: " << save_format_str << std::endl;
-                std::cout << "Save format must be either `lmdb`, `images` or `all`" << std::endl;
-                return 1;
-            }
+        std::string save_format_str = vm.at("format").as<std::string>();
+        if(save_format_str == "images") {
+            save_format = Dataset::SaveFormat::Images;
+        } else if (save_format_str == "all") {
+            save_format = Dataset::SaveFormat::All;
+        } else if (save_format_str == "lmdb") {
+            save_format = Dataset::SaveFormat::LMDB;
+        } else {
+            std::cout << "No a valid Save format: " << save_format_str << std::endl;
+            std::cout << "Save format must be either `lmdb`, `images` or `all`" << std::endl;
+            return 1;
         }
         auto pathfile = vm.at("pathfile").as<std::vector<std::string>>().at(0);
         auto output_dir = vm.at("output-dir").as<std::string>();
         return run(qapp, pathfile, save_format, output_dir);
     } else {
-        std::cout << "No pathfile or output directory given." << std::endl;
+        std::cout << "No pathfile, format or output directory given." << std::endl;
         printUsage();
         return 1;
     }
