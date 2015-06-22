@@ -81,7 +81,6 @@ public:
             dataset.clearImages();
             incrementDone();
         }
-        std::cout << dataset.train_name_labels.size() << std::endl;
     }
 
     void processParallel(const std::vector<ImageDesc> &desc);
