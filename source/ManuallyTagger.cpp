@@ -114,7 +114,7 @@ void ManuallyTagger::loadImage(unsigned long idx) {
     _image_idx = idx;
     _image = std::make_shared<Image>(*_image_descs.at(_image_idx));
     _desc = _image_descs.at(_image_idx);
-    emit loadedImage(_desc, _image);
+    emit loadedImage(_image_idx, _desc, _image);
     if (_image_idx == 0) { emit firstImage(); }
     if (_image_idx + 1 == _image_descs.size()) { emit lastImage(); }
 }

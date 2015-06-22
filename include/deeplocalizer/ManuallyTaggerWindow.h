@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include <QProgressBar>
-#include <ui_ManuallyTaggerWindow.h>
+#include <QStringListModel>
 
+#include "ui_ManuallyTaggerWindow.h"
 #include "ManuallyTagger.h"
 #include "WholeImageWidget.h"
 #include "TagWidget.h"
@@ -33,7 +34,8 @@ public slots:
     void scrollBack();
     void changed();
     void save();
-    void setImage(ImageDescPtr desc, ImagePtr img);
+    void setImage(unsigned long idx, ImageDescPtr desc,
+                                        ImagePtr img);
 protected:
     void resizeEvent(QResizeEvent * );
 private slots:
@@ -48,6 +50,7 @@ private:
     WholeImageWidget * _whole_image;
     std::vector<TagWidgetPtr> _tag_widgets;
     QProgressBar * _progres_bar;
+    QStringListModel *_image_list_model;
 
     std::unique_ptr<ManuallyTagger> _tagger;
     State _state = State::Tags;

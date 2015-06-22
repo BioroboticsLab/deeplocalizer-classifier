@@ -45,7 +45,7 @@ public slots:
     void doneTagging();
     void doneTagging(unsigned long idx);
 signals:
-    void loadedImage(ImageDescPtr desc, ImagePtr img);
+    void loadedImage(unsigned long idx, ImageDescPtr desc, ImagePtr img);
     void outOfRange(unsigned long idx);
     void lastImage();
     void firstImage();

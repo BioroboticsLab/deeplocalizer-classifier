@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 #include <QTimer>
+#include <QListView>
 #include "ManuallyTaggerWindow.h"
 #include "utils.h"
 
@@ -31,6 +32,7 @@ void ManuallyTaggerWindow::init() {
     _whole_image = new WholeImageWidget(ui->scrollArea);
     _tags_container = new QWidget(ui->scrollArea);
     _progres_bar = new QProgressBar(ui->statusbar);
+    _image_list_model = new QStringListModel(this);
     _save_timer = new QTimer(this);
     _save_timer->start(10000);
     ui->scrollArea->setAlignment(Qt::AlignCenter);
@@ -156,6 +158,9 @@ void ManuallyTaggerWindow::setupConnections() {
     });
     connect(_tagger.get(), &ManuallyTagger::progress, this, &ManuallyTaggerWindow::setProgress);
     connect(_save_timer, &QTimer::timeout, this, &ManuallyTaggerWindow::save);
+    connect(ui->imagesListView, &QListView::clicked, [this](const QModelIndex & idx) {
+        _tagger->loadImage(idx.row());
+    });
 }
 
 void ManuallyTaggerWindow::setProgress(double progress) {
@@ -176,6 +181,13 @@ void ManuallyTaggerWindow::updateStatusBar() {
 void ManuallyTaggerWindow::setupUi() {
     ui->statusbar->addPermanentWidget(_progres_bar);
     setProgress(0);
+
+    QStringList list;
+    for(const auto &desc: _tagger->getImageDescs()) {
+        list.append(QString::fromStdString(desc->filename));
+    }
+    _image_list_model->setStringList(list);
+    ui->imagesListView->setModel(_image_list_model);
 }
 
 void ManuallyTaggerWindow::next() {
@@ -184,7 +196,7 @@ void ManuallyTaggerWindow::next() {
         _tagger->doneTagging();
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {
-        ManuallyTaggerWindow::eraseNegativeTags();
+        eraseNegativeTags();
         showImage();
     }
 }
@@ -261,10 +273,12 @@ void ManuallyTaggerWindow::scrollBottom() {
     vert->setValue(int(vert->value() + vert->pageStep()/8));
 }
 
-void ManuallyTaggerWindow::setImage(ImageDescPtr desc, ImagePtr img) {
+void ManuallyTaggerWindow::setImage(unsigned long idx, ImageDescPtr desc,
+                                    ImagePtr img) {
     _desc = desc;
     _image = img;
     updateStatusBar();
+    ui->imagesListView->setCurrentIndex(_image_list_model->index(idx));
     if (_next_state == State::Image) {
         showImage();
     } else {

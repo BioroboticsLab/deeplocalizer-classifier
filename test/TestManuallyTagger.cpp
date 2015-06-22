@@ -123,7 +123,8 @@ TEST_CASE( "ManuallyTagger ", "[ManuallyTagger]" ) {
             THEN("it will emit an loadedImage signal as soon the image is loaded") {
                 bool loadedImageEmitted = false;
                 auto c = tagger->connect(tagger, &ManuallyTagger::loadedImage,
-                                         [&](ImageDescPtr  desc, ImagePtr  img) {
+                                         [&](unsigned long idx, ImageDescPtr  desc, ImagePtr  img) {
+                    REQUIRE(idx == 0);
                     REQUIRE(*desc == *tagger->getImageDescs().at(0));
                     REQUIRE(*img == Image(*desc));
                     loadedImageEmitted = true;

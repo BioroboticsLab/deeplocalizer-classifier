@@ -34,6 +34,16 @@
      <widget class="QWidget" name="widget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
+        <widget class="QListView" name="imagesListView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+           <horstretch>200</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="push_back">
          <property name="text">
           <string>Back</string>
@@ -59,7 +69,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>653</width>
+            <width>391</width>
             <height>437</height>
            </rect>
           </property>
