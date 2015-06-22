@@ -134,7 +134,7 @@ Image::Image() {
 }
 
 Image::Image(const ImageDesc & descr) : _filename(descr.filename)  {
-    _mat = cv::imread(_filename);
+    _mat = cv::imread(_filename, cv::IMREAD_GRAYSCALE);
 }
 void Image::beesBookPreprocess() {
     // remove black border left
