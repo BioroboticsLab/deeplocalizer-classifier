@@ -10,5 +10,5 @@ max_iter: 50000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "models/conv32_conv128_fc2048_fc_1024_fc2/"
+snapshot_prefix: "models/conv32_conv128_fc2048_fc_1024_fc2/model"
 solver_mode: CPU
