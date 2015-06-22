@@ -1,4 +1,4 @@
-net: "models/conv8_conv32_conv64_fc1024_fc512_fc2/train_val.prototxt"
+net: "models/conv16_conv32_conv64_fc1024_fc512_fc2/train_val.prototxt"
 test_iter: 100
 test_interval: 500
 base_lr: 0.01
@@ -10,5 +10,5 @@ max_iter: 50000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "models/conv8_conv32_conv64_fc1024_fc512_fc2/model"
+snapshot_prefix: "models/conv16_conv32_conv64_fc1024_fc512_fc2/model"
 solver_mode: CPU
