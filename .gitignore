@@ -28,8 +28,8 @@
 *.app
 
 # caffe
-.caffemodel
-.solverstate
+*.caffemodel
+*.solverstate
 
 build
 build-clang
