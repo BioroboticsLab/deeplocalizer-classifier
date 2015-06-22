@@ -27,8 +27,13 @@
 *.out
 *.app
 
+# caffe
+.caffemodel
+.solverstate
+
 build
 build-clang
 build-gcc
 Release
 Debug
+data
