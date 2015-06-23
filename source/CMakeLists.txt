@@ -1,5 +1,6 @@
 file(GLOB_RECURSE src RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-list(REMOVE_ITEM src "tagger.cpp" "add_border.cpp" "generate_proposals.cpp" "generate_dataset.cpp")
+list(REMOVE_ITEM src "tagger.cpp" "add_border.cpp" "generate_proposals.cpp"
+                     "generate_dataset.cpp" "caffe_stats.cpp")
 file(GLOB hdr ${PROJECT_SOURCE_DIR}/include/deeplocalizer/*.h)
 file(GLOB_RECURSE ui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.ui)
 file(GLOB_RECURSE qrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.qrc)
@@ -32,5 +33,9 @@ target_link_libraries(generate_proposals ${libs})
 
 add_executable(generate_dataset "generate_dataset.cpp"
      ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
-
 target_link_libraries(generate_dataset ${libs})
+
+
+add_executable(caffe_stats "caffe_stats.cpp"
+     ${hdr} ${UI_RESOURCES} ${UI_HEADERS})
+target_link_libraries(caffe_stats ${libs})
