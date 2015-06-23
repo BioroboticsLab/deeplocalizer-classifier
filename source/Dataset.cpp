@@ -14,14 +14,26 @@ void Dataset::clearImages() {
     test.clear();
 }
 
+boost::optional<Dataset::Format> Dataset::parseFormat(const std::string &str) {
+    if(str == "images") {
+        return Dataset::Format::Images;
+    } else if (str == "all") {
+        return Dataset::Format::All;
+    } else if (str == "lmdb") {
+        return Dataset::Format::LMDB;
+    } else {
+        return boost::optional<Format>();
+    }
+}
+
 std::shared_ptr<DatasetWriter> DatasetWriter::fromSaveFormat(
-        const std::string &output_dir, Dataset::SaveFormat save_format) {
+        const std::string &output_dir, Dataset::Format save_format) {
     switch (save_format) {
-        case Dataset::SaveFormat::All:
+        case Dataset::Format::All:
             return std::make_shared<AllFormatWriter>(output_dir);
-        case Dataset::SaveFormat::Images:
+        case Dataset::Format::Images:
             return std::make_shared<ImageDatasetWriter>(output_dir);
-        case Dataset::SaveFormat::LMDB:
+        case Dataset::Format::LMDB:
             return std::make_shared<LMDBDatasetWriter>(output_dir);
         default:
             return std::make_shared<DevNullWriter>();

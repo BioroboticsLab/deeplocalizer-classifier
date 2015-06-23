@@ -17,7 +17,7 @@ class ImageDesc;
 
 class Dataset  {
 public:
-    enum SaveFormat {
+    enum Format {
         Images,
         LMDB,
         All,
@@ -32,6 +32,7 @@ public:
     std::vector<std::pair<std::string, int>> test_name_labels;
 
     void clearImages();
+    static boost::optional<Format> parseFormat(const std::string & str);
 };
 
 
@@ -41,7 +42,7 @@ public:
     virtual ~DatasetWriter() {};
     static std::shared_ptr <DatasetWriter> fromSaveFormat(
             const std::string &output_dir,
-            Dataset::SaveFormat format);
+            Dataset::Format format);
 };
 
 class ImageDatasetWriter : public DatasetWriter {
