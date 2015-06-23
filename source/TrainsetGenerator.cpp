@@ -271,7 +271,7 @@ void TrainsetGenerator::processParallel(
     _n_done.store(0);
     printProgress(_start_time, 0);
 
-    unsigned int n_cpus = std::thread::hardware_concurrency();
+    unsigned int n_cpus = unsigned(int(std::thread::hardware_concurrency()*1.5));
     if (n_cpus == 0) n_cpus = 1;
     unsigned int per_cpu = img_descs.size() / n_cpus;
     for(unsigned int i = 0; i < n_cpus; i++) {

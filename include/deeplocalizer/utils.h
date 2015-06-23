@@ -107,7 +107,7 @@ void safe_serialization(const std::string &path, const boost::serialization::nvp
 }
 
 template<typename Clock>
-void printProgress(const std::chrono::time_point<Clock> & start_time,
+inline void printProgress(const std::chrono::time_point<Clock> & start_time,
                    double progress) {
     using namespace std::chrono;
     using std::cout;
@@ -116,7 +116,6 @@ void printProgress(const std::chrono::time_point<Clock> & start_time,
     unsigned long progress_chars = std::lround(width * progress);
     auto crosses = std::string(progress_chars, '#');
     auto spaces = std::string(width - progress_chars, ' ');
-
     cout << "\r " << static_cast<int>(progress * 100) << "% ["
     << crosses << spaces << "] ";
     if (progress > 0.02) {
@@ -136,6 +135,15 @@ void printProgress(const std::chrono::time_point<Clock> & start_time,
     cout << "          " << std::flush;
 }
 
+inline std::vector<unsigned long> shuffledIndecies(unsigned long n) {
+    std::vector<unsigned long> indecies;
+    indecies.reserve(n);
+    for(unsigned long i = 0; i < n; i++) {
+        indecies.push_back(i);
+    }
+    std::shuffle(indecies.begin(), indecies.end(), std::default_random_engine());
+    return indecies;
+}
 }
 }
 #endif //DEEP_LOCALIZER_QTHELPER_H

@@ -1,4 +1,5 @@
 #include <lmdb.h>
+#include <iomanip>
 #include "utils.h"
 #include "Dataset.h"
 
@@ -116,8 +117,7 @@ void LMDBDatasetWriter::openDatabase(const boost::filesystem::path &lmdb_dir,
     ASSERT(mdb_env_create(mdb_env) == MDB_SUCCESS,
            "mdb_env_create failed");
     ASSERT(mdb_env_set_mapsize(*mdb_env, 1099511627776) == MDB_SUCCESS, "");  // 1TB
-    ASSERT(mdb_env_open(*mdb_env, lmdb_dir.string().c_str(),
-                        MDB_WRITEMAP | MDB_MAPASYNC, 0664) == MDB_SUCCESS,
+    ASSERT(mdb_env_open(*mdb_env, lmdb_dir.string().c_str(), 0, 0664) == MDB_SUCCESS,
            "mdb_env_open failed");
 }
 void LMDBDatasetWriter::write(const Dataset &dataset) {
@@ -125,33 +125,50 @@ void LMDBDatasetWriter::write(const Dataset &dataset) {
     write(dataset.test, _test_mdb_env);
 }
 
+unsigned long swap(unsigned long i) {
+    long b0, b1, b2, b3, b4, b5, b6, b7;
+    b0 = (i & 0x00000000000000ff) << 56u;
+    b1 = (i & 0x000000000000ff00) << 40u;
+    b2 = (i & 0x0000000000ff0000) << 24u;
+    b3 = (i & 0x00000000ff000000) << 8u;
+    b4 = (i & 0x000000ff00000000) >> 8u;
+    b5 = (i & 0x0000ff0000000000) >> 24u;
+    b6 = (i & 0x00ff000000000000) >> 40u;
+    b7 = (i & 0xff00000000000000) >> 56u;
+    return b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7;
+}
+
 void LMDBDatasetWriter::write(const std::vector<TrainDatum> &data,
                               MDB_env *mdb_env) {
+    auto indecies = shuffledIndecies(data.size());
     MDB_txn * mdb_txn = nullptr;
     MDB_val mdb_key, mdb_data;
     MDB_dbi mdb_dbi;
-
+    std::lock_guard<std::mutex> lock(_mutex);
     ASSERT(mdb_env != nullptr, "Error: mdb_env is nullptr");
 
     ASSERT(mdb_txn_begin(mdb_env, nullptr, 0, &mdb_txn) == MDB_SUCCESS,
            "mdb_txn_begin failed");
     ASSERT(mdb_dbi_open(mdb_txn, nullptr, 0, &mdb_dbi) == MDB_SUCCESS,
            "mdb_open failed. Does the lmdb already exist? ");
-
     std::string data_string;
+    unsigned long n = 1024;
     for(unsigned int i = 0; i < data.size(); i++) {
-        const auto & d = data.at(i);
+        const auto & d = data.at(indecies.at(i));
         auto caffe_datum = d.toCaffe();
-        auto random_str = io::unique_path("%%%%%%%%%%%%%%").string();
         caffe_datum.SerializeToString(&data_string);
+        // lmdb uses memcmp therefore we convert to big endian
+        unsigned long key = swap(_id++);
         mdb_data.mv_size = data_string.size();
         mdb_data.mv_data = reinterpret_cast<void *>(&data_string[0]);
-        mdb_key.mv_size = random_str.size();
-        mdb_key.mv_data = reinterpret_cast<void *>(&random_str[0]);
+        mdb_key.mv_size = sizeof(unsigned long);
+        mdb_key.mv_data = reinterpret_cast<void *>(&key);
 
-        ASSERT(mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, 0) == MDB_SUCCESS,
-               "mdb_put failed");
-        if(i % 1024) {
+        auto err = mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, MDB_APPEND);
+        if (err != MDB_SUCCESS)
+            ASSERT(false, "mdb_put failed: " << err << ", key: " << _id-1);
+
+        if(i % n == 0 && i != 0) {
             ASSERT(mdb_txn_commit(mdb_txn) == MDB_SUCCESS,
                    "mdb_txn_commit failed");
             ASSERT(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn) == MDB_SUCCESS,

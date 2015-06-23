@@ -86,6 +86,8 @@ private:
 
     MDB_env *_train_mdb_env;
     MDB_env *_test_mdb_env;
+    std::mutex _mutex;
+    unsigned long _id = 0;
 
     void write(const std::vector<TrainDatum> &data, MDB_env *mdb_env);
     void openDatabase(const boost::filesystem::path &lmdb_dir,
