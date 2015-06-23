@@ -27,8 +27,8 @@ public:
     ~TrainsetGenerator() = default;
 
     const int uniform_wrong_tags = 10;
-    const unsigned int samples_per_tag = 32;
-    const unsigned int wrong_samples_per_tag = 32;
+    unsigned int samples_per_tag = 32;
+    unsigned int wrong_samples_per_tag = 32;
     const int shrinking = 32;
     unsigned long current_idx;
     boost::filesystem::path output_dir;

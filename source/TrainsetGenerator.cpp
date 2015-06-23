@@ -22,8 +22,8 @@ TrainsetGenerator::TrainsetGenerator() :
     _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
     _writer(std::make_shared<DevNullWriter>())
 {
-
 }
+
 TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer) :
     _gen(_rd()),
     _angle_dis(0, 360),
@@ -31,7 +31,6 @@ TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer) :
     _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
     _writer(writer)
 {
-
 }
 
 TrainsetGenerator::TrainsetGenerator(const TrainsetGenerator &gen) :
