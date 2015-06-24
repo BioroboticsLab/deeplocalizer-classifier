@@ -26,6 +26,7 @@ void setupOptions() {
             ("weights,w", po::value<std::string>(), "The weights of the model.")
             ("data,d", po::value<std::string>(), "Path to lmdb database.")
             ("model,m", po::value<std::string>(), "path to the model .prototxt file.")
+            ("gpu", po::bool_switch(), "use GPU.")
             ("output-dir,o", po::value<std::string>(), "output dir to save wrong examples.");
 }
 
@@ -270,6 +271,9 @@ void printConfusionMat(const std::vector<std::vector<double>> & confMat) {
 
 int run(const std::string &model, const std::string trained_model,
         const std::string &data,  const std::string &output_dir, bool use_gpu) {
+    if(use_gpu) {
+        std::cout << "using gpu" << std::endl;
+    }
     CaffeStats classifier(model, trained_model, data, output_dir, use_gpu);
     auto confMat = classifier.confusionMatrix();
     printConfusionMat(confMat);
@@ -297,7 +301,7 @@ int main(int argc, char* argv[])
         auto weights = vm.at("weights").as<std::string>();
         auto data = vm.at("data").as<std::string>();
         auto output_dir = vm.at("output-dir").as<std::string>();
-        bool use_gpu = false;
+        bool use_gpu = vm.at("gpu").as<bool>();
         return run(model, weights, data, output_dir, use_gpu);
     } else {
         std::cout << "No model, data or format given." << std::endl;
