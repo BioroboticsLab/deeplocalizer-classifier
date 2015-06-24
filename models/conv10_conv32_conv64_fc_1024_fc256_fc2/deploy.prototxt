@@ -1,43 +1,9 @@
 name: "Deeplocalizer"
-
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
-  data_param {
-    backend: LMDB
-    source: "data/train/"
-    batch_size: 256
-  }
-  transform_param {
-    # feature scaling coefficient: this maps the [0, 255]  data to [0, 1]
-    scale: 0.00390625
-    force_gray: true
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  data_param {
-    backend: LMDB
-    source: "data/test/"
-    batch_size: 256
-  }
-  transform_param {
-    # feature scaling coefficient: this maps the [0, 255]  data to [0, 1]
-    scale: 0.00390625
-    force_gray: true
-  }
-}
+input: "data"
+input_dim: 256
+input_dim: 1
+input_dim: 100
+input_dim: 100
 
 layer {
   name: "conv1"
@@ -99,7 +65,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 16
+    num_output: 32
     kernel_size: 3
     weight_filler {
       type: "gaussian"
@@ -143,7 +109,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 48
+    num_output: 64
     kernel_size: 3
     weight_filler {
       type: "gaussian"
@@ -284,20 +250,10 @@ layer {
   }
 }
 
+
 layer {
-  name: "accuracy"
-  type: "Accuracy"
+  name: "prob"
+  type: "Softmax"
   bottom: "fc6"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
-  }
-}
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "fc6"
-  bottom: "label"
-  top: "loss"
+  top: "prob"
 }
