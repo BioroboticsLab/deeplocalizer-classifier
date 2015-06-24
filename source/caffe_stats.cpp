@@ -267,6 +267,11 @@ void printConfusionMat(const std::vector<std::vector<double>> & confMat) {
         }
         std::cout << std::endl;
     }
+    double accuracy = 0;
+    for(unsigned int i=0;i < confMat.size(); i++) {
+        accuracy += confMat.at(i).at(i);
+    }
+    std::cout << "Overall accuracy is: " << accuracy << std::endl;
 }
 
 int run(const std::string &model, const std::string trained_model,
