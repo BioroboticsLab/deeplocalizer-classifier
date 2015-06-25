@@ -286,8 +286,8 @@ int run(const std::string &model, const std::string trained_model,
 }
 
 void printUsage() {
-    std::cout << "Usage: generate_proposals [options] pathfile.txt "<< std::endl;
-    std::cout << "    where pathfile.txt contains paths to images."<< std::endl;
+    std::cout << "Usage: caffe_stats [options]"<< std::endl;
+    std::cout << "    prints a confusion matrix and writes wrongly classified images to `--output-dir`."<< std::endl;
     std::cout << desc_option << std::endl;
 }
 

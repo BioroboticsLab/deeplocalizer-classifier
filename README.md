@@ -87,3 +87,34 @@ $ generate_dataset -f lmdb -o data_lmdb --samples-per-tag 32 FILE_WITH_PATHS
 This will create an `test` and `train` directory in `data_lmdb`.
 `generate_dataset` applies random rotation and translation to every tag.
 This way 32 samples will be generated from every tag.
+
+
+## Train Models
+
+To train a models run:
+
+```
+$ caffe train -solver models/conv12_conv48_fc1024_fc_2/solver.prototxt
+```
+
+Make sure you have a `data` directory with a train and tes LMDB database.
+
+## Test Models
+
+To get an overall esitmate of the accuracy you can use caffe:
+
+```
+$ caffe test -model models/conv12_conv48_fc1024_fc_2/train_val.prototxt \
+    -weights models/conv12_conv48_fc1024_fc_2/model_iter_XXXXX.caffemodel \
+    -gpu
+```
+Or use the `caffe_stats` program. It prints a confusion matrix and extracts
+images that got classified wrongly.
+
+```
+$ caffe_stats --weights models/conv12_conv48_fc1024_fc_2/model_iter_XXXXX.caffemodel \
+              --data data/test \
+              --model models/conv12_conv48_fc1024_fc_2/train_val.prototxt \
+              --output_dir wrong_examples \
+              --gpu
+```
