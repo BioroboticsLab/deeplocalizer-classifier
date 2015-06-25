@@ -53,6 +53,9 @@ const std::string TrainDatum::filename() const {
 void TrainDatum::draw(QPainter &painter) const {
     static const int line_width = 1;
     painter.save();
+    painter.translate(_tag.center().x, _tag.center().y);
+    painter.rotate(_rotation_angle);
+    painter.translate(-_tag.center().x, -_tag.center().y);
     painter.translate(_translation.x, _translation.y);
     _tag.draw(painter, line_width);
     painter.restore();

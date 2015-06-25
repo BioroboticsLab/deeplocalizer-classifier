@@ -41,8 +41,6 @@ TEST_CASE( "TrainsetGenerator", "" ) {
                 REQUIRE(std::all_of(data.begin(), data.end(), [](const auto & d) {
                     return d.tag().isTag() == IsTag::Yes;
                 }));
-
-
                 gen.wrongSamples(cam2_desc, data);
                 REQUIRE(not data.empty());
                 size_t n_wrong_samples = data.size() - n_true_samples;
@@ -50,16 +48,19 @@ TEST_CASE( "TrainsetGenerator", "" ) {
             }
         }
         Image cam2_img(cam2_desc);
-
-        QImage qimage = cvMatToQImage(cam2_img.getCvMat());
+        cv::Mat cam2_color_img;
+        cv::cvtColor(cam2_img.getCvMat(), cam2_color_img, CV_GRAY2BGR);
+        QImage qimage = cvMatToQImage(cam2_color_img);
         QPainter painter(&qimage);
-
-        for(auto & d: data) {
-            // pick only one 1/8th of the tags. It would be otherwise to dense.
-            if(rand() % 8 == 0) {
+        ASSERT(painter.isActive(), "Expected painter to be active");
+        for(unsigned int i = 0; i < data.size(); i++) {
+            const auto & d = data.at(i);
+            // pick only every 8th of the tags. Otherwise it would be to dense.
+            if(i % 8 == 0) {
                 d.draw(painter);
             }
         }
+        painter.end();
         qimage.save("test_trainset_generator.jpeg");
     }
 }
