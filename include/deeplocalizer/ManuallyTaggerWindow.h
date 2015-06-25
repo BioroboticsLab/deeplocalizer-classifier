@@ -69,6 +69,7 @@ private:
     void setupActions();
     void setupUi();
     void eraseNegativeTags();
+    QStringList fileStringList();
 };
 }
 }

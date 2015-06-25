@@ -41,7 +41,6 @@ void ManuallyTaggerWindow::init() {
     setupConnections();
     setupUi();
     _state = State::Tags;
-    qDebug() << "loaded image #" << _tagger->getIdx();
     _tagger->loadCurrentImage();
 }
 
@@ -181,18 +180,29 @@ void ManuallyTaggerWindow::updateStatusBar() {
 void ManuallyTaggerWindow::setupUi() {
     ui->statusbar->addPermanentWidget(_progres_bar);
     setProgress(0);
-
-    QStringList list;
-    for(const auto &desc: _tagger->getImageDescs()) {
-        list.append(QString::fromStdString(desc->filename));
-    }
-    _image_list_model->setStringList(list);
+    _image_list_model->setStringList(fileStringList());
     ui->imagesListView->setModel(_image_list_model);
+
 }
 
+QStringList ManuallyTaggerWindow::fileStringList() {
+    QStringList list;
+    auto & descs = _tagger->getImageDescs();
+    for(size_t i = 0; i < descs.size(); i++) {
+        const auto &desc = descs.at(i);
+        QString check;
+        if (_tagger->isDone(i)) {
+            check = "\u2713  ";
+        }
+        list.append("#" + QString::number(i) + ":   " + check +
+                            QString::fromStdString(desc->filename));
+    }
+    return list;
+}
 void ManuallyTaggerWindow::next() {
     if (_state == State::Image) {
         _next_state = State::Tags;
+        _image_list_model->setStringList(fileStringList());
         _tagger->doneTagging();
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {

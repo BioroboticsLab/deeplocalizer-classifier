@@ -75,6 +75,15 @@ public:
     const std::vector<ImageDescPtr> &getImageDescs() const {
         return _image_descs;
     }
+    bool isDone(unsigned long idx) const {
+        // either *.tagger.desc file exists or it is marked as done
+        return (idx < _image_descs.size() &&
+                boost::filesystem::exists(_image_descs.at(idx)->savePath())) ||
+                (idx < _done_tagging.size() && _done_tagging.at(idx));
+    }
+    bool isDone(const ImageDesc & desc) const {
+        return boost::filesystem::exists(desc.savePath());
+    }
 
     unsigned long getIdx() const {
         return _image_idx;

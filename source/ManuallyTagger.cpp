@@ -59,8 +59,15 @@ void ManuallyTagger::init() {
     _image_paths.clear();
     for(auto & descr : _image_descs) {
         ASSERT(io::exists(descr->filename),
-              "Could not open file " << descr->filename);
+               "Could not open file " << descr->filename);
         descr->setSavePathExtension(IMAGE_DESC_EXT);
+    }
+    // sort images that are allready done to the begining
+    std::sort(_image_descs.begin(), _image_descs.end(),
+              [this](const ImageDescPtr &d1, const ImageDescPtr &d2){
+                    return isDone(*d1) > isDone(*d2);
+    });
+    for(auto & descr : _image_descs) {
         if (io::exists(descr->savePath())) {
             descr = ImageDesc::load(descr->savePath());
         } else {
@@ -72,9 +79,8 @@ void ManuallyTagger::init() {
         descr->setSavePathExtension(IMAGE_DESC_EXT);
         _image_paths.push_back(descr->filename);
     }
-
     if (_image_descs.size() != _done_tagging.size()) {
-        _done_tagging = std::vector<bool>(_image_descs.size(), true);
+        _done_tagging = std::vector<bool>(_image_descs.size(), false);
         _n_done = 0;
     } else {
         _n_done = std::count(_done_tagging.cbegin(), _done_tagging.cend(), true);
