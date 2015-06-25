@@ -6,6 +6,7 @@ This project aims to train a deep network to classify BeesBook image tags.
 ## Build
 
 Make sure you have OpenCV 2.4, Boost 1.58.0 and Qt5 installed.
+The code currently depends on Caffe's master branch. Check it out and compile it.
 To build the code run:
 
 ```
@@ -28,7 +29,6 @@ $ ctest
 ## Tagger
 
 I build a some small programs to create a training dataset.
-
 To create a dataset follow these steps:
 
 ### Create a file of image paths
@@ -72,7 +72,18 @@ generate_proposals creates a `.desc` file for every image.
 ### tagger
 
 Start the tagging GUI.
-
+```
 $ tagger FILE_WITH_PATHS
-
+```
 tagger finds the `.desc` files and updates them as you tag.
+
+## Generate Dataset
+
+To generate a trainings for caffe datasets:
+```
+$ generate_dataset -f lmdb -o data_lmdb --samples-per-tag 32 FILE_WITH_PATHS
+```
+
+This will create an `test` and `train` directory in `data_lmdb`.
+`generate_dataset` applies random rotation and translation to every tag.
+This way 32 samples will be generated from every tag.
