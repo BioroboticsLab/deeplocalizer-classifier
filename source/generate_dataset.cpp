@@ -45,7 +45,7 @@ int run(QCoreApplication &,
 ) {
     const auto img_descs = ImageDesc::fromPathFile(pathfile, ManuallyTagger::IMAGE_DESC_EXT);
     TrainsetGenerator gen{
-            DatasetWriter::fromSaveFormat(output_dir, save_format)
+            DataWriter::fromSaveFormat(output_dir, save_format)
     };
     gen.samples_per_tag = samples_per_tag;
     gen.wrong_samples_per_tag = samples_per_tag;

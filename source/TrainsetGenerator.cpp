@@ -21,7 +21,7 @@ TrainsetGenerator::TrainsetGenerator() :
     TrainsetGenerator(std::make_shared<DevNullWriter>())
 {}
 
-TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer)
+TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DataWriter> writer)
         :
     _gen(_rd()),
     _angle_dis(0, 360),
@@ -281,8 +281,7 @@ std::vector<ImagePhasePair>
 TrainsetGenerator::groupTestTrain(const std::vector<ImageDesc> & descs) {
     size_t n = descs.size();
     size_t n_test = std::lround(n * Dataset::TEST_PARTITION);
-    size_t n_train = n - n_test;
-    size_t train_end = n_train;
+    size_t train_end = n - n_test;
     size_t test_begin = train_end;
     std::vector<ImagePhasePair> grouped;
     for(size_t i = 0; i < train_end; i++) {
@@ -291,7 +290,7 @@ TrainsetGenerator::groupTestTrain(const std::vector<ImageDesc> & descs) {
     }
     for(size_t i = test_begin; i < n; i++) {
         const ImageDesc & desc = descs.at(i);
-        grouped.emplace_back(std::cref(desc), Dataset::Train);
+        grouped.emplace_back(std::cref(desc), Dataset::Test);
     }
     return grouped;
 }

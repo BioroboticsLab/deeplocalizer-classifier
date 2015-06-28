@@ -8,21 +8,21 @@ namespace tagger {
 
 namespace io = boost::filesystem;
 
-std::shared_ptr<DatasetWriter> DatasetWriter::fromSaveFormat(
+std::shared_ptr<DataWriter> DataWriter::fromSaveFormat(
         const std::string &output_dir, Dataset::Format save_format) {
     switch (save_format) {
         case Dataset::Format::All:
             return std::make_shared<AllFormatWriter>(output_dir);
         case Dataset::Format::Images:
-            return std::make_shared<ImageDatasetWriter>(output_dir);
+            return std::make_shared<ImageWriter>(output_dir);
         case Dataset::Format::LMDB:
-            return std::make_shared<LMDBDatasetWriter>(output_dir);
+            return std::make_shared<LMDBWriter>(output_dir);
         default:
             return std::make_shared<DevNullWriter>();
     }
 }
 
-ImageDatasetWriter::ImageDatasetWriter(const std::string &output_dir)
+ImageWriter::ImageWriter(const std::string &output_dir)
     : _output_dir{output_dir},
     _train_dir{_output_dir / "train"},
     _test_dir{_output_dir / "test"}
@@ -36,11 +36,11 @@ ImageDatasetWriter::ImageDatasetWriter(const std::string &output_dir)
     _train_stream.open((_train_dir / "train.txt").string());
 }
 
-void ImageDatasetWriter::write(const std::vector<TrainDatum> &data, Dataset::Phase phase) {
+void ImageWriter::write(const std::vector<TrainDatum> &data, Dataset::Phase phase) {
     writeImages(data, phase);
     writeLabelFile(data, phase);
 }
-void ImageDatasetWriter::writeImages(const std::vector<TrainDatum> &data, Dataset::Phase phase) const {
+void ImageWriter::writeImages(const std::vector<TrainDatum> &data, Dataset::Phase phase) const {
     io::path output_dir;
     if(phase == Dataset::Train) {
         output_dir = _train_dir;
@@ -54,7 +54,7 @@ void ImageDatasetWriter::writeImages(const std::vector<TrainDatum> &data, Datase
     }
 }
 
-void ImageDatasetWriter::writeLabelFile(const std::vector<TrainDatum> &data, Dataset::Phase phase) {
+void ImageWriter::writeLabelFile(const std::vector<TrainDatum> &data, Dataset::Phase phase) {
     std::mutex & mutex = getMutex(phase);
     std::ofstream & stream = getStream(phase);
     std::lock_guard<std::mutex> lock(mutex);
@@ -65,7 +65,7 @@ void ImageDatasetWriter::writeLabelFile(const std::vector<TrainDatum> &data, Dat
     }
 }
 
-LMDBDatasetWriter::LMDBDatasetWriter(const std::string &output_dir) :
+LMDBWriter::LMDBWriter(const std::string &output_dir) :
     _output_dir(output_dir),
     _train_dir{_output_dir},
     _test_dir{_output_dir}
@@ -81,7 +81,7 @@ LMDBDatasetWriter::LMDBDatasetWriter(const std::string &output_dir) :
     openDatabase(_test_dir, &_test_mdb_env);
 }
 
-void LMDBDatasetWriter::openDatabase(const boost::filesystem::path &lmdb_dir,
+void LMDBWriter::openDatabase(const boost::filesystem::path &lmdb_dir,
                                      MDB_env **mdb_env
 ) {
     ASSERT(mdb_env_create(mdb_env) == MDB_SUCCESS,
@@ -104,7 +104,7 @@ unsigned long swap(unsigned long i) {
     return b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7;
 }
 
-void LMDBDatasetWriter::write(const std::vector <TrainDatum> &data, Dataset::Phase phase) {
+void LMDBWriter::write(const std::vector <TrainDatum> &data, Dataset::Phase phase) {
     const size_t n = 1024;
     auto mdb_env = getMDB_env(phase);
     auto & mutex = getMutex(phase);
@@ -146,13 +146,13 @@ void LMDBDatasetWriter::write(const std::vector <TrainDatum> &data, Dataset::Pha
     mdb_dbi_close(mdb_env, mdb_dbi);
 }
 
-LMDBDatasetWriter::~LMDBDatasetWriter() {
+LMDBWriter::~LMDBWriter() {
     mdb_env_close(_train_mdb_env);
     mdb_env_close(_test_mdb_env);
 }
 AllFormatWriter::AllFormatWriter(const std::string &output_dir) :
-    _lmdb_writer(std::make_unique<LMDBDatasetWriter>(output_dir)),
-    _image_writer(std::make_unique<ImageDatasetWriter>(output_dir))
+    _lmdb_writer(std::make_unique<LMDBWriter>(output_dir)),
+    _image_writer(std::make_unique<ImageWriter>(output_dir))
 {
 }
 

@@ -13,11 +13,11 @@
 namespace deeplocalizer {
 namespace tagger {
 
-class DatasetWriter {
+class DataWriter {
 public:
     virtual void write(const std::vector <TrainDatum> &dataset, Dataset::Phase phase) = 0;
-    virtual ~DatasetWriter() = default;
-    static std::shared_ptr <DatasetWriter> fromSaveFormat(
+    virtual ~DataWriter() = default;
+    static std::shared_ptr <DataWriter> fromSaveFormat(
             const std::string &output_dir,
             Dataset::Format format);
 protected:
@@ -26,11 +26,11 @@ protected:
     }
 };
 
-class ImageDatasetWriter : public DatasetWriter {
+class ImageWriter : public DataWriter {
 public:
-    ImageDatasetWriter(const std::string & output_dir);
+    ImageWriter(const std::string & output_dir);
     virtual void write(const std::vector<TrainDatum> &dataset, Dataset::Phase phase);
-    virtual ~ImageDatasetWriter() = default;
+    virtual ~ImageWriter() = default;
 private:
     boost::filesystem::path _output_dir;
     boost::filesystem::path _train_dir;
@@ -55,11 +55,11 @@ private:
 };
 
 
-class LMDBDatasetWriter : public DatasetWriter {
+class LMDBWriter : public DataWriter {
 public:
-    LMDBDatasetWriter(const std::string &output_dir);
+    LMDBWriter(const std::string &output_dir);
     virtual void write(const std::vector <TrainDatum> &dataset, Dataset::Phase phase);
-    virtual ~LMDBDatasetWriter();
+    virtual ~LMDBWriter();
 
 private:
     boost::filesystem::path _output_dir;
@@ -82,17 +82,17 @@ private:
         return phase == Dataset::Train ? _train_mdb_env : _test_mdb_env;
     }
 };
-class AllFormatWriter : public DatasetWriter {
+class AllFormatWriter : public DataWriter {
 public:
     AllFormatWriter(const std::string &output_dir);
     virtual void write(const std::vector<TrainDatum> &dataset, Dataset::Phase phase);
 
 private:
-    std::unique_ptr<LMDBDatasetWriter> _lmdb_writer;
-    std::unique_ptr<ImageDatasetWriter> _image_writer;
+    std::unique_ptr<LMDBWriter> _lmdb_writer;
+    std::unique_ptr<ImageWriter> _image_writer;
 };
 
-class DevNullWriter : public DatasetWriter {
+class DevNullWriter : public DataWriter {
     virtual void write(const std::vector<TrainDatum> &, Dataset::Phase) {}
 };
 

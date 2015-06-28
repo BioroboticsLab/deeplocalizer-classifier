@@ -23,7 +23,7 @@ public:
     TrainsetGenerator(const TrainsetGenerator & gen);
     TrainsetGenerator(TrainsetGenerator && gen);
 
-    TrainsetGenerator(std::shared_ptr<DatasetWriter> writer);
+    TrainsetGenerator(std::shared_ptr<DataWriter> writer);
     TrainsetGenerator operator=(const TrainsetGenerator & other);
     TrainsetGenerator operator=(TrainsetGenerator && other);
     ~TrainsetGenerator() = default;
@@ -80,7 +80,7 @@ private:
     std::uniform_real_distribution<double> _angle_dis;
     std::uniform_int_distribution<int> _translation_dis;
     std::uniform_int_distribution<int> _around_wrong_dis;
-    std::shared_ptr<DatasetWriter> _writer;
+    std::shared_ptr<DataWriter> _writer;
     std::vector<cv::Rect> getNearbyTagBoxes(const Tag &tag,
                                             const ImageDesc &desc);
     cv::Rect proposeWrongBox(const Tag &tag);
