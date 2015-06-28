@@ -4,8 +4,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QDebug>
 #include <utils.h>
-#include <Dataset.h>
 #include <thread>
+
+#include "Dataset.h"
+#include "DataWriter.h"
 
 namespace deeplocalizer {
 namespace tagger {
@@ -16,15 +18,11 @@ const int TrainsetGenerator::MIN_AROUND_WRONG = TAG_WIDTH / 2;
 const int TrainsetGenerator::MAX_AROUND_WRONG = TAG_WIDTH / 2 + 200;
 
 TrainsetGenerator::TrainsetGenerator() :
-    _gen(_rd()),
-    _angle_dis(0, 360),
-    _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
-    _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
-    _writer(std::make_shared<DevNullWriter>())
-{
-}
+    TrainsetGenerator(std::make_shared<DevNullWriter>())
+{}
 
-TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer) :
+TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DatasetWriter> writer)
+        :
     _gen(_rd()),
     _angle_dis(0, 360),
     _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
@@ -111,17 +109,6 @@ void TrainsetGenerator::trueSamples(const ImageDesc &desc,
     }
 }
 
-
-void TrainsetGenerator::processDesc(const ImageDesc &desc,
-                          std::vector<TrainDatum> &data,
-                          std::vector<std::pair<std::string, int>> &names) {
-    unsigned long old_size = data.size();
-    process(desc, data);
-    for(unsigned long i = old_size; i<data.size(); i++) {
-        names.emplace_back(std::make_pair(data.at(i).filename(),
-                                          data.at(i).tag().isYes()));
-    }
-}
 
 void TrainsetGenerator::process(const ImageDesc &desc,
                                     std::vector<TrainDatum> &train_data) {
@@ -254,34 +241,31 @@ TrainsetGenerator TrainsetGenerator::operator=(TrainsetGenerator &&other) {
     return tagger::TrainsetGenerator(other);
 }
 void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
-    return process(descs.cbegin(), descs.cend());
+    // return process(descs.cbegin(), descs.cend());
 }
 
-void TrainsetGenerator::processParallel(
-        const std::vector<ImageDesc> & img_descs) {
 
+void TrainsetGenerator::processParallel(const std::vector<ImageDesc> & img_descs) {
+    using Iter = std::vector<ImagePhasePair>::const_iterator;
+    auto grouped = groupTestTrain(img_descs);
     std::vector<std::thread> threads;
-    auto fn = std::mem_fn<void(const std::vector<ImageDesc>::const_iterator,
-                               const std::vector<ImageDesc>::const_iterator
-    )>(
-            &TrainsetGenerator::process<std::vector<ImageDesc>::const_iterator>);
+    auto fn = std::mem_fn<void(Iter, Iter)>(&TrainsetGenerator::process<Iter>);
 
     _start_time = std::chrono::system_clock::now();
     _n_todo = img_descs.size();
     _n_done.store(0);
     printProgress(_start_time, 0);
 
-    unsigned int n_cpus = unsigned(int(std::thread::hardware_concurrency()*1.5));
+    size_t n_cpus = size_t(std::thread::hardware_concurrency()*2);
     if (n_cpus == 0) n_cpus = 1;
-    unsigned int per_cpu = img_descs.size() / n_cpus;
-    for(unsigned int i = 0; i < n_cpus; i++) {
-        auto end = img_descs.cbegin() + per_cpu*(i+1);
-        bool last_element = i + 1 == n_cpus;
-        if (last_element) {
-            end = img_descs.cend();
+    size_t per_cpu = grouped.size() / n_cpus;
+    for(size_t i = 0; i < n_cpus; i++) {
+        auto end = grouped.cbegin() + per_cpu*(i+1);
+        if (i + 1 == n_cpus) {
+            end = grouped.cend();
         }
         threads.emplace_back(
-                std::thread(fn, this, img_descs.cbegin() + per_cpu*i, end)
+                std::thread(fn, this, grouped.cbegin() + per_cpu*i, end)
         );
     }
     for(auto &t: threads) {
@@ -292,6 +276,24 @@ void TrainsetGenerator::processParallel(
 void TrainsetGenerator::incrementDone() {
     double done = _n_done.fetch_add(1);
     printProgress(_start_time, (done+1)/_n_todo);
+}
+std::vector<ImagePhasePair>
+TrainsetGenerator::groupTestTrain(const std::vector<ImageDesc> & descs) {
+    size_t n = descs.size();
+    size_t n_test = std::lround(n * Dataset::TEST_PARTITION);
+    size_t n_train = n - n_test;
+    size_t train_end = n_train;
+    size_t test_begin = train_end;
+    std::vector<ImagePhasePair> grouped;
+    for(size_t i = 0; i < train_end; i++) {
+        const ImageDesc & desc = descs.at(i);
+        grouped.emplace_back(std::cref(desc), Dataset::Train);
+    }
+    for(size_t i = test_begin; i < n; i++) {
+        const ImageDesc & desc = descs.at(i);
+        grouped.emplace_back(std::cref(desc), Dataset::Train);
+    }
+    return grouped;
 }
 }
 }

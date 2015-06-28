@@ -8,13 +8,14 @@
 #include "Image.h"
 #include "TrainDatum.h"
 #include "Dataset.h"
+#include "DataWriter.h"
 #include "utils.h"
 
 namespace deeplocalizer {
 namespace tagger {
 
-class Dataset;
 
+using ImagePhasePair = std::pair<std::reference_wrapper<const ImageDesc>, Dataset::Phase>;
 class TrainsetGenerator : public QObject  {
 Q_OBJECT
 public:
@@ -47,36 +48,25 @@ public:
     cv::Mat rotate(const cv::Mat & src, double degrees);
     void process(const std::vector<ImageDesc> &descs);
 
+    std::vector<ImagePhasePair>
+    groupTestTrain(const std::vector<ImageDesc> & descs);
+
     template<typename InputIt>
     void process(InputIt begin, InputIt end) {
-        Dataset dataset;
-        unsigned long n = end - begin;
-        std::vector<unsigned long> indecies = shuffledIndecies(n);
-        unsigned long n_test =  std::lround(n * dataset.test_partition);
-        unsigned long n_train = n - n_test;
-        unsigned long train_end = n_train;
-        unsigned long test_begin = train_end;
-        for(unsigned long i = 0; i < train_end; i++) {
-            const ImageDesc & desc = *(begin + indecies.at(i));
-            processDesc(desc, dataset.train, dataset.train_name_labels);
-            _writer->write(dataset);
-            dataset.clearImages();
-            incrementDone();
-        }
-        for(unsigned long i = test_begin; i < n; i++) {
-            const ImageDesc & desc = *(begin + indecies.at(i));
-            processDesc(desc, dataset.test, dataset.test_name_labels);
-            _writer->write(dataset);
-            dataset.clearImages();
+        for(InputIt iter = begin; iter != end; iter++) {
+            std::vector<TrainDatum> data;
+            ImagePhasePair elem = *iter;
+            const ImageDesc & desc = elem.first;
+            Dataset::Phase phase = elem.second;
+            process(desc, data);
+            _writer->write(data, phase);
             incrementDone();
         }
     }
 
     void processParallel(const std::vector<ImageDesc> &desc);
     void process(const ImageDesc & desc,
-            std::vector<TrainDatum> & train_data);
-    void processDesc(const ImageDesc &desc, std::vector<TrainDatum> &data,
-                     std::vector<std::pair<std::string, int>> &names);
+                 std::vector<TrainDatum> & train_data);
 signals:
     void progress(double p);
 

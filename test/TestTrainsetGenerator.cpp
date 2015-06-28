@@ -49,6 +49,7 @@ TEST_CASE( "TrainsetGenerator", "" ) {
         }
         Image cam2_img(cam2_desc);
         cv::Mat cam2_color_img;
+        // QPainter requires colored images
         cv::cvtColor(cam2_img.getCvMat(), cam2_color_img, CV_GRAY2BGR);
         QImage qimage = cvMatToQImage(cam2_color_img);
         QPainter painter(&qimage);
