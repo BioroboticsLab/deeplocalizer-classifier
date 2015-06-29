@@ -33,13 +33,10 @@ cv::Rect centerBox(const cv::Rect & bb) {
 std::atomic_long Tag::id_counter(0);
 
 unsigned long Tag::generateId() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<unsigned long> dis(0, ULONG_MAX);
-    static std::mutex m;
-    m.lock();
+    static thread_local std::random_device rd;
+    static thread_local std::mt19937 gen(rd());
+    static thread_local std::uniform_int_distribution<unsigned long> dis(0, ULONG_MAX);
     unsigned  long id = dis(gen);
-    m.unlock();
     return id;
 }
 
@@ -144,7 +141,6 @@ cv::Mat Tag::getSubimage(const cv::Mat & orginal, unsigned int border) const {
 }
 
 void Tag::draw(QPainter & p, int lineWidth) const {
-    static const QPoint zero(0, 0);
     auto bb = _boundingBox;
     if (_is_tag == IsTag::Yes) {
         p.setPen(QPen(Qt::green, lineWidth));
