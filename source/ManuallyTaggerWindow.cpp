@@ -67,11 +67,11 @@ void ManuallyTaggerWindow::showTags() {
     });
     _tag_widgets.clear();
     for (auto & tag : tags) {
-        TagWidgetPtr widget = std::make_shared<TagWidget>();
+        auto mat = tag.getSubimage(_image->getCvMat(),
+                                   TagWidget::DEFAULT_BORDER);
+        TagWidgetPtr widget = std::make_shared<TagWidget>(this, tag, mat);
         connect(widget.get(), &TagWidget::clicked, widget.get(), &TagWidget::toggleTag);
         connect(widget.get(), &TagWidget::clicked, this, &ManuallyTaggerWindow::changed);
-        auto mat = tag.getSubimage(_image->getCvMat(), widget->border());
-        widget->setTag(&tag, mat);
         _tag_widgets.push_back(widget);
     }
     arangeTagWidgets();

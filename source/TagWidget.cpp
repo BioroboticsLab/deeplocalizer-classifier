@@ -10,36 +10,22 @@ using namespace std;
 
 namespace deeplocalizer {
 namespace tagger {
-TagWidget::TagWidget() {
-    this->init();
-}
 
-TagWidget::TagWidget(QWidget *parent)
-        : QWidget(parent)
+TagWidget::TagWidget(QWidget *parent, Tag & tag, cv::Mat mat)
+        : QWidget(parent),
+        _mat(mat),
+        _tag(tag)
 {
-    this->init();
-}
-
-void TagWidget::init() {
-    this->setAutoFillBackground(true);
-    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->setFixedSize(sizeHint());
-}
-void TagWidget::setTag(Tag * tag, cv::Mat mat) {
-    _tag = tag;
-    _mat = mat;
+    setAutoFillBackground(true);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     _pixmap = cvMatToQPixmap(_mat);
     setFixedSize(sizeHint());
-    this->repaint();
+    repaint();
 }
 
 QSize TagWidget::sizeHint() const {
-    if (_tag) {
-        auto box = _tag->getBoundingBox();
-        return QSize(box.width + 2*_border, box.height + 2*_border);
-    } else {
-        return QSize(TAG_WIDTH + 2*_border, TAG_HEIGHT + 2*_border);
-    }
+    auto box = _tag.getBoundingBox();
+    return QSize(box.width + 2*_border, box.height + 2*_border);
 }
 
 void TagWidget::paintEvent(QPaintEvent *) {
@@ -47,13 +33,11 @@ void TagWidget::paintEvent(QPaintEvent *) {
 
     _painter.begin(this);
     _painter.drawPixmap(0, 0, _pixmap);
-    if(_tag != nullptr) {
-        auto box = _tag->getBoundingBox();
-        _painter.save();
-        _painter.translate(QPoint(-box.x + _border, -box.y + _border));
-        _tag->draw(_painter, lineWidth);
-        _painter.restore();
-    }
+    auto box = _tag.getBoundingBox();
+    _painter.save();
+    _painter.translate(QPoint(-box.x + _border, -box.y + _border));
+    _tag.draw(_painter, lineWidth);
+    _painter.restore();
     _painter.end();
 }
 
@@ -64,7 +48,7 @@ void TagWidget::mousePressEvent(QMouseEvent *) {
 }
 
 void TagWidget::toggleTag() {
-    _tag->toggleIsTag();
+    _tag.toggleIsTag();
     this->repaint();
 }
 

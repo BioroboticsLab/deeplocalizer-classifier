@@ -18,9 +18,7 @@ class TagWidget : public QWidget {
 
 public:
     bool clickable = true;
-    TagWidget();
-    TagWidget(QWidget * parent);
-    void setTag(Tag * tag, cv::Mat mat);
+    TagWidget(QWidget * parent, Tag & tag, cv::Mat mat);
     void setBorder(unsigned int border);
     unsigned int border();
     static const unsigned int DEFAULT_BORDER = 16;
@@ -34,7 +32,7 @@ protected:
     virtual QSize sizeHint() const;
 private:
     cv::Mat _mat;
-    Tag * _tag = nullptr;
+    Tag & _tag;
     unsigned int _border = DEFAULT_BORDER;
     QPainter _painter;
     QPixmap _pixmap;
