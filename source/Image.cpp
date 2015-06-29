@@ -172,8 +172,8 @@ bool Image::operator==(const Image &other) const {
     if(_filename != other._filename) {
         return false;
     }
-    cv::Mat & m = const_cast<cv::Mat &>(_mat);
-    cv::Mat & o = const_cast<cv::Mat &>(other._mat);
+    const cv::Mat & m = _mat;
+    const cv::Mat & o = other._mat;
 
     if (m.empty() && o.empty()) {
         return true;
