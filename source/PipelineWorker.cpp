@@ -5,7 +5,7 @@
 #include <pipeline/datastructure/Tag.h>
 
 namespace deeplocalizer {
-namespace tagger {
+
 using boost::optional;
 namespace io = boost::filesystem;
 
@@ -64,6 +64,5 @@ void PipelineWorker::findEllipse(cv::Mat mat, Tag tag) {
     tagWithEll.setId(tag.id());
     tagWithEll.setIsTag(tag.isTag());
     emit tagWithEllipseReady(tagWithEll);
-}
 }
 }

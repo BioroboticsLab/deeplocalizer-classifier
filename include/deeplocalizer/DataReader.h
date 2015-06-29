@@ -7,7 +7,6 @@
 #include "TrainDatum.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
 class DataReader {
 public:
@@ -83,7 +82,6 @@ public:
     using DataReader::read;
 };
 
-}
 }
 
 #endif //DEEP_LOCALIZER_DATAREADER_H

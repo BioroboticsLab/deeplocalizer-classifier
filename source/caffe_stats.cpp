@@ -13,7 +13,7 @@
 
 namespace po = boost::program_options;
 using namespace caffe;
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 namespace io = boost::filesystem;
 
 po::options_description desc_option("Options");

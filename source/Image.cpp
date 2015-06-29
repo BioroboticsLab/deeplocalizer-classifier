@@ -14,7 +14,7 @@
 #include "utils.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 using namespace std;
 namespace io = boost::filesystem;
@@ -183,6 +183,5 @@ bool Image::operator==(const Image &other) const {
         return false;
     }
     return std::equal(m.begin<uchar>(), m.end<uchar>(), o.begin<uchar>(), o.end<uchar>());
-}
 }
 }

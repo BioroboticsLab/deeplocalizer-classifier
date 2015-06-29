@@ -4,7 +4,7 @@
 #include "utils.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 namespace io = boost::filesystem;
 
@@ -160,6 +160,5 @@ AllFormatWriter::AllFormatWriter(const std::string &output_dir) :
 void AllFormatWriter::write(const std::vector <TrainDatum> &dataset, Dataset::Phase phase) {
     _lmdb_writer->write(dataset, phase);
     _image_writer->write(dataset, phase);
-}
 }
 }

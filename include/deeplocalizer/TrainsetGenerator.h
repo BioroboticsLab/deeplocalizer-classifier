@@ -12,8 +12,6 @@
 #include "utils.h"
 
 namespace deeplocalizer {
-namespace tagger {
-
 
 using ImagePhasePair = std::pair<std::reference_wrapper<const ImageDesc>, Dataset::Phase>;
 class TrainsetGenerator : public QObject  {
@@ -92,7 +90,6 @@ private:
     unsigned long _n_todo;
     void incrementDone();
 };
-}
 }
 
 #endif //DEEP_LOCALIZER_TRAINSETGENERATOR_H

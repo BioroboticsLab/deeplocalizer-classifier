@@ -6,7 +6,7 @@
 #include "DataReader.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 namespace io = boost::filesystem;
 
@@ -62,6 +62,5 @@ void LMDBReader::prefetch_read(size_t n, std::vector<caffe::Datum> & data) {
         data.emplace_back(std::move(datum));
         _lmdb_cursor->Next();
     }
-}
 }
 }

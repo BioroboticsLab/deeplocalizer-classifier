@@ -5,7 +5,7 @@
 #include <boost/program_options.hpp>
 #include <ProposalGenerator.h>
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 
 namespace po = boost::program_options;
 namespace io = boost::filesystem;

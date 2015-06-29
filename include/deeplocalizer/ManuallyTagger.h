@@ -29,7 +29,7 @@
 
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 
 class ManuallyTagger : public QObject {
@@ -109,7 +109,6 @@ private:
         ar & BOOST_SERIALIZATION_NVP(_image_paths);
     }
 };
-}
 }
 
 #endif //LOCALIZER_CAFFE_MANUELLCLASSIFIER_H

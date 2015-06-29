@@ -17,7 +17,6 @@
 class QPainter;
 
 namespace deeplocalizer {
-namespace  tagger {
 
 const int TAG_WIDTH = 100;
 const int TAG_HEIGHT = 100;
@@ -103,8 +102,7 @@ private:
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 }
-}
 
-Q_DECLARE_METATYPE(deeplocalizer::tagger::Tag)
+Q_DECLARE_METATYPE(deeplocalizer::Tag)
 
 #endif //DEEP_LOCALIZER_TAG_H

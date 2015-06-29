@@ -11,7 +11,6 @@
 #include "Dataset.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
 class DataWriter {
 public:
@@ -99,6 +98,5 @@ class DevNullWriter : public DataWriter {
     virtual void write(const std::vector<TrainDatum> &, Dataset::Phase) {}
 };
 
-}
 }
 #endif //DEEP_LOCALIZER_DATAWRITER_H

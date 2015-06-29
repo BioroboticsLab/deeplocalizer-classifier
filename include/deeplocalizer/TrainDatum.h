@@ -7,7 +7,6 @@
 #include "Image.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
 class TrainDatum {
 public:
@@ -40,7 +39,6 @@ private:
     const cv::Point2i _translation;
     const double _rotation_angle;
 };
-}
 }
 
 #endif //DEEP_LOCALIZER_TRAINDATA_H

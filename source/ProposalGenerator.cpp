@@ -7,7 +7,7 @@
 #include "serialization.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 namespace io = boost::filesystem;
 
@@ -90,6 +90,5 @@ void ProposalGenerator::imageProcessed(ImageDesc img) {
 }
 
 ProposalGenerator::~ProposalGenerator() {
-}
 }
 }

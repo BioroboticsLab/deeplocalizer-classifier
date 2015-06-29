@@ -11,9 +11,8 @@
 #include "TrainDatum.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
-namespace Dataset  {
+namespace Dataset {
     enum Phase {
         Train,
         Test
@@ -26,8 +25,8 @@ namespace Dataset  {
     };
     const double TEST_PARTITION = 0.15;
     const double TRAIN_PARTITION = 1 - TEST_PARTITION;
-    boost::optional<Format> parseFormat(const std::string & str);
+    boost::optional<Format> parseFormat(const std::string &str);
 }
-}
+
 }
 #endif //DEEP_LOCALIZER_DATASET_H

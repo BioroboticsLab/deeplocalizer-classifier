@@ -4,7 +4,7 @@
 #include "Image.h"
 #include "utils.h"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 using namespace std::chrono;
 namespace po = boost::program_options;
 namespace io = boost::filesystem;

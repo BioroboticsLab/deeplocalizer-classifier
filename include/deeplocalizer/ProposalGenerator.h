@@ -10,7 +10,6 @@
 #include "serialization.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
 
 class ProposalGenerator : public QObject {
@@ -51,7 +50,6 @@ private:
     std::vector<QThread *> _threads;
     std::vector<PipelineWorker *> _workers;
 };
-}
 }
 
 #endif //DEEP_LOCALIZER_PROPOSALGENERATOR_H

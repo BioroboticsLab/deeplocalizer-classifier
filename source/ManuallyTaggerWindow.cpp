@@ -9,7 +9,7 @@
 
 using boost::optional;
 namespace deeplocalizer {
-namespace tagger {
+
 
 ManuallyTaggerWindow::ManuallyTaggerWindow(std::unique_ptr<ManuallyTagger> tagger) :
     QMainWindow(nullptr),
@@ -313,6 +313,5 @@ void ManuallyTaggerWindow::save() {
         _changed = false;
         updateStatusBar();
     }
-}
 }
 }

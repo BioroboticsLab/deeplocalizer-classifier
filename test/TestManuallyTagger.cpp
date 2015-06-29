@@ -9,7 +9,7 @@
 #include "catch.hpp"
 #include "ManuallyTagger.h"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 namespace io = boost::filesystem;
 
 class BigRandomManuallyTagger {

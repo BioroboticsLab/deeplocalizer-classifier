@@ -11,7 +11,6 @@
 class QPixmap;
 
 namespace deeplocalizer {
-namespace  tagger {
 
 class ImageDesc {
 public:
@@ -72,9 +71,9 @@ private:
 };
 
 using ImagePtr = std::shared_ptr<Image>;
-}
+
 }
 
-Q_DECLARE_METATYPE(deeplocalizer::tagger::ImageDesc)
+Q_DECLARE_METATYPE(deeplocalizer::ImageDesc)
 
 #endif //DEEP_LOCALIZER_IMAGE_H

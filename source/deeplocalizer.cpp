@@ -5,10 +5,9 @@
 
 namespace deeplocalizer {
 void registerQMetaTypes() {
-    qRegisterMetaType<tagger::ImageDesc>("ImageDesc");
-    qRegisterMetaType<tagger::Tag>("Tag");
+    qRegisterMetaType<ImageDesc>("ImageDesc");
+    qRegisterMetaType<Tag>("Tag");
     qRegisterMetaType<cv::Mat>("Mat");
 }
 }
 
-#include "deeplocalizer.h"

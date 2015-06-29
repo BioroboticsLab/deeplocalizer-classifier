@@ -12,7 +12,7 @@
 
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 
 class ManuallyTaggerWindow : public QMainWindow
@@ -70,6 +70,5 @@ private:
     void eraseNegativeTags();
     QStringList fileStringList();
 };
-}
 }
 #endif // MANUELLTAGWINDOW_H

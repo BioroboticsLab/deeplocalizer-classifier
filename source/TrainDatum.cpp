@@ -6,7 +6,7 @@
 #include "TrainDatum.h"
 
 namespace  deeplocalizer {
-namespace tagger {
+
 
 namespace io = boost::filesystem;
 
@@ -77,6 +77,5 @@ caffe::Datum TrainDatum::toCaffe() const {
     datum.set_label(_tag.isYes());
     datum.set_encoded(true);
     return datum;
-}
 }
 }

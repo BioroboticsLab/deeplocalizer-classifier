@@ -1,10 +1,11 @@
+#include "Dataset.h"
+
 #include <lmdb.h>
 #include <iomanip>
 #include "utils.h"
-#include "Dataset.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 namespace io = boost::filesystem;
 
@@ -18,6 +19,5 @@ boost::optional<Dataset::Format> Dataset::parseFormat(const std::string &str) {
     } else {
         return boost::optional<Format>();
     }
-}
 }
 }

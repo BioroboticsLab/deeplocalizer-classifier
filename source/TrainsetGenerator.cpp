@@ -3,14 +3,13 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QDebug>
-#include <utils.h>
 #include <thread>
 
+#include "utils.h"
 #include "Dataset.h"
 #include "DataWriter.h"
 
 namespace deeplocalizer {
-namespace tagger {
 
 const int TrainsetGenerator::MAX_TRANSLATION = TAG_WIDTH / 3;
 const int TrainsetGenerator::MIN_TRANSLATION = -TrainsetGenerator::MAX_TRANSLATION;
@@ -224,7 +223,7 @@ int TrainsetGenerator::wrongAroundCoordinate() {
     }
 }
 TrainsetGenerator TrainsetGenerator::operator=(TrainsetGenerator &&other) {
-    return tagger::TrainsetGenerator(std::move(other));
+    return TrainsetGenerator(std::move(other));
 }
 void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
     auto grouped = groupTestTrain(descs);
@@ -280,6 +279,5 @@ TrainsetGenerator::groupTestTrain(const std::vector<ImageDesc> & descs) {
         grouped.emplace_back(std::cref(desc), Dataset::Test);
     }
     return grouped;
-}
 }
 }

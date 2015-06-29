@@ -9,7 +9,7 @@
 #include "deeplocalizer.h"
 #include "utils.h"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 using namespace std::chrono;
 using boost::optional;
 using boost::make_optional;

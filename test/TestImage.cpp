@@ -5,7 +5,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 using boost::optional;
 
 namespace io = boost::filesystem;

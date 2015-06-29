@@ -12,7 +12,7 @@
 #include "ProposalGenerator.h"
 #include "deeplocalizer.h"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 namespace io = boost::filesystem;
 using boost::optional;
 

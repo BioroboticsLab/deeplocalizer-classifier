@@ -11,7 +11,7 @@
 #include "Image.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 class TagWidget : public QWidget {
     Q_OBJECT
@@ -39,7 +39,6 @@ private:
     void init();
 };
 using TagWidgetPtr = std::shared_ptr<TagWidget>;
-}
 }
 
 #endif //DEEP_LOCALIZER_IMAGETAGWIDGET_H

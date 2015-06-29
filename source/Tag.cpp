@@ -8,7 +8,7 @@
 #include <mutex>
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 using boost::optional;
 
@@ -182,7 +182,6 @@ unsigned long Tag::id() const {
 }
 void Tag::setId(unsigned long id) {
     _id = id;
-}
 }
 }
 

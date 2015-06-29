@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 TagWidget::TagWidget(QWidget *parent, Tag & tag, cv::Mat mat)
         : QWidget(parent),
@@ -58,6 +58,5 @@ void TagWidget::setBorder(unsigned int border) {
 
 unsigned int TagWidget::border() {
     return _border;
-}
 }
 }

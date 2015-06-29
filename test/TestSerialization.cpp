@@ -14,7 +14,7 @@
 namespace io = boost::filesystem;
 using boost::optional;
 using boost::serialization::make_nvp;
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 
 TEST_CASE( "Serialization", "[serialize]" ) {
     ImageDesc img("image_path.jpeg");

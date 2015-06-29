@@ -10,7 +10,7 @@
 #include <ProposalGenerator.h>
 
 namespace deeplocalizer {
-namespace tagger {
+
 
 using boost::optional;
 namespace io = boost::filesystem;
@@ -143,6 +143,5 @@ void ManuallyTagger::doneTagging(unsigned long idx) {
     _done_tagging.at(idx) = true;
     _n_done++;
     emit progress(static_cast<double>(_n_done)/_image_descs.size());
-}
 }
 }

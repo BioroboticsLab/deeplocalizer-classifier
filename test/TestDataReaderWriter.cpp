@@ -12,7 +12,7 @@
 #include <caffe/util/io.hpp>
 #include "TrainsetGenerator.h"
 
-using namespace deeplocalizer::tagger;
+using namespace deeplocalizer;
 using boost::optional;
 using boost::none;
 namespace io = boost::filesystem;

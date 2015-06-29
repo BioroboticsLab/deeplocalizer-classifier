@@ -44,7 +44,6 @@
 #endif
 
 namespace deeplocalizer {
-namespace tagger {
 
 inline QImage cvMatToQImage(const cv::Mat &inMat) {
     switch (inMat.type()) {
@@ -143,7 +142,6 @@ inline std::vector<unsigned long> shuffledIndecies(unsigned long n) {
     }
     std::shuffle(indecies.begin(), indecies.end(), std::default_random_engine());
     return indecies;
-}
 }
 }
 #endif //DEEP_LOCALIZER_QTHELPER_H

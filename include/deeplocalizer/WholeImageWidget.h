@@ -14,7 +14,7 @@
 
 
 namespace deeplocalizer {
-namespace tagger {
+
 class Tag;
 
 class ImageDesc;
@@ -76,7 +76,6 @@ private:
         delete _thread;
     }
 };
-}
 }
 
 #endif //DEEP_LOCALIZER_WHOLEIMAGEWIDGET_H

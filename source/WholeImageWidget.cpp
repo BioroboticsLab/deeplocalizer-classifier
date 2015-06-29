@@ -12,7 +12,7 @@
 #include "PipelineWorker.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 using boost::optional;
 
 WholeImageWidget::WholeImageWidget(QScrollArea *parent) : QWidget(parent) {
@@ -204,6 +204,5 @@ QSize WholeImageWidget::sizeHint() const {
     int width = int(_mat.cols*_scale);
     int height = int(_mat.rows*_scale);
     return QSize(width, height);
-}
 }
 }

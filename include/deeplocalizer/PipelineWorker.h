@@ -13,7 +13,7 @@
 #include "Image.h"
 
 namespace deeplocalizer {
-namespace tagger {
+
 
     class PipelineWorker : public QObject {
     Q_OBJECT
@@ -38,7 +38,6 @@ namespace tagger {
         pipeline::EllipseFitter _ellipseFitter;
         std::vector<Tag> tagsProposals(ImageDesc & img);
     };
-}
 }
 
 
