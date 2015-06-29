@@ -30,7 +30,6 @@ void ManuallyTaggerWindow::init() {
     ui->setupUi(this);
     _grid_layout = new QGridLayout(ui->scrollArea);
     _whole_image = new WholeImageWidget(ui->scrollArea);
-    _tags_container = new QWidget(ui->scrollArea);
     _progres_bar = new QProgressBar(ui->statusbar);
     _image_list_model = new QStringListModel(this);
     _save_timer = new QTimer(this);

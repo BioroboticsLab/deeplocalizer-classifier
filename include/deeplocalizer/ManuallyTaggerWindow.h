@@ -45,7 +45,6 @@ private:
     enum class State{Tags, Image};
     Ui::ManuallyTaggerWindow *ui;
 
-    QWidget * _tags_container;
     QGridLayout * _grid_layout;
     WholeImageWidget * _whole_image;
     std::vector<TagWidgetPtr> _tag_widgets;
