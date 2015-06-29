@@ -18,27 +18,16 @@ const int TrainsetGenerator::MIN_AROUND_WRONG = TAG_WIDTH / 2;
 const int TrainsetGenerator::MAX_AROUND_WRONG = TAG_WIDTH / 2 + 200;
 
 TrainsetGenerator::TrainsetGenerator() :
-    TrainsetGenerator(std::make_shared<DevNullWriter>())
+    TrainsetGenerator(std::make_unique<DevNullWriter>())
 {}
 
-TrainsetGenerator::TrainsetGenerator(std::shared_ptr<DataWriter> writer)
-        :
+TrainsetGenerator::TrainsetGenerator(std::unique_ptr<DataWriter> writer)
+    :
     _gen(_rd()),
     _angle_dis(0, 360),
     _translation_dis(MIN_TRANSLATION, MAX_TRANSLATION),
     _around_wrong_dis(MIN_AROUND_WRONG, MAX_AROUND_WRONG),
-    _writer(writer)
-{
-}
-
-TrainsetGenerator::TrainsetGenerator(const TrainsetGenerator &gen) :
-    QObject(nullptr),
-    _gen(_rd()),
-    _angle_dis(gen._angle_dis.min(), gen._angle_dis.max()),
-    _translation_dis(gen._translation_dis.min(), gen._translation_dis.max()),
-    _around_wrong_dis(gen._around_wrong_dis.min(), gen._around_wrong_dis.max()),
-    _writer(gen._writer)
-{
+    _writer(std::move(writer)) {
 }
 
 TrainsetGenerator::TrainsetGenerator(TrainsetGenerator &&gen) :
@@ -234,14 +223,12 @@ int TrainsetGenerator::wrongAroundCoordinate() {
         return -x;
     }
 }
-TrainsetGenerator TrainsetGenerator::operator=(const TrainsetGenerator &other) {
-    return tagger::TrainsetGenerator(other);
-}
 TrainsetGenerator TrainsetGenerator::operator=(TrainsetGenerator &&other) {
-    return tagger::TrainsetGenerator(other);
+    return tagger::TrainsetGenerator(std::move(other));
 }
 void TrainsetGenerator::process(const std::vector<ImageDesc> &descs) {
-    // return process(descs.cbegin(), descs.cend());
+    auto grouped = groupTestTrain(descs);
+    return process(grouped.cbegin(), grouped.cend());
 }
 
 
