@@ -193,7 +193,7 @@ QStringList ManuallyTaggerWindow::fileStringList() {
         if (_tagger->isDone(i)) {
             check = "\u2713  ";
         }
-        list.append("#" + QString::number(i) + ":   " + check +
+        list.append("#" + QString::number(i+1) + ":   " + check +
                             QString::fromStdString(desc->filename));
     }
     return list;
@@ -201,8 +201,8 @@ QStringList ManuallyTaggerWindow::fileStringList() {
 void ManuallyTaggerWindow::next() {
     if (_state == State::Image) {
         _next_state = State::Tags;
-        _image_list_model->setStringList(fileStringList());
         _tagger->doneTagging();
+        _image_list_model->setStringList(fileStringList());
         _tagger->loadNextImage();
     } else if(_state == State::Tags) {
         eraseNegativeTags();
