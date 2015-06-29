@@ -17,7 +17,7 @@ class DataWriter {
 public:
     virtual void write(const std::vector <TrainDatum> &dataset, Dataset::Phase phase) = 0;
     virtual ~DataWriter() = default;
-    static std::shared_ptr <DataWriter> fromSaveFormat(
+    static std::unique_ptr<DataWriter> fromSaveFormat(
             const std::string &output_dir,
             Dataset::Format format);
 protected:
@@ -51,6 +51,9 @@ private:
     }
     inline std::ofstream &getStream(Dataset::Phase phase) {
         return phase == Dataset::Train ? _train_stream : _test_stream;
+    }
+    inline boost::filesystem::path & getOutputDir(Dataset::Phase phase) {
+        return phase == Dataset::Train ? _train_dir : _test_dir;
     }
 };
 

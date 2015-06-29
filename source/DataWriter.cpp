@@ -8,17 +8,17 @@ namespace tagger {
 
 namespace io = boost::filesystem;
 
-std::shared_ptr<DataWriter> DataWriter::fromSaveFormat(
+std::unique_ptr<DataWriter> DataWriter::fromSaveFormat(
         const std::string &output_dir, Dataset::Format save_format) {
     switch (save_format) {
         case Dataset::Format::All:
-            return std::make_shared<AllFormatWriter>(output_dir);
+            return std::make_unique<AllFormatWriter>(output_dir);
         case Dataset::Format::Images:
-            return std::make_shared<ImageWriter>(output_dir);
+            return std::make_unique<ImageWriter>(output_dir);
         case Dataset::Format::LMDB:
-            return std::make_shared<LMDBWriter>(output_dir);
+            return std::make_unique<LMDBWriter>(output_dir);
         default:
-            return std::make_shared<DevNullWriter>();
+            return std::make_unique<DevNullWriter>();
     }
 }
 
@@ -57,10 +57,11 @@ void ImageWriter::writeImages(const std::vector<TrainDatum> &data, Dataset::Phas
 void ImageWriter::writeLabelFile(const std::vector<TrainDatum> &data, Dataset::Phase phase) {
     std::mutex & mutex = getMutex(phase);
     std::ofstream & stream = getStream(phase);
+    io::path & output_dir = getOutputDir(phase);
     std::lock_guard<std::mutex> lock(mutex);
     for(const auto & datum : data) {
         const auto pair = toFilenameLabel(datum);
-        io::path image_path = _output_dir / pair.first;
+        io::path image_path = output_dir / pair.first;
         stream << image_path.string() << " " << pair.second << "\n";
     }
 }
