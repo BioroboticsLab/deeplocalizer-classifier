@@ -6,8 +6,8 @@
 
 #include "ManuallyTagger.h"
 #include "catch.hpp"
-#include <opencv2/highgui/highgui.hpp>
-#include <utils.h>
+#include "utils.h"
+#include "qt_helper.h"
 #include "TrainsetGenerator.h"
 
 using namespace deeplocalizer;

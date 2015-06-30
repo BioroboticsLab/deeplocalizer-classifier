@@ -8,12 +8,10 @@
 #include <pipeline/Localizer.h>
 #include <pipeline/EllipseFitter.h>
 
-#include "deeplocalizer.h"
-#include "Tag.h"
-#include "Image.h"
 
 namespace deeplocalizer {
-
+    class ImageDesc;
+    class Tag;
 
     class PipelineWorker : public QObject {
     Q_OBJECT

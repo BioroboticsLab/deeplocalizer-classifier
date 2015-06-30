@@ -9,7 +9,7 @@
 #include <TrainsetGenerator.h>
 
 #include "ProposalGenerator.h"
-#include "deeplocalizer.h"
+#include "qt_helper.h"
 #include "utils.h"
 
 using namespace deeplocalizer;

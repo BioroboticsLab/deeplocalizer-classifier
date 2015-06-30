@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QtCore/qline.h>
 #include "PipelineWorker.h"
+#include "qt_helper.h"
 
 namespace deeplocalizer {
 

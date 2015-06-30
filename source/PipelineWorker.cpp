@@ -1,8 +1,12 @@
 #include "PipelineWorker.h"
-#include "utils.h"
 
 #include <boost/filesystem.hpp>
 #include <pipeline/datastructure/Tag.h>
+
+#include "Tag.h"
+#include "Image.h"
+#include "qt_helper.h"
+#include "utils.h"
 
 namespace deeplocalizer {
 

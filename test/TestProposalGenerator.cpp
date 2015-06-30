@@ -10,7 +10,7 @@
 #include "catch.hpp"
 #include "ManuallyTagger.h"
 #include "ProposalGenerator.h"
-#include "deeplocalizer.h"
+#include "qt_helper.h"
 
 using namespace deeplocalizer;
 namespace io = boost::filesystem;

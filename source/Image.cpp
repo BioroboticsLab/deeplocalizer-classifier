@@ -12,6 +12,7 @@
 
 #include "Image.h"
 #include "utils.h"
+#include "qt_helper.h"
 
 namespace deeplocalizer {
 

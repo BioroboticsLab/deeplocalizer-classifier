@@ -5,11 +5,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <utils.h>
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include "Image.h"
 #include "ProposalGenerator.h"
+#include "utils.h"
+#include "qt_helper.h"
 
 namespace io = boost::filesystem;
 using boost::optional;
@@ -47,7 +48,7 @@ TEST_CASE( "Serialization", "[serialize]" ) {
 int main( int argc, char** const argv )
 {
     QCoreApplication * qapp = new QCoreApplication(argc, argv);
-    deeplocalizer::registerQMetaTypes();
+    registerQMetaTypes();
     int exit_code = Catch::Session().run(argc, argv);
     return exit_code;
 }

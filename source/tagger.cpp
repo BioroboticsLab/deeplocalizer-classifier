@@ -1,6 +1,6 @@
 
 #include "ManuallyTaggerWindow.h"
-#include "deeplocalizer.h"
+#include "qt_helper.h"
 #include <QApplication>
 #include <boost/program_options.hpp>
 #include <ProposalGenerator.h>

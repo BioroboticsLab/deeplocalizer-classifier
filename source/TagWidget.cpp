@@ -5,6 +5,7 @@
 #include <QStyle>
 #include "opencv2/core/core.hpp"
 #include "utils.h"
+#include "qt_helper.h"
 
 using namespace std;
 

@@ -1,13 +1,15 @@
 
 #include "ManuallyTagger.h"
 
+#include <QDebug>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 
-#include "pipeline/Localizer.h"
+#include <pipeline/Localizer.h>
 #include "serialization.h"
 #include "utils.h"
-#include <ProposalGenerator.h>
+#include "qt_helper.h"
+#include "ProposalGenerator.h"
 
 namespace deeplocalizer {
 
