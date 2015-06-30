@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
-cmake_policy (SET CMP0020 NEW)
+cmake_policy(SET CMP0020 NEW)
+cmake_policy(SET CMP0009 NEW)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(deep-localizer)
@@ -104,18 +105,11 @@ set(CMAKE_AUTOMOC ON)
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
 
-# copy config files to build and test directory
-file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test)
-file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/scripts)
-file(COPY pipeline-config.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/source)
-
 add_subdirectory(deps)
 
 # include deps dependecies as SYSTEM headers to prevent warnings from
 # deps files. unfortunatelly, this has no effect when using MSVC.
 include_directories(
-    ${PROJECT_SOURCE_DIR}/include/deeplocalizer
     SYSTEM ${PIPELINE_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
     SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
@@ -125,13 +119,7 @@ include_directories(
     SYSTEM ${LMDB_INCLUDE_DIRS}
     SYSTEM ${CUDA_INCLUDE_DIRS}
 )
-
-set(libs
-    deeplocalizer
-    Qt5::Core
-    Qt5::Widgets
-    Qt5::OpenGL
-    ${OPENGL_LIBRARIES}
+set(general-libs
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -139,7 +127,22 @@ set(libs
     ${LMDB_LIBRARIES}
     ${CUDA_LIBRARIES}
 )
+set(tagger-libs
+    deeplocalizer-tagger
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::OpenGL
+    ${OPENGL_LIBRARIES}
+    ${general-libs}
+)
 
+set(classifier-libs
+    deeplocalizer-classifier
+    ${general-libs})
+
+set(test-libs
+    ${tagger-libs}
+    ${classifier-libs})
 enable_testing(true)
 add_subdirectory(source)
 add_subdirectory(test)

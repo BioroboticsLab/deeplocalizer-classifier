@@ -9,7 +9,7 @@ rm -f $TEST_IMG_DESC
 echo "Does $TEST_IMG exists?"
 test -e $TEST_IMG
 
-cd ../../source
+cd ../../source/tagger
 echo `pwd`
 echo $TEST_IMG > $TEST_PATHFILE
 echo "Given a file of image path"

@@ -10,7 +10,7 @@ rm -f $WITH_BORDER
 echo "Does $TEST_IMG exists?"
 test -e $TEST_IMG
 
-cd ../../source
+cd ../../source/tagger
 echo $TEST_IMG > $TEST_PATHFILE
 echo "Given a file of image path"
 ./add_border -o /tmp/add_border --output-pathfile $OUTPUT_PATHFILE $TEST_PATHFILE

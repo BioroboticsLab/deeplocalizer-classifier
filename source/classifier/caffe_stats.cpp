@@ -8,9 +8,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include <thread>
-#include <DataReader.h>
 
-#include "Dataset.h"
+#include "DataReader.h"
 #include "CaffeClassifier.h"
 
 namespace po = boost::program_options;
