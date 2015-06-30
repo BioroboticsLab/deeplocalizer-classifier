@@ -3,53 +3,44 @@
 
 #include <thread>
 #include <lmdb.h>
+#include <caffe/caffe.hpp>
 #include <caffe/util/db_lmdb.hpp>
 #include "TrainDatum.h"
 
 namespace deeplocalizer {
 
+using DataTransformerPtr = std::unique_ptr<caffe::DataTransformer<float>>;
+
 class DataReader {
 public:
-    virtual void read(size_t n, std::vector<caffe::Datum> &data) = 0;
+    DataReader(std::vector<int> shape);
+    virtual bool read(caffe::Blob<float> &data, std::vector<int> & labels) = 0;
 
-    inline std::vector<caffe::Datum> read(size_t n) {
-        std::vector<caffe::Datum> data_buf;
-        read(n, data_buf);
-        return data_buf;
+    inline const std::vector<int>& shape() {
+        return _shape;
     }
 
     virtual ~DataReader() = default;
 protected:
+    std::vector<int> _shape;
     class DataPrefetcher {
         using PrefetchSignature = void(size_t, std::vector<caffe::Datum> &);
         using PrefetchFn = std::function<PrefetchSignature>;
         std::vector<caffe::Datum> _prefetch_buf;
+        bool _valid = true;
+        std::vector<int> _shape;
+        size_t _batch_size;
+        DataTransformerPtr _data_transformer;
         PrefetchFn _prefetch_read_fn;
         std::thread _prefetch_thread;
+        caffe::Blob<float> _prefetch_blob;
+        std::vector<int> _prefetch_labels;
     public:
-        DataPrefetcher() : _prefetch_read_fn(static_cast<PrefetchFn>([](size_t, std::vector<caffe::Datum> &){})) {}
-        DataPrefetcher(PrefetchFn && prefetch_read_fn) :
-                _prefetch_read_fn(prefetch_read_fn),
-                _prefetch_thread(_prefetch_read_fn, 256, std::ref(_prefetch_buf)) {}
-
-        void read(size_t n, std::vector<caffe::Datum> & data) {
-            if(_prefetch_thread.joinable()) {
-                _prefetch_thread.join();
-            }
-            if(_prefetch_buf.size() < n) {
-                _prefetch_read_fn(n, _prefetch_buf);
-            }
-            auto end = _prefetch_buf.begin() + n;
-            std::move(_prefetch_buf.begin(), end, std::back_inserter(data));
-            _prefetch_buf.erase(_prefetch_buf.begin(), end);
-            _prefetch_thread = std::thread(_prefetch_read_fn, n, std::ref(_prefetch_buf));
-        }
-
-        ~DataPrefetcher() {
-            if(_prefetch_thread.joinable()) {
-                _prefetch_thread.join();
-            }
-        }
+        DataPrefetcher(PrefetchFn &&prefetch_read_fn,
+                       DataTransformerPtr &&trans, std::vector<int> shape);
+        bool read(caffe::Blob<float> & blob, std::vector<int> &labels);
+        void prefetch_thread_fn();
+        ~DataPrefetcher();
     };
 };
 
@@ -61,9 +52,11 @@ class ImageReader : public DataReader {
     DataPrefetcher _prefecher;
     void prefetch_read(size_t n, std::vector<caffe::Datum> & data);
 public:
-    ImageReader(std::string path);
-    virtual inline void read(size_t n, std::vector<caffe::Datum> &data) override {
-        _prefecher.read(n, data);
+    ImageReader(std::string path, std::vector<int> batch_size);
+    ImageReader(std::string pathfile, std::vector<int> batch_size, DataTransformerPtr && trans);
+    virtual inline bool read(caffe::Blob<float> &blob,
+                             std::vector<int> & labels) override {
+        return _prefecher.read(blob, labels);
     };
     using DataReader::read;
 };
@@ -75,9 +68,11 @@ class LMDBReader : public DataReader {
     std::unique_ptr<DataPrefetcher> _prefecher;
     void prefetch_read(size_t n, std::vector<caffe::Datum> & data);
 public:
-    LMDBReader(std::string path);
-    virtual inline void read(size_t n, std::vector<caffe::Datum> &data) override {
-        _prefecher->read(n, data);
+    LMDBReader(std::string path, std::vector<int> shape);
+    LMDBReader(std::string path, std::vector<int> shape, DataTransformerPtr && trans);
+    virtual inline bool read(caffe::Blob<float> &blob,
+                             std::vector<int> & labels) override {
+        return _prefecher->read(blob, labels);
     };
     using DataReader::read;
 };

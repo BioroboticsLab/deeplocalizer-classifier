@@ -27,6 +27,7 @@ TEST_CASE( "TestDataReaderWriter", "" ) {
     ImageDesc cam2_desc = cam2_descs.front();
     io::path unique_path = io::unique_path("/tmp/test_deeplocalizer/%%%%%%/");
     io::create_directories(unique_path);
+    std::vector<int> shape{32, 1, TAG_WIDTH, TAG_HEIGHT};
     SECTION("Reader / Writer") {
         GIVEN("a ImageDesc") {
             THEN("Writer will save the samples and Reader will load it.") {
@@ -41,12 +42,12 @@ TEST_CASE( "TestDataReaderWriter", "" ) {
                     lmdb.write(data, Dataset::Train);
                 }
                 {
-                    LMDBReader lmdb((unique_path / "lmdb" / "train").string());
-                    std::vector<caffe::Datum> caffe_data = lmdb.read(size_t(20));
-                    REQUIRE(caffe_data.at(0).encoded());
-                    cv::Mat mat = caffe::DecodeDatumToCVMatNative(caffe_data.at(0));
-                    REQUIRE(mat.cols == TAG_WIDTH);
-                    REQUIRE(mat.rows == TAG_HEIGHT);
+                    LMDBReader lmdb((unique_path / "lmdb" / "train").string(), shape);
+                    caffe::Blob<float> blob;
+                    std::vector<int> labels;
+                    REQUIRE(lmdb.read(blob, labels));
+
+                    REQUIRE(std::equal(blob.shape().cbegin(), blob.shape().cend(), shape.cbegin()));
                 }
                 {
                     ImageWriter imageWriter((unique_path / "images").string());
@@ -55,12 +56,11 @@ TEST_CASE( "TestDataReaderWriter", "" ) {
                 }
                 {
                     ImageReader imageReader((unique_path / "images" / "train"
-                                             / "train.txt").string());
-                    std::vector<caffe::Datum> caffe_data = imageReader.read(size_t(20));
-                    REQUIRE(caffe_data.at(0).encoded());
-                    cv::Mat mat = caffe::DecodeDatumToCVMatNative(caffe_data.at(0));
-                    REQUIRE(mat.cols == TAG_WIDTH);
-                    REQUIRE(mat.rows == TAG_HEIGHT);
+                                             / "train.txt").string(), shape);
+                    caffe::Blob<float> blob;
+                    std::vector<int> labels;
+                    REQUIRE(imageReader.read(blob, labels));
+                    REQUIRE(std::equal(blob.shape().cbegin(), blob.shape().cend(), shape.cbegin()));
                 }
             }
         }
