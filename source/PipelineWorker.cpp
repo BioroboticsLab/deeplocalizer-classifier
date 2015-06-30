@@ -11,6 +11,49 @@ namespace io = boost::filesystem;
 
 const std::string PipelineWorker::DEFAULT_CONFIG_FILE = "pipeline-config.json";
 
+const std::string PipelineWorker::DEFAULT_JSON_SETTINGS = R"({
+    "PREPROCESSOR": {
+        "COMB_DIFF_SIZE": "15",
+        "COMB_ENABLED": "1",
+        "COMB_LINE_COLOR": "0",
+        "COMB_LINE_WIDTH": "9",
+        "COMB_MAX_SIZE": "0",
+        "COMB_MIN_SIZE": "0",
+        "COMB_THRESHOLD": "255",
+        "HONEY_AVERAGE_VALUE": "151",
+        "HONEY_ENABLED": "1",
+        "HONEY_FRAME_SIZE": "5",
+        "HONEY_STD_DEV": "167",
+        "OPT_AVERAGE_CONTRAST_VALUE": "0",
+        "OPT_FRAME_SIZE": "500",
+        "OPT_USE_CONTRAST_STRETCHING": "1",
+        "OPT_USE_EQUALIZE_HISTOGRAM": "0"
+    },
+    "LOCALIZER": {
+        "BINARY_THRESHOLD": "10",
+        "EROSION_SIZE": "27",
+        "FIRST_DILATION_NUM_ITERATIONS": "1",
+        "FIRST_DILATION_SIZE": "10",
+        "MAX_TAG_SIZE": "250",
+        "MIN_BOUNDING_BOX_SIZE": "100",
+        "SECOND_DILATION_SIZE": "3"
+    },
+    "ELLIPSEFITTER": {
+        "CANNY_INITIAL_HIGH": "25",
+        "CANNY_MEAN_MAX": "22",
+        "CANNY_MEAN_MIN": "12",
+        "CANNY_VALUES_DISTANCE": "23",
+        "MAX_MAJOR_AXIS": "53",
+        "MAX_MINOR_AXIS": "65",
+        "MIN_MAJOR_AXIS": "26",
+        "MIN_MINOR_AXIS": "25",
+        "THRESHOLD_BEST_VOTE": "1740",
+        "THRESHOLD_EDGE_PIXELS": "45",
+        "THRESHOLD_VOTE": "1400",
+        "USE_XIE_AS_FALLBACK": "1"
+        }
+})";
+
 PipelineWorker::PipelineWorker() {
     init(DEFAULT_CONFIG_FILE);
 }
@@ -22,14 +65,21 @@ PipelineWorker::PipelineWorker(const std::string & config_file) {
 void PipelineWorker::init(const std::string & config_file) {
     using namespace pipeline;
     io::path config_path{config_file};
-    ASSERT(io::exists(config_path), config_path.string() << " does not exist.");
+    boost::property_tree::ptree pt;
+    if(io::exists(config_path)) {
+        boost::property_tree::read_json(config_path.string(), pt);
+    } else {
+        std::stringstream ss;
+        ss << PipelineWorker::DEFAULT_JSON_SETTINGS;
+        boost::property_tree::read_json(ss, pt);
+    }
     settings::preprocessor_settings_t pre_settings;
     settings::localizer_settings_t loc_settings;
     settings::ellipsefitter_settings_t ell_settings;
 
-    pre_settings.loadFromJson(config_file);
-    loc_settings.loadFromJson(config_file);
-    ell_settings.loadFromJson(config_file);
+    pre_settings.loadValues(pt);
+    loc_settings.loadValues(pt);
+    ell_settings.loadValues(pt);
 
     _preprocessor.loadSettings(pre_settings);
     _localizer.loadSettings(loc_settings);

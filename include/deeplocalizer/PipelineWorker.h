@@ -37,6 +37,7 @@ namespace deeplocalizer {
         pipeline::Localizer _localizer;
         pipeline::EllipseFitter _ellipseFitter;
         std::vector<Tag> tagsProposals(ImageDesc & img);
+        static const std::string DEFAULT_JSON_SETTINGS;
     };
 }
 
