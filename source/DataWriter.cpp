@@ -1,6 +1,5 @@
 
 #include "DataWriter.h"
-
 #include "utils.h"
 
 namespace deeplocalizer {

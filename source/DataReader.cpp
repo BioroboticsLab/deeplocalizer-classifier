@@ -1,19 +1,18 @@
+
+#include "DataReader.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <caffe/util/io.hpp>
 
 #include "utils.h"
-#include "DataReader.h"
 
 namespace deeplocalizer {
 
 
 namespace io = boost::filesystem;
 
-DataReader::DataReader(std::vector<int> shape) : _shape(shape) {
-
-}
-
+DataReader::DataReader(std::vector<int> shape) : _shape(shape) {}
 
 DataReader::DataPrefetcher::DataPrefetcher(PrefetchFn &&prefetch_read_fn,
                                            DataTransformerPtr &&trans,
@@ -27,10 +26,21 @@ DataReader::DataPrefetcher::DataPrefetcher(PrefetchFn &&prefetch_read_fn,
         caffe::TransformationParameter param;
         _data_transformer = std::make_unique<caffe::DataTransformer<float>>(param, caffe::TEST);
     }
+    _prefetch_buf.reserve(_batch_size);
     _prefetch_blob.Reshape(_shape);
+    _prefetch_thread = std::thread(std::mem_fn(&DataReader::DataPrefetcher::prefetch_thread_fn), this);
 }
 
 bool DataReader::DataPrefetcher::read(caffe::Blob<float> & blob, std::vector<int> &labels) {
+    return read(blob, labels, nullptr);
+}
+
+bool DataReader::DataPrefetcher::read(caffe::Blob<float> & blob, std::vector<int> &labels,
+                                      std::vector<caffe::Datum> & data) {
+    return read(blob, labels, &data);
+}
+bool DataReader::DataPrefetcher::read(caffe::Blob<float> & blob, std::vector<int> &labels,
+                                      std::vector<caffe::Datum> * data) {
     if(_prefetch_thread.joinable()) {
         _prefetch_thread.join();
     }
@@ -40,18 +50,30 @@ bool DataReader::DataPrefetcher::read(caffe::Blob<float> & blob, std::vector<int
     blob.ReshapeLike(_prefetch_blob);
     caffe::caffe_copy(_prefetch_blob.count(), _prefetch_blob.cpu_data(),
                       blob.mutable_cpu_data());
-    labels = std::vector<int>(_prefetch_labels);
+    labels = std::move(_prefetch_labels);
+    if(data != nullptr) {
+        data->clear();
+        ASSERT(data->size() == 0, "not equal 0");
+        ASSERT(_prefetch_buf.size() != 0, "not equal 0" << _prefetch_buf.size());
+        *data = std::move(_prefetch_buf);
+        ASSERT(data->size() != 0, "equal 0");
+    }
     _prefetch_thread = std::thread(std::mem_fn(&DataReader::DataPrefetcher::prefetch_thread_fn), this);
     return true;
 }
 
 void DataReader::DataPrefetcher::prefetch_thread_fn() {
     _prefetch_buf.clear();
+    _prefetch_buf.reserve(_batch_size);
     _prefetch_labels.clear();
+    _prefetch_labels.reserve(_batch_size);
     _prefetch_read_fn(_batch_size, _prefetch_buf);
     if(_prefetch_buf.size() != _batch_size) {
         _valid = false;
         return;
+    }
+    for(const auto & datum: _prefetch_buf) {
+        _prefetch_labels.push_back(datum.label());
     }
     _data_transformer->Transform(_prefetch_buf, &_prefetch_blob);
 }

@@ -5,7 +5,7 @@
 #include <lmdb.h>
 #include <caffe/caffe.hpp>
 #include <caffe/util/db_lmdb.hpp>
-#include "TrainDatum.h"
+#include <boost/filesystem.hpp>
 
 namespace deeplocalizer {
 
@@ -14,7 +14,9 @@ using DataTransformerPtr = std::unique_ptr<caffe::DataTransformer<float>>;
 class DataReader {
 public:
     DataReader(std::vector<int> shape);
-    virtual bool read(caffe::Blob<float> &data, std::vector<int> & labels) = 0;
+    virtual bool read(caffe::Blob<float> &blob, std::vector<int> & labels) = 0;
+    virtual bool read(caffe::Blob<float> &blob, std::vector<int> & labels,
+                      std::vector<caffe::Datum> & data) = 0;
 
     inline const std::vector<int>& shape() {
         return _shape;
@@ -35,10 +37,15 @@ protected:
         std::thread _prefetch_thread;
         caffe::Blob<float> _prefetch_blob;
         std::vector<int> _prefetch_labels;
+        bool read(caffe::Blob<float> & blob, std::vector<int> &labels,
+                  std::vector<caffe::Datum> * data);
     public:
         DataPrefetcher(PrefetchFn &&prefetch_read_fn,
                        DataTransformerPtr &&trans, std::vector<int> shape);
+
         bool read(caffe::Blob<float> & blob, std::vector<int> &labels);
+        bool read(caffe::Blob<float> & blob, std::vector<int> &labels,
+                  std::vector<caffe::Datum> & data);
         void prefetch_thread_fn();
         ~DataPrefetcher();
     };
@@ -55,8 +62,14 @@ public:
     ImageReader(std::string path, std::vector<int> batch_size);
     ImageReader(std::string pathfile, std::vector<int> batch_size, DataTransformerPtr && trans);
     virtual inline bool read(caffe::Blob<float> &blob,
-                             std::vector<int> & labels) override {
+                             std::vector<int> & labels
+    ) override {
         return _prefecher.read(blob, labels);
+    };
+    virtual inline bool read(caffe::Blob<float> &blob,
+                             std::vector<int> & labels,
+                             std::vector<caffe::Datum> & data) override {
+        return _prefecher.read(blob, labels, data);
     };
     using DataReader::read;
 };
@@ -70,10 +83,19 @@ class LMDBReader : public DataReader {
 public:
     LMDBReader(std::string path, std::vector<int> shape);
     LMDBReader(std::string path, std::vector<int> shape, DataTransformerPtr && trans);
+
     virtual inline bool read(caffe::Blob<float> &blob,
-                             std::vector<int> & labels) override {
+                             std::vector<int> & labels
+    ) override {
         return _prefecher->read(blob, labels);
     };
+    virtual inline bool read(caffe::Blob<float> &blob,
+                             std::vector<int> & labels,
+                             std::vector<caffe::Datum> & data
+    ) override {
+        return _prefecher->read(blob, labels, data);
+    };
+
     using DataReader::read;
 };
 
