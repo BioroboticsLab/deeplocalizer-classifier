@@ -31,7 +31,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
     # minimal optimmization and debug symbols for debug builds
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
     # enable optimization for release builds
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DQT_NO_DEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
     # enable C++1y
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -fPIE -fPIC")
     # enable all warnings
@@ -95,12 +95,11 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-optimize-sibling-calls")
 endif()
 
-# Qt options
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-add_definitions(${Qt5Widgets_DEFINITIONS})
 
+set(DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR 
+    ${PROJECT_SOURCE_DIR}/include/deeplocalizer/classifier/)
 include_directories(
+    ${DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
     SYSTEM ${Caffe_INCLUDE_DIRS}
