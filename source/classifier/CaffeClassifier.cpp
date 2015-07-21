@@ -69,12 +69,7 @@ std::vector<std::vector<int>> CaffeClassifier::topN(caffe::Blob<float> &blob,
 }
 
 std::vector<std::vector<float>> CaffeClassifier::forward(caffe::Blob<float> &blob) {
-    caffe::Blob<float>* input_layer = _net.input_blobs()[0];
-    input_layer->Reshape(_batch_size, _num_channels,
-                         _input_geometry.height,
-                         _input_geometry.width);
-    _net.Reshape();
-    CHECK(_net.input_blobs().size() == 1);
+    setBatchSize(_batch_size);
     const std::vector<caffe::Blob<float>*> input_blobs{&blob};
     _net.Forward(input_blobs);
     caffe::Blob<float>* output_layer = _net.output_blobs()[0];
@@ -154,5 +149,20 @@ unsigned long ConfusionMatrix::totalExamples() {
         }
     }
     return n;
+}
+
+void CaffeClassifier::setBatchSize(size_t batch_size) {
+    if (batch_size == _batch_size) return;
+    _batch_size = batch_size;
+    reshapeNet();
+}
+
+void CaffeClassifier::reshapeNet() {
+    CHECK(_net.input_blobs().size() == 1);
+    caffe::Blob<float>* input_layer = _net.input_blobs()[0];
+    input_layer->Reshape(_batch_size, _num_channels,
+                         _input_geometry.height,
+                         _input_geometry.width);
+    _net.Reshape();
 }
 }

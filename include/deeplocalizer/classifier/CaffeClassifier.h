@@ -18,7 +18,7 @@ public:
                     bool use_gpu = false,
                     size_t batch_size = 256
     );
-
+    void setBatchSize(size_t batch_size);
     std::vector<int> topLabel(caffe::Blob<float>& blob);
     std::vector<std::vector<int>> topN(caffe::Blob<float>& blob, int N);
     std::vector<std::vector<float>> forward(caffe::Blob<float> &blob);
@@ -30,6 +30,7 @@ private:
     cv::Size _input_geometry;
     int _num_channels;
     size_t _batch_size;
+    void reshapeNet();
 };
 
 class ConfusionMatrix {
