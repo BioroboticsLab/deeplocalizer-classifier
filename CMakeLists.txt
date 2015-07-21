@@ -96,8 +96,12 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
 endif()
 
 
-set(DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR 
+set(DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR
     ${PROJECT_SOURCE_DIR}/include/deeplocalizer/classifier/)
+
+set(DEEPLOCALIZER_CLASSIFIER_LIB
+    ${CMAKE_CURRENT_BINARY_DIR}/source/classifier/libdeeplocalizer-classifier.a)
+
 include_directories(
     ${DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
