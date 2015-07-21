@@ -10,12 +10,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ ${CMAKE_MODULE_PATH})
 
 # project dependecies
 find_package(OpenCV REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5OpenGL REQUIRED)
 find_package(Threads REQUIRED)
-find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
+find_package(Boost COMPONENTS system filesystem program_options REQUIRED)
 find_package(Caffe REQUIRED)
 find_package(LMDB REQUIRED)
 find_package(CUDA REQUIRED)
@@ -104,17 +100,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
-
-add_subdirectory(deps)
-
-# include deps dependecies as SYSTEM headers to prevent warnings from
-# deps files. unfortunatelly, this has no effect when using MSVC.
 include_directories(
-    SYSTEM ${PIPELINE_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
-    SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
-    SYSTEM ${Qt5OpenGL_INCLUDE_DIRS}
     SYSTEM ${Caffe_INCLUDE_DIRS}
     SYSTEM ${LMDB_INCLUDE_DIRS}
     SYSTEM ${CUDA_INCLUDE_DIRS}
@@ -129,12 +117,7 @@ set(general-libs
 )
 set(tagger-libs
     deeplocalizer-tagger
-    Qt5::Core
-    Qt5::Widgets
-    Qt5::OpenGL
-    ${OPENGL_LIBRARIES}
-    ${general-libs}
-)
+    ${general-libs})
 
 set(classifier-libs
     deeplocalizer-classifier
@@ -145,4 +128,3 @@ set(test-libs
     ${classifier-libs})
 enable_testing(true)
 add_subdirectory(source)
-add_subdirectory(test)
