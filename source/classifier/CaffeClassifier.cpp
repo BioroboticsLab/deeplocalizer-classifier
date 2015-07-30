@@ -152,6 +152,7 @@ unsigned long ConfusionMatrix::totalExamples() {
 }
 
 void CaffeClassifier::setBatchSize(size_t batch_size) {
+    CHECK(batch_size != 0);
     if (batch_size == _batch_size) return;
     _batch_size = batch_size;
     reshapeNet();
