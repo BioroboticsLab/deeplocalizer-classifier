@@ -55,13 +55,25 @@ size_t collectWrongExamples(const std::vector<int> &predicted_labels,
     return collected_examples;
 }
 
+void writeGTLabelsProbs(
+        const std::vector<std::pair<int, double>> & gtlabels_probs,
+        const std::string & output_dir) {
+    std::string csv_path = output_dir + "/gtlabels_probisatag.csv";
+    std::ofstream ofs{csv_path};
+    for(const auto & gtlabel_prob : gtlabels_probs) {
+        ofs << gtlabel_prob.first << ", " << gtlabel_prob.second << "\n";
+    }
+    std::cout << "Wrote csv with ground truth labels and probability predictions to: " << csv_path;
+}
+
 int run(const std::string &model, const std::string trained_model,
         const std::string &data_dir,  const std::string &output_dir, bool use_gpu) {
     if(use_gpu) {
         std::cout << "using gpu" << std::endl;
     }
     size_t batch_size = 256;
-
+    double threshold = 0.5;
+    std::vector<std::pair<int, double>> gtlabels_probs;
     TransformationParameter trans_parameter {};
     trans_parameter.set_scale(float(1)/255);
     auto transformer = std::make_unique<DataTransformer<float>>(trans_parameter, TEST);
@@ -81,14 +93,26 @@ int run(const std::string &model, const std::string trained_model,
         if(i % 50 == 0) {
             std::cout << "Iteration #" << i << std::endl;
         }
-        auto predicted_labels = classifier.topLabel(blob);
-        confMat.add(true_labels, predicted_labels);
+        auto probs = classifier.forward(blob);
+        std::vector<int> predicted_labels;
+        for(size_t i = 0; i < probs.size(); i++) {
+            const auto & true_label = true_labels.at(i);
+            const auto & prob_is_a_tag = probs.at(i).at(1);
+            gtlabels_probs.emplace_back(std::make_pair(true_label, prob_is_a_tag));
+            int predicted_label = 0;
+            if (prob_is_a_tag >= threshold) {
+                predicted_label = 1;
+            }
+            confMat.add(true_label, predicted_label);
+            predicted_labels.emplace_back(predicted_label);
+        }
         if(collected_examples < max_collect) {
             collected_examples += collectWrongExamples(predicted_labels, true_labels,
                                                        data, output_dir);
         }
     }
     confMat.print();
+    writeGTLabelsProbs(gtlabels_probs, output_dir);
     return 0;
 }
 
