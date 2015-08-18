@@ -26,6 +26,9 @@ public:
     inline std::vector<int> input_shape() {
         return {int(_batch_size), _num_channels, _input_geometry.height, _input_geometry.width};
     }
+    caffe::Net<float>& getNet() {
+        return _net;
+    }
 private:
     caffe::Net<float> _net;
     cv::Size _input_geometry;
