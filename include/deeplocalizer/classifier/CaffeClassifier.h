@@ -16,7 +16,8 @@ public:
     CaffeClassifier(const std::string &model_file,
                     const std::string &trained_file,
                     bool use_gpu = false,
-                    size_t batch_size = 256
+                    size_t batch_size = 256,
+                    caffe::Net<float>* weightsharing_net = nullptr
     );
     void setBatchSize(size_t batch_size);
     std::vector<int> topLabel(caffe::Blob<float>& blob);

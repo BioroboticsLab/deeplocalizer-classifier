@@ -7,7 +7,8 @@ namespace deeplocalizer {
 CaffeClassifier::CaffeClassifier(const std::string &model_file,
                                  const std::string &trained_file,
                                  bool use_gpu,
-                                 size_t batch_size
+                                 size_t batch_size,
+                                 caffe::Net<float>* weightsharing_net
 ) :
     _net(model_file, caffe::TEST),
     _batch_size(batch_size)
@@ -18,7 +19,12 @@ CaffeClassifier::CaffeClassifier(const std::string &model_file,
         caffe::Caffe::set_mode(caffe::Caffe::CPU);
     }
 
-    _net.CopyTrainedLayersFrom(trained_file);
+    if (weightsharing_net) {
+        _net.ShareTrainedLayersWith(weightsharing_net);
+    } else {
+        _net.CopyTrainedLayersFrom(trained_file);
+    }
+
     CHECK_EQ(_net.num_inputs(), 1) << "Network should have exactly one input.";
     CHECK_EQ(_net.num_outputs(), 1) << "Network should have exactly one output.";
     caffe::Blob<float>* input_layer = _net.input_blobs()[0];
