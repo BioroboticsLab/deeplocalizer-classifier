@@ -67,9 +67,10 @@ int run(const std::string &model, const std::string trained_model,
     auto transformer = std::make_unique<DataTransformer<float>>(trans_parameter, TEST);
     CaffeClassifier classifier(model, trained_model, use_gpu, batch_size);
     ConfusionMatrix confMat;
-    std::unique_ptr<DataReader> input = std::make_unique<LMDBReader>(data_dir,
+    std::unique_ptr<deeplocalizer::DataReader> input = std::make_unique<LMDBReader>(data_dir,
                                                                      classifier.input_shape(),
                                                                      std::move(transformer));
+
     std::vector<int> true_labels;
     std::vector<caffe::Datum> data;
     caffe::Blob<float> blob;
