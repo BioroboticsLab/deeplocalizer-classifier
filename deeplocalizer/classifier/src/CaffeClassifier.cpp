@@ -1,6 +1,6 @@
-#include "utils.h"
-#include "CaffeClassifier.h"
-#include "DataReader.h"
+#include "../utils.h"
+#include "../CaffeClassifier.h"
+#include "../DataReader.h"
 
 namespace deeplocalizer {
 

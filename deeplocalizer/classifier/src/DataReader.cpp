@@ -1,11 +1,11 @@
 
-#include "DataReader.h"
+#include "../DataReader.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <caffe/util/io.hpp>
 
-#include "utils.h"
+#include "../utils.h"
 
 namespace deeplocalizer {
 
