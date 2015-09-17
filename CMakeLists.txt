@@ -43,14 +43,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ ${CMAKE_MODULE_PATH})
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem program_options REQUIRED)
-find_package(Caffe REQUIRED)
-find_package(LMDB REQUIRED)
 find_package(CUDA REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
 
-CPM_ExportAdditionalIncludeDir(${Caffe_INCLUDE_DIRS})
+if(NOT DEFINED CAFFE_PATH)
+    CPM_AddModule("cpm_caffe"
+        GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
+        GIT_TAG "master"
+    )
+else()
+    CPM_AddModule("cpm_caffe"
+        SOURCE_DIR "${CAFFE_PATH}"
+    )
+endif()
+
+CPM_Finish()
 
 # remove all previously set compiler and linker flags for debug build
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
@@ -139,17 +148,15 @@ include_directories(
     ${DEEPLOCALIZER_CLASSIFIER_INCLUDE_DIR}
     SYSTEM ${CATCH_INCLUDE_DIR}
     SYSTEM ${OpenCV_INCLUDE_DIRS}
-    SYSTEM ${Caffe_INCLUDE_DIRS}
-    SYSTEM ${LMDB_INCLUDE_DIRS}
     SYSTEM ${CUDA_INCLUDE_DIRS}
 )
+
 set(LIBS
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
-    ${Caffe_LIBRARIES}
-    ${LMDB_LIBRARIES}
     ${CUDA_LIBRARIES}
+    ${CPM_LIBRARIES}
 )
 enable_testing(true)
 add_subdirectory(deeplocalizer/classifier)
