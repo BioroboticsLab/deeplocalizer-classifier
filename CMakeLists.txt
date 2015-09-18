@@ -39,10 +39,14 @@ if(NOT DEFINED CAFFE_PATH)
     CPM_AddModule("cpm_caffe"
         GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
         GIT_TAG "master"
+        USE_EXISTING_VER TRUE
+        EXPORT_MODULE TRUE
     )
 else()
     CPM_AddModule("cpm_caffe"
         SOURCE_DIR "${CAFFE_PATH}"
+        USE_EXISTING_VER TRUE
+        EXPORT_MODULE TRUE
     )
 endif()
 
