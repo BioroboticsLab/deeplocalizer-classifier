@@ -35,6 +35,17 @@ if ((DEFINED CPM_DIR) AND (DEFINED CPM_UNIQUE_ID) AND (DEFINED CPM_TARGET_NAME))
   include(${CPM_DIR}/CPM.cmake)
 endif()
 
+if(NOT DEFINED CAFFE_PATH)
+    CPM_AddModule("cpm_caffe"
+        GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
+        GIT_TAG "master"
+    )
+else()
+    CPM_AddModule("cpm_caffe"
+        SOURCE_DIR "${CAFFE_PATH}"
+    )
+endif()
+
 CPM_InitModule(${CPM_MODULE_NAME})
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ ${CMAKE_MODULE_PATH})
@@ -47,17 +58,6 @@ find_package(CUDA REQUIRED)
 
 find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
-
-if(NOT DEFINED CAFFE_PATH)
-    CPM_AddModule("cpm_caffe"
-        GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
-        GIT_TAG "master"
-    )
-else()
-    CPM_AddModule("cpm_caffe"
-        SOURCE_DIR "${CAFFE_PATH}"
-    )
-endif()
 
 # remove all previously set compiler and linker flags for debug build
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
