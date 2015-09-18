@@ -59,8 +59,6 @@ else()
     )
 endif()
 
-CPM_Finish()
-
 # remove all previously set compiler and linker flags for debug build
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "")
