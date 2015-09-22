@@ -160,5 +160,6 @@ set(LIBS
     ${CUDA_LIBRARIES}
     ${CPM_LIBRARIES}
 )
+
 enable_testing(true)
 add_subdirectory(deeplocalizer/classifier)
