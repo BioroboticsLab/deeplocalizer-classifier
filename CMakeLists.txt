@@ -6,6 +6,8 @@ cmake_policy(SET CMP0009 NEW)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(deeplocalizer_classifier)
 
+option(USE_SYSTEM_CAFFE "USE_SYSTEM_CAFFE" OFF)
+
 #-----------------------------------------------------------------------
 # CPM configuration
 #-----------------------------------------------------------------------
@@ -35,19 +37,25 @@ if ((DEFINED CPM_DIR) AND (DEFINED CPM_UNIQUE_ID) AND (DEFINED CPM_TARGET_NAME))
   include(${CPM_DIR}/CPM.cmake)
 endif()
 
-if(NOT DEFINED CAFFE_PATH)
-    CPM_AddModule("cpm_caffe"
-        GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
-        GIT_TAG "master"
-        USE_EXISTING_VER TRUE
-        EXPORT_MODULE TRUE
-    )
+if(USE_SYSTEM_CAFFE)
+    find_package(Caffe REQUIRED)
+    CPM_ExportAdditionalIncludeDir(${Caffe_INCLUDE_DIRS})
+    CPM_ExportAdditionalLibraryTarget(${Caffe_LIBRARIES})
 else()
-    CPM_AddModule("cpm_caffe"
-        SOURCE_DIR "${CAFFE_PATH}"
-        USE_EXISTING_VER TRUE
-        EXPORT_MODULE TRUE
-    )
+    if(NOT DEFINED CAFFE_PATH)
+        CPM_AddModule("cpm_caffe"
+            GIT_REPOSITORY "https://github.com/BioroboticsLab/cpm_caffe.git"
+            GIT_TAG "master"
+            USE_EXISTING_VER TRUE
+            EXPORT_MODULE TRUE
+        )
+    else()
+        CPM_AddModule("cpm_caffe"
+            SOURCE_DIR "${CAFFE_PATH}"
+            USE_EXISTING_VER TRUE
+            EXPORT_MODULE TRUE
+        )
+    endif()
 endif()
 
 CPM_InitModule(${CPM_MODULE_NAME})
@@ -160,6 +168,16 @@ set(LIBS
     ${CUDA_LIBRARIES}
     ${CPM_LIBRARIES}
 )
+
+if(USE_SYSTEM_CAFFE)
+    include_directories(
+        SYSTEM ${Caffe_INCLUDE_DIRS}
+    )
+    set(LIBS
+        ${LIBS}
+        ${Caffe_LIBRARIES}
+    )
+endif()
 
 enable_testing(true)
 add_subdirectory(deeplocalizer/classifier)
