@@ -40,7 +40,6 @@ endif()
 if(USE_SYSTEM_CAFFE)
     find_package(Caffe REQUIRED)
     CPM_ExportAdditionalIncludeDir(${Caffe_INCLUDE_DIRS})
-    CPM_ExportAdditionalLibraryTarget(${Caffe_LIBRARIES})
 else()
     if(NOT DEFINED CAFFE_PATH)
         CPM_AddModule("cpm_caffe"
