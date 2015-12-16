@@ -3,7 +3,9 @@
 
 #include <thread>
 #include <lmdb.h>
+#include <caffe_config.h>
 #include <caffe/caffe.hpp>
+#include <caffe/data_transformer.hpp>
 #include <caffe/util/db_lmdb.hpp>
 #include <boost/filesystem.hpp>
 

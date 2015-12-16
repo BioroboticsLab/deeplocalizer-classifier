@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <caffe_config.h>
 #include <caffe/caffe.hpp>
 #include <opencv2/core/core.hpp>
 
